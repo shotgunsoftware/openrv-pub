@@ -1,0 +1,36 @@
+# Makefile for libarg
+# $Header: /home/src/cvsroot/src/pub/arg/Makefile.OLD,v 1.1 2007/10/15 22:32:38 src Exp $
+
+DEST = /usr/johndoe
+COPTS = -g
+IPATH = -I.
+CFLAGS = $(COPTS) $(IPATH) $(CONFIG)
+LIB = libarg.a
+
+all: tb
+
+$(LIB): arg.o expr.o
+	ar rcu $(LIB) arg.o expr.o
+	ranlib $(LIB)
+
+expr: expr.c
+	cc $(COPTS) -o expr -DMAIN expr.c -lm
+
+install: all
+	mv $(LIB) $(DEST)/lib
+	cp arg.h expr.h simple.h $(DEST)/include
+
+# test programs
+
+tb: tb.o $(LIB)
+	cc $(COPTS) -o tb tb.o $(LIB) -lm
+
+# misc
+
+print:
+	tbl arg_parse.3 | troff -man
+
+clean:
+	rm -f $(LIB) *.o tb
+
+arg.o expr.o: simple.h

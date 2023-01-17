@@ -1,0 +1,591 @@
+.TH ARG_PARSE 3  "23 April 1988"
+.SH NAME
+arg_parse \- parse arguments to a command
+.SH SYNOPSIS
+.nf
+#include <arg.h>
+\fBarg_parse\fP(argc, argv, [formatstr, paramptrs, docstr, docparams]*, 0)
+int argc;
+char **argv, *formatstr, *docstr;
+
+double \fBexpr_eval\fP(str)
+char *str;
+.fi
+.SH DESCRIPTION
+\fIarg_parse\fP is a subroutine for parsing
+and conversion of command-line arguments.
+This parser is an alternative to the common method of
+argument parsing, which is an ad-hoc parser in each program, typically written
+with a large, cumbersome switch statement.
+\fIarg_parse\fP allows a command-line parser to be described very
+concisely while retaining the flexibility to handle
+a variety of syntaxes.
+.PP
+The parser has a number of features:
+.DS
+\(bu arbitrary order of flag arguments
+\(bu automatic argument conversion and type checking
+\(bu multiple-character flag names
+\(bu required, optional, and flag arguments
+\(bu automatic usage message
+\(bu subroutine call for exotic options (variable number of parameters)
+\(bu modularized parsers encourage standardized options
+\(bu expression evaluation
+\(bu works either from argv or in interactive mode, \
+as a primitive language parser and interpreter
+\(bu concise specification
+\(bu easy to use
+.DE
+It is hoped that use of \fIarg_parse\fP will help standardize argument
+conventions and reduce the tedium of adding options to programs.
+.SH APPETIZER
+Here is a simple example:
+
+.Cs
+#include <arg.h>
+
+main(argc, argv)
+int argc;
+char **argv;
+{
+    char *file;
+    int level = 3, debug;
+    double xsize = 20., ysize = 10.;
+
+    arg_parse(argc, argv,
+	"", "Usage: prog [options]",
+	"%S", &file, "set output file",
+	"[%d]", &level, "set recursion level [default=%d]", level,
+	"-size %F %F", &xsize, &ysize, "set x and y sizes",
+	"-debug", ARG_FLAG(&debug), "turn on debugging",
+    0);
+.Ce
+
+The \fIarg_parse\fP call defines the program's arguments,
+in this case:
+one required argument (a filename), an optional argument
+(an integer level number),
+an optional flag with two parameters (floating point size),
+and a simple flag (boolean debug flag).
+If the above program (call it \fIprog\fP) were run with
+.Cs
+prog joe.c
+.Ce
+it would set \fIfile\fP to joe.c, and set \fIdebug\fP to 0,
+and if run with
+.Cs
+prog -size 100 400/3 joe.c -debug 5
+.Ce
+it would set \fIfile\fP="joe.c", \fIlevel\fP=5, \fIxsize\fP=100,
+\fIysize\fP=133.33, and \fIdebug\fP=1.
+In all programs using \fIarg_parse\fP,
+a hyphen arguments elicits a usage message,
+so the command
+.Cs
+prog -
+.Ce
+results in the printout
+.Cs
+Usage: prog [options]
+%S		set output file
+[%d]		set recursion level [default=3]
+-size %F %F	set x and y sizes
+-debug		turn on debugging
+.Ce
+.SH TERMINOLOGY
+In order to speak precisely about the description and use of argument
+parsers, it helps to define some terminology.
+
+.TS
+center,box;
+lt lt lw(2.5i).
+TERM	EXAMPLES	MEANING
+=
+\fBargument\fP	-size	T{
+Any of the strings in argv, supplied by the user.
+T}
+	joe.c
+_
+\fBflag arg\fP	-size	T{
+The name of an option.
+T}
+_
+\fBparameter arg\fP	100	T{
+A value (numerical or otherwise) for an option.
+T}
+_
+\fBsimple flag\fP	-debug	T{
+A flag with no parameters that sets a boolean variable.
+T}
+_
+\fBregular arg\fP	joe.c	T{
+An argument that is not a flag or a parameter to a flag.
+Can be either a required or optional argument.
+T}
+=
+\fBformat string\fP	"-size %F%F"	T{
+The character string describing the syntax of an option.
+T}
+_
+\fBparameter ptr\fP	&xsize	T{
+Pointer to a parameter variable through which converted values are stored.
+T}
+_
+\fBdoc string\fP	"set output file"	T{
+Documentation string describing the option's effect.
+T}
+_
+\fBform\fP	"-res%d", &r, "set res"	T{
+Format string, parameter pointers, and documentation describing
+an option.
+T}
+	"[%d]", &level, "set level"
+.TE
+
+We will describe the syntax of formlists first,
+then the method for matching arguments to forms.
+.SH FORMLIST SYNTAX
+The syntax and conversion rules for parsing are specified in
+the \fBformlist\fP following \fIargc\fP and \fIargv\fP in the
+\fIarg_parse\fP call.
+\fIarg_parse\fP reads its subroutine parameters using
+the \fIvarargs(3)\fP convention for run-time procedure calls,
+so it is crucial that the formlist be terminated with a 0.
+Each form consists of a \fIscanf\fP-style format string,
+a list of parameter pointers, a documentation string, and a list of
+documentation parameters.
+In some cases the paramptr and docparam lists will be empty,
+but the format string and doc string arguments are mandatory.
+.PP
+.B Format String
+.PP
+The format string consists of a flag string
+followed by parameter conversion codes (if any).
+A flag is a hyphen followed by a string.
+None of the characters in the string may be a '%'
+and the string must not begin with a numeral.
+Acceptable conversion codes in the format string are a '%' followed
+by any single character codes accepted by \fIscanf\fP plus the new
+conversion 'S':
+.DS
+.TS
+l l.
+CODE	TYPE
+%c	char
+%d	int
+%f	float
+%F	double
+%s	char array
+%S	char *
+\&...	(see \fIscanf(3)\fP for a complete list)
+.TE
+.DE
+The %S conversion is like %s except it copies only a pointer to a string
+(a \fCchar *\fP), not a whole string.
+When using %s, space must be allocated for the copied string,
+but with %S only room for a pointer is needed.
+An example of %S use is given later.
+A format string with no flag but only conversion codes describes
+a \fBregular argument\fP,
+while a flag followed by conversion codes defines a
+\fBflag with arguments\fP.
+Brackets around conversion codes indicate that they are optional,
+for example:
+.DS
+.TS
+l l.
+"%S %d"	two required args
+"%d [%F]"	first arg required, second arg optional
+"-pt [%F%F%F[%F]]"	a flag with 0, 3, or 4 parameters
+.TE
+.DE
+Since assignments of args to parameter pointers are done left-right
+within the form, no conversion codes can follow the first ']'.
+In fact, the ]'s are optional since they can be inferred to
+be at the end of the format string.
+Spaces between conversion codes are optional and ignored.
+.PP
+Following the format string is the list of parameter pointers,
+whose number must match the number of conversion codes in
+the format string, like the arguments to \fIscanf\fP or
+\fIprintf\fP.
+.PP
+.B Form Types
+.PP
+There are six form types.
+In addition to the ones we've seen, regular arguments and
+flags with parameters, there are several others for more exotic circumstances:
+simple flags, nop forms, subroutine flags, and sublists.
+.PP
+A \fBsimple flag\fP is a flag option with no parameters that sets a
+boolean variable to 1 if that flag appears in \fIargv\fP, else 0.
+A pointer to the boolean (int) variable is passed after the
+format string using the \fCARG_FLAG\fP macro.
+For example, \fCARG_FLAG(&debug)\fP
+will set the boolean variable \fCdebug\fP.
+.PP
+A \fBnop form\fP is a documentation string with no associated flags or
+arguments that appears in the usage message but does not affect parsing.
+Nop forms have a format string and a doc string, the former containing
+neither a flag nor a conversion code.
+Example:
+.Cs
+"", "This program converts an AIS picture file to PF format",
+.Ce
+When the usage message is printed,
+the doc string is indented if the format string is non-null.
+.PP
+A \fBsubroutine flag\fP is an option that calls a user-supplied
+\fIaction subroutine\fP every time it is used
+rather than using \fIarg_parse\fP's
+format conversion and parameter assignment.
+Subroutine flags are used just like flags with parameters
+in \fIargv\fP, but they are specified and implemented differently internally.
+For example, say our program \fIprog\fP needs a variable length
+list of people.
+We could add a flag with arguments to handle a few names using the form:
+.Cs
+char *p1, *p2, *p3, *p4;
+\&...
+"-people %S[%S[%S[%S]]]]", &p1, &p2, &p3, &p4, "people names"
+.Ce
+but this limits the number of possible parameters to four.
+Subroutine flags provide a trapdoor whereby the programmer can do
+custom conversion or processing of parameters with arbitrary type and number.
+To parse our list of people with a subroutine flag instead,
+we use the form:
+.Cs
+"-people", ARG_SUBR(arg_people), "people names"
+.Ce
+where \fCarg_people\fP is a subroutine to gobble the parameters,
+just like in the example near the end of this document.
+.PP
+The macro \fCARG_SUBR\fP takes the name of a subroutine to call
+when the flag is encountered.
+The parameter arguments following the flag in \fIargv\fP are
+packaged into a new argument vector \fIav\fP along with \fIac\fP,
+and the subroutine is called with these two arguments.
+In our list-of-people example, the command
+\fCprog foo -people ned alvy bruce -debug\fP would call \fCarg_people\fP
+with \fIac\fP=3 and \fIav\fP={"ned","alvy","bruce"}.
+.PP
+Whereas flags with arguments had the simple side effect of setting
+a variable, subroutine flags can have arbitrarily complex
+side effects, and can be used multiple times.
+Subroutine flags can also be flagless;
+that is, they can have null format strings.
+In this case, any ``leftover'' regular arguments are passed to the
+supplied action subroutine.
+Flagless subroutines are useful for reading lists of filenames.
+.PP
+The final form type is a \fBsublist\fP.
+A sublist is a subordinate parser defined as another formlist.
+Sublists can be used to build a tree of parsers,
+for example a 3-D graphics program might have a standard set of commands
+for controlling the display (setting the output device, screen window,
+and colors) and also a standard set of commands for transforming 3-D objects
+(rotation, scaling, etc.).
+Within the display command parser there could well be a standard set of
+commands for each output device (one for Suns, another for Versatec plotters,
+etc.).
+Using sublists we can prepare a standard parser for display commands
+and keep it in the source for the display library,
+a parser for the transformation commands in the transformation library,
+and so on, so that the parser for each graphics application
+can be very simple, merely listing its own options and then
+invoking the standard parsers for the major libraries it uses to
+handle the bulk of the options.
+Modularizing parsers in this way reduces the redundancy of parsing
+code between similar commands and encourages standardization of options
+between programs, reducing maintenance work for programmers
+and reducing option confusion among users.
+.PP
+To invoke a sublist we use the form:
+.Cs
+"-display", ARG_SUBLIST(form), "display commands"
+.Ce
+The \fCARG_SUBLIST\fP macro expects a structure pointer of type
+\fCArg_form *\fP as returned from the \fCarg_to_form\fP routine.
+Its use is illustrated in an example later.
+.SH MATCHING ARGUMENTS TO FORMS
+\fIarg_parse\fP steps through the arguments in \fIargv\fP from left
+to right, matching arguments against the format strings in the formlist.
+Flag arguments (simple flags or flags with parameters)
+can occur in arbitrary order but regular arguments are matched by
+stepping through the formlist in left to right order.
+For this reason regular arguments are also known as positional arguments.
+Matching of parameters within an option is also done in a left-to-right,
+greedy fashion within the form without regard for the parameter types.
+No permutation of the matching is done to avoid conversion errors.
+To illustrate, in our \fIprog\fP above, if we changed the size option
+to make the second parameter optional:
+.Cs
+"-size %F[%F]", &xsize, &ysize, "set sizes",
+.Ce
+then the command:
+.Cs
+prog -size 100 -debug joe.c
+.Ce
+succeeds because it is clear that only one parameter is being supplied to size,
+but if we try:
+.Cs
+prog -size 100 joe.c -debug
+.Ce
+then \fIarg_parse\fP will attempt to convert \fC"joe.c"\fP via \fC%F\fP into
+\fIysize\fP and fail, returning an error code.
+.PP
+The matching algorithm for subroutine flags and sublists varies somewhat
+from that for the other form types.
+For most types,
+\fIarg_parse\fP grabs as many arguments out of \fIargv\fP as the form can
+take up to the next flag argument (or the end of \fIargv\fP),
+but for subroutine flags and sublists,
+all arguments up to the next flag argument
+are grabbed and bundled into a smaller argument vector (call it \fIav\fP).
+(For matching purposes, a flag argument is an argument that begins with
+a hyphen followed by any character except digits and '.'.)
+The new argument vector is passed to the action routine in the case of
+subroutine flags or recursively to a sub-parser in the case of sublist flags.
+.PP
+The sub-parser invoked by a sublist flag does matching identically.
+Normally the entire formlist tree is traversed depth-first whenever a search
+for a flag is being made.
+If there are no flag duplicates between different levels of the form tree
+then the structure of the tree is irrelevant;
+the user needn't be conscious of the command grouping or of
+the sublist names.
+But if there are name duplicates, for example if there were a \fC-window\fP
+option in both the display and transformation parsers,
+then explicit control of search order within the tree is needed.
+This disambiguation problem is analogous to pathname specification
+of files within a UNIX directory tree.
+When explicit sublist selection is needed it is done using the sublist
+flag followed by the arguments for the sub-parser, bracketed with
+\fC-{\fP and \fC-}\fP flags.
+For example, if there were more than one \fCwindow\fP option,
+to explicitly select the one in the display parser,
+we type:
+.Cs
+-display -{ -window 0 0 639 479 -}
+.Ce
+The brace flags group and quote the arguments so that all of
+the enclosed arguments will be passed to the sub-parser.
+Without them the argument matcher would think that \fCdisplay\fP has no
+parameters, since it is immediately followed by a flag (\fC-window\fP).
+Note that in \fIcsh\fP, the braces must be escaped as
+\fC-\e{\fP and \fC-\e}\fP.
+.PP
+[If you can think of a better way to do matching please tell me!  -Paul].
+.PP
+The matching is checked in both directions:
+in the formlist, all required arguments must be assigned to and
+most flags can be called at most once,
+and in \fIargv\fP, each argument must be recognized.
+Regular arguments are \fBrequired\fP if they are unbracketed,
+and \fBoptional\fP if they are bracketed.
+Unmatched forms for required arguments
+cause an error but unmatched forms for optional
+or flag arguments do not; they are skipped.
+A warning message is printed if a simple flag or flag with parameters
+appears more than once in \fIargv\fP.
+Note that it is not an error for subroutine flags to appear more than once,
+so they should be used when repeats of a flag are allowed.
+Unmatched arguments in \fIargv\fP cause an ``extra argument'' error.
+.PP
+A hyphen argument in \fIargv\fP causes \fIarg_parse\fP to print a
+usage message constructed from the format and documentation strings,
+and return an error code.
+.SH EXPRESSIONS
+\fIarg_parse\fP does expression evaluation when converting numerical parameters.
+The expression evaluator allows the following operations:
++, -, *, /, % (mod), ^ (exponentiation),
+unary -, unary +,
+\fIsqrt\fP,
+\fIexp\fP,
+\fIlog\fP,
+\fIpow\fP,
+\fIsin\fP,
+\fIcos\fP,
+\fItan\fP,
+\fIasin\fP,
+\fIacos\fP,
+\fIatan\fP,
+\fIatan2\fP (takes 2 args),
+\fIsind\fP,
+\fIcosd\fP,
+\fItand\fP,
+\fIdasin\fP,
+\fIdacos\fP,
+\fIdatan\fP,
+\fIdatan2\fP (takes 2 args),
+\fIfloor\fP,
+and
+\fIceil\fP.
+It also knows the two constants
+\fIpi\fP and
+\fIe\fP.
+Numerical constants can be integer or scientific notation,
+in decimal, octal, hexidecimal, or other base.
+For example, 10 = 012 (base 8) = 0xa (base 16) = 0b2:1010 (base 2).
+The normal trig functions work in radians, while the versions that begin
+or end in the letter 'd' work in degrees.
+Thus, \fC"exp(-.5*2^2)/sqrt(2*pi)"\fP is a legal expression.
+All expressions are computed in double-precision floating point.
+Note that it is often necessary to quote expressions so the shell
+won't get excited about asterisks and parentheses.
+The expression evaluator \fIexpr_eval\fP
+can be used independently of \fIarg_parse\fP.
+.SH INTERACTIVE MODE
+If the lone argument \fC-stdin\fP is passed in \fIargv\fP then
+\fIarg_parse\fP goes into interactive mode.
+Interactive mode reads its arguments from standard input rather than
+getting them from the argument vector.
+This allows programs to be run semi-interactively.
+To encourage interactive use of a program, one or more of the options
+should be a subroutine flag.
+One could have a \fC-go\fP flag, say, that causes computation to commence.
+In interactive mode the hyphens on flags are optional at the beginning
+of each line, so the input syntax resembles a programming language.
+In fact, scripts of such commands are often saved in files.
+.SH EXAMPLE
+The following example illustrates most of the features of \fIarg_parse\fP.
+.Cs
+/* tb.c - arg_parse test program */
+#include <stdio.h>
+double atof();
+
+#include <arg.h>
+static double dxs = 1., dys = .75;
+static int x1 = 0, y1 = 0, x2 = 99, y2 = 99;
+static char *chanlist = "rgba";
+int arg_people(), arg_dsize();
+Arg_form *fb_init();
+
+main(ac, av)
+int ac;
+char **av;
+{
+    int fast, xs = 512, ys = 486;
+    double scale = 1.;
+    char *fromfile, tofile[80], *child = "jim";
+    Arg_form *arg_fb;
+
+    arg_fb = fb_init();
+    if (arg_parse(ac, av,
+	"", "Usage: %s [options]", av[0],
+	"", "This program does nothing but test arg_parse",
+	"%S %s", &fromfile, tofile, "fromfile and tofile",
+	"[%F]", &scale, "set scale [default=%g]", scale,
+	"", ARG_SUBR(arg_people), "names of people",
+	"-fast", ARG_FLAG(&fast), "do it faster",
+	"-ch %S", &child, "set child name",
+	"-srcsize %d[%d]", &xs, &ys, "set source size [default=%d,%d]", xs, ys,
+	"-dstsize", ARG_SUBR(arg_dsize), "set dest size",
+	"-fb", ARG_SUBLIST(arg_fb), "FB COMMANDS",
+    0) < 0)
+	exit(1);
+
+    printf("from=%s to=%s scale=%g fast=%d child=%s src=%dx%d dst=%gx%g\en",
+	fromfile, tofile, scale, fast, child, xs, ys, dxs, dys);
+    printf("window={%d,%d,%d,%d} chan=%s\en", x1, y1, x2, y2, chanlist);
+}
+
+static arg_people(ac, av)
+int ac;
+char **av;
+{
+    int i;
+
+    for (i=0; i<ac; i++)
+	printf("person[%d]=%s\en", i, av[i]);
+}
+
+static arg_dsize(ac, av)
+int ac;
+char **av;
+{
+    if (ac<1 || ac>3) {
+	fprintf(stderr, "-dsize wants 1 or 2 args\en");
+	exit(1);
+    }
+    /* illustrate two methods for argument conversion */
+    dxs = atof(av[0]);			/* constant conversion */
+    if (ac>1) dys = expr_eval(av[1]);	/* expression conversion */
+    else      dys = .75*dxs;
+}
+
+Arg_form *fb_init()
+{
+    return arg_to_form(
+	"-w%d%d%d%d", &x1, &y1, &x2, &y2, "set screen window",
+	"-ch%S", &chanlist, "set channels [default=%s]", chanlist,
+    0);
+}
+.Ce
+In this example we have two required arguments, one optional argument,
+and a flagless subroutine (arg_people) to gobble the remaining regular
+arguments.
+The two required arguments illustrate the differences between \fC%S\fP
+and \fC%s\fP, and the advantages of the former.
+The \fC-srcsize\fP and \fC-dstsize\fP forms illustrate two different
+ways to get a flag with either one or two parameters.
+Note in the \fIarg_dsize\fP routine
+that the expression evaluator \fIexpr_eval\fP is just
+as easy to use as \fIatof\fP.
+A small sublist shows an example of command name ambiguity in
+the flag \fC-ch\fP.
+.PP
+Below are the results of several sample runs.
+.Cs
+\(bu tb one two
+    from=one to=two scale=1 fast=0 child=jim src=512x486 dst=1x0.75
+    window={0,0,99,99} chan=rgba
+.fi
+\fIOnly the two required args are specified here and everything
+else defaults.\fP
+.nf
+
+\(bu tb -fast -srcsize 100 1+2 one two -dstsize 2 -ch amy -w 1 2 3 4 "sqrt(2)"
+    from=one to=two scale=1.41421 fast=1 child=amy src=100x3 dst=2x1.5
+    window={1,2,3,4} chan=rgba
+.fi
+\fIThis illustrates expression evaluation, the precedence of the first\fP
+-ch \fIflag over the one in the sublist, and easy access to a non-ambiguous
+sublist option, \fP-w.
+.nf
+
+\(bu tb -fb -\e{ -ch abc -w 9 8 7 6 -\e} -ch -\e{ -jo -\e} A B 44 larry curly moe
+    person[0]=larry
+    person[1]=curly
+    person[2]=moe
+    from=A to=B scale=44 fast=0 child=-jo src=512x486 dst=1x0.75
+    window={9,8,7,6} chan=abc
+.fi
+\fIThis shows access to a ``shadowed'' sublist option, \fP-ch\fI, and
+escaping a parameter string that happens to begin with a hyphen, \fP-jo\fI,
+with braces, plus the use of a flagless subroutine to pick up extra
+regular arguments.\fP
+.nf
+.Ce
+.SH RETURN VALUE
+\fIarg_parse\fP returns a negative code on error, otherwise 0.
+The file \fIarg.h\fP contains definitions for the error codes:
+.DS
+.TS
+l l.
+ARG_BADCALL	programmer error, bad formlist
+ARG_BADARG	bad argument in \fIargv\fP
+ARG_MISSING	required argument or parameter to flag missing
+ARG_EXTRA	\fIargv\fP contains an extra, unrecognizable argument
+.TE
+.DE
+.SH NOTE
+\fIarg_parse\fP modifies \fIargv\fP as a side-effect to eliminate
+the \fC-{\fP and \fC-}\fP arguments.
+.SH COMPILING
+If \fIarg_parse\fP is installed in \fIlibarg.a\fP,
+compile with \fCcc ... -larg -lm\fP.
+.SH SEE ALSO
+scanf(3), varargs(3)
+.SH AUTHOR
+Paul Heckbert, ph@cs.cmu.edu, April 1988

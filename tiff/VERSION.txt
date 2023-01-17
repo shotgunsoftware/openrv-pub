@@ -1,0 +1,3 @@
+
+Source code is from libtiff 3.8.2.  I tried 4.0 alpha (BigTIFF support),
+but they changed some of the tag interface so I bailed on it.

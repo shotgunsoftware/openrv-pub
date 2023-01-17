@@ -1,0 +1,15 @@
+2005-11-09  Jim Hourihan  <jimh@tweakfilms.com>
+
+	* arg.c (arg_parse): "-" option now does what "-stdin" used to do
+	(arg_parse_form1): "-help" option now deos what "-" used to do
+
+2003-06-23  Mike Root  <mike@tweakfilms.com>
+
+	* arg.c: Made 64-bit compatible!
+
+2003-05-20  Mike Root  <mike@tweakfilms.com>
+
+	* arg.c (arg_to_form): Changed from deprecated varargs.h to
+	stdarg.h.  Changed seldom- used arg_to_form() function slightly.
+	See arg.c line 105 for details.
+
