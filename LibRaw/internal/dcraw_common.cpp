@@ -6392,7 +6392,7 @@ void CLASS PentaxLensInfo (unsigned id, unsigned len)	// tag 0x0207
 		if (table_buf[iLensData+9] &&
 			(fabs(imgdata.lens.makernotes.CurFocal) < 0.1f))
 		  imgdata.lens.makernotes.CurFocal =
-			10*(table_buf[iLensData+9]>>2) * powf64(4, (table_buf[iLensData+9] & 0x03)-2);
+			10*(table_buf[iLensData+9]>>2) * powf64(4.0f, (table_buf[iLensData+9] & 0x03)-2);
 		if (table_buf[iLensData+10] & 0xf0)
 		  imgdata.lens.makernotes.MaxAp4CurFocal =
 			powf64(2.0f, (float)((table_buf[iLensData+10] & 0xf0) >>4)/4.0f);
