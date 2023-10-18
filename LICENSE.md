@@ -2,6 +2,7 @@ IMPORTANT: This file contians an overview of all different licenses contain in t
 
 FTGL
 
+```
 Herewith is a license. Basically I want you to use this software and if
 you think this license is preventing you from doing so let me know.
 
@@ -25,11 +26,13 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
 
 ---------------------------------------
 
 IL
 
+```
 GNU LESSER GENERAL PUBLIC LICENSE
 		       Version 2.1, February 1999
 
@@ -532,10 +535,12 @@ necessary.  Here is a sample; alter the names:
   Ty Coon, President of Vice
 
 That's all there is to it!
+```
 
 ---------------------------------------
 arg
 
+```
 This is source code to an argument parser with lots of nifty features.
 It's written in C (Kernighan and Ritchie, not ANSI).
 
@@ -600,20 +605,23 @@ cv / cxcore
 // the use of this software, even if advised of the possibility of such damage.
 //
 //M*/
+```
 
 ---------------------------------------
 
 Eigen
 
+```
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
+```
 
 ---------------------------------------
 
 exif
 
+```
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation; either
@@ -628,11 +636,13 @@ exif
 * License along with this library; if not, write to the
 * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 * Boston, MA 02111-1307, USA.
+```
 
 ---------------------------------------
 
 FreeType
 
+```
 The  FreeType 2  font  engine is  copyrighted  work and  cannot be  used
 legally  without a  software license.   In  order to  make this  project
 usable  to a vast  majority of  developers, we  distribute it  under two
@@ -657,11 +667,12 @@ any of your projects or products.
 The contributed PCF driver comes with a license similar to that of the X
 Window System.   It is  compatible to the  above two licenses  (see file
 src/pcf/readme).
-
+```
 
 ---------------------------------------
 gc
 
+```
 /*
 * Copyright 1988, 1989 Hans-J. Boehm, Alan J. Demers
 * Copyright (c) 1991-1995 by Xerox Corporation.  All rights reserved.
@@ -679,11 +690,13 @@ gc
 * provided the above notices are retained, and a notice that the code was
 * modified is included with the above copyright notice.
 */
+```
 
 ---------------------------------------
 
 glew
 
+```
 The OpenGL Extension Wrangler Library
 Copyright (C) 2002-2007, Milan Ikits <milan ikits[]ieee org>
 Copyright (C) 2002-2007, Marcelo E. Magallon <mmagallo[]debian org>
@@ -757,10 +770,12 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
+```
 
 ---------------------------------------
 gtoModule
 
+```
 //
 //  Copyright (c) 2009, Tweak Software
 //  All rights reserved.
@@ -796,11 +811,13 @@ gtoModule
 //  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 //  DAMAGE.
 //
+```
 
 ---------------------------------------
 
 lcms
 
+```
 //  Little Color Management System
 //  Copyright (c) 1998-2014 Marti Maria Saguer
 //
@@ -821,11 +838,13 @@ lcms
 // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
 
 ---------------------------------------
 
 minizip
 
+```
    Condition of use and distribution are the same than zlib :
 
   This software is provided 'as-is', without any express or implied
@@ -843,13 +862,14 @@ minizip
   2. Altered source versions must be plainly marked as such, and must not be
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
-
+```
 
 
 ---------------------------------------
 
 mp4v2
 
+```
 //  The contents of this file are subject to the Mozilla Public License
 //  Version 1.1 (the "License"); you may not use this file except in
 //  compliance with the License. You may obtain a copy of the License at
@@ -859,11 +879,13 @@ mp4v2
 //  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 //  License for the specific language governing rights and limitations
 //  under the License.
+```
 
 ---------------------------------------
 
 newmalloc
 
+```
 Boost Software License - Version 1.0 - August 17th, 2003
 
 Permission is hereby granted, free of charge, to any person or organization
@@ -887,11 +909,13 @@ SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
 FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
+```
 
 ---------------------------------------
 
 pcre
 
+```
 /*************************************************
 *       Perl-Compatible Regular Expressions      *
 *************************************************/
@@ -928,11 +952,13 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------------
+```
 
 ---------------------------------------
 
 qtcolortriangle
 
+```
 /****************************************************************************
 **
 ** This file is part of a Qt Solutions component.
@@ -978,24 +1004,26 @@ qtcolortriangle
 ** contact the sales department at qt-sales@nokia.com.
 ** 
 ****************************************************************************/
-
+```
 
 ---------------------------------------
 
 resample
 
+```
 Real-time library interface by Dominic Mazzoni
 
   Based on resample-1.7:
     http://www-ccrma.stanford.edu/~jos/resample/
 
   License: LGPL - see the file LICENSE.txt for more information
-
+```
 
 ---------------------------------------
 
 tinyxml
 
+```
 /*
 www.sourceforge.net/projects/tinyxml
 Original code (2.0 and earlier )copyright (c) 2000-2006 Lee Thomason (www.grinninglizard.com)
@@ -1019,11 +1047,13 @@ must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source
 distribution.
 */
+```
 
 ---------------------------------------
 
 win_posix
 
+```
 /*
 * dlfcn-win32
 * Copyright (c) 2007 Ramiro Polla
@@ -1042,11 +1072,13 @@ win_posix
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+```
 
 ---------------------------------------
 
 win_pthread
 
+```
 *      Pthreads-win32 - POSIX Threads Library for Win32
 *      Copyright(C) 1998 John E. Bossom
 *      Copyright(C) 1999,2005 Pthreads-win32 contributors
@@ -1073,11 +1105,13 @@ win_pthread
 *      License along with this library in the file COPYING.LIB;
 *      if not, write to the Free Software Foundation, Inc.,
 *      59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+```
 
 ---------------------------------------
 
 yaml
 
+```
 /**
 * "Yet Another Multicolumn Layout" - YAML CSS Framework
 *
@@ -1088,5 +1122,6 @@ yaml
 *                  YAML-CDL (http://www.yaml.de/license.html)
 * @link            http://www.yaml.de
 */
+```
 
 ---------------------------------------
