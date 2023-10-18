@@ -1,4 +1,6 @@
-IMPORTANT: This file contians an overview of all different licenses contain in this repository, refer to each component folder for complete information about licences and copyrights.
+_IMPORTANT: This file contians an overview of all different licenses contain in this repository, refer to each component folder for complete information about licences and copyrights._
+
+---------------------------------------
 
 FTGL
 
