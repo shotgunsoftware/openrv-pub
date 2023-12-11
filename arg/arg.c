@@ -899,9 +899,9 @@ void arg_form_print( Arg_form *form )
             fprintf(stderr, "   %d (%s) [%s][%s]%x (%s)\n",
             f->type, f->format, f->flag, f->code, f->parammask, f->doc);
         if (f->type==ARG_SUBLISTFLAG) {
-            fprintf(stderr, bar);
+            fputs(bar, stderr);
             arg_form_print( f->sublist );
-            fprintf(stderr, bar);
+            fputs(bar, stderr);
         }
     }
 }
