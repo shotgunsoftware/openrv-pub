@@ -396,27 +396,27 @@ va_list arg_doc_parse(Arg_form *f, va_list ap)
             case 'x': case 'X':
             case 'c':
                 if (size==2 || *s>='A' && *s<='Z') va_arg(ap, long);
-                else va_arg(ap, int);
+                else va_arg(*ap0, int);
                 break;
             case 'e':
             case 'f':
             case 'g':
                 /* note: float args are converted to doubles by MOST compilers*/
-                va_arg(ap, double);
+                va_arg(*ap0, double);
                 break;
             case 's':
-                va_arg(ap, char *);
+                va_arg(*ap0, char *);
                 break;
             default:
                 fprintf(stderr, "arg: unknown format code %%%c in %s\n",
                     *s, f->doc);
-                va_arg(ap, int);
+                va_arg(*ap0, int);
                 break;
         }
     }
     if (gotparam) {     /* there are doc parameters, format a new doc string */
 #ifdef __x86_64__
-        vsprintf(buf, f->doc, (*ap0));
+        vsprintf(buf, f->doc, ap);
 #else
         vsprintf(buf, f->doc, ap0);
 #endif        
