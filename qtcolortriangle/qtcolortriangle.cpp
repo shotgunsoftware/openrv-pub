@@ -212,7 +212,7 @@ void QtColorTriangle::genBackground()
     bg = QImage(contentsRect().size(), QImage::Format_RGB32);
     QPainter p(&bg);
     p.setRenderHint(QPainter::Antialiasing);
-    p.fillRect(bg.rect(), palette().mid());
+    p.fillRect(bg.rect(), palette().window());
 
     QConicalGradient gradient(bg.rect().center(), 90);
     QColor color;
