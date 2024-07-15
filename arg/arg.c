@@ -58,7 +58,7 @@ static Arg_form *regf;          /* advancing form ptr used by arg_find_reg */
    so we pass it as a pointer argument.  However, this doesn't work in 32-
    bit for some reason
 */
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
 void arg_doc_parse(Arg_form *f, va_list ap, va_list *returnAp);
 #else
 va_list arg_doc_parse(Arg_form *f, va_list ap);
@@ -241,7 +241,7 @@ Arg_form *arg_to_form1( va_list ap )
 
         /* skip over doc args */
                 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
         va_list apx;
         arg_doc_parse(form, ap, &apx);
 #ifdef __va_copy
@@ -346,7 +346,7 @@ int arg_format(Arg_form *f)
  * documentation string and returns the new ap.
  */
 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
 void arg_doc_parse(Arg_form *f, va_list ap, va_list *ap0)
 #else
 va_list arg_doc_parse(Arg_form *f, va_list ap)
@@ -355,7 +355,7 @@ va_list arg_doc_parse(Arg_form *f, va_list ap)
     char *s, buf[256];
     int size, gotparam;
 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
 #ifdef __va_copy
     __va_copy( (*ap0), ap );
 #else
@@ -397,7 +397,7 @@ va_list arg_doc_parse(Arg_form *f, va_list ap)
             case 'c':
                 if (size==2 || *s>='A' && *s<='Z') 
                 {
-#ifdef __x86_64__  
+#if defined(__x86_64__) || defined(__aarch64__)  
                     va_arg(*ap0, long);
 #else
                     va_arg(ap, long);
@@ -405,7 +405,7 @@ va_list arg_doc_parse(Arg_form *f, va_list ap)
                 }
                 else 
                 {
-#ifdef __x86_64__  
+#if defined(__x86_64__) || defined(__aarch64__)  
                     va_arg(*ap0, int);
 #else
                     va_arg(ap, int);
@@ -416,14 +416,14 @@ va_list arg_doc_parse(Arg_form *f, va_list ap)
             case 'f':
             case 'g':
                 /* note: float args are converted to doubles by MOST compilers*/
-#ifdef __x86_64__  
+#if defined(__x86_64__) || defined(__aarch64__)  
                 va_arg(*ap0, double);
 #else
                 va_arg(ap, double);
 #endif                
                 break;
             case 's':
-#ifdef __x86_64__  
+#if defined(__x86_64__) || defined(__aarch64__)  
                 va_arg(*ap0, char *);
 #else
                 va_arg(ap, char *);
@@ -432,7 +432,7 @@ va_list arg_doc_parse(Arg_form *f, va_list ap)
             default:
                 fprintf(stderr, "arg: unknown format code %%%c in %s\n",
                     *s, f->doc);
-#ifdef __x86_64__  
+#if defined(__x86_64__) || defined(__aarch64__)  
                 va_arg(*ap0, int);
 #else
                 va_arg(ap, int);
@@ -441,7 +441,7 @@ va_list arg_doc_parse(Arg_form *f, va_list ap)
         }
     }
     if (gotparam) {     /* there are doc parameters, format a new doc string */
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
         vsprintf(buf, f->doc, ap);
 #else
         vsprintf(buf, f->doc, ap0);
@@ -450,7 +450,7 @@ va_list arg_doc_parse(Arg_form *f, va_list ap)
         strcpy(f->doc, buf);
     }
 
-#ifndef __x86_64__
+#if !defined(__x86_64__) && !defined(__aarch64__)
     return ap;          /* varargs ptr past end of doc params */
 #endif    
 }
