@@ -38,7 +38,7 @@ typedef struct arg_form {       /* ARGUMENT FORM */
 #define ARG_NOP         6       /* no arg or flag, just a doc string */
 
 /* the following must be impossible pointer values (note: machine-dependent) */
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(__aarch64__)
     #define ARG_MASKNEXT    0x8000000000000000      /* mask for these NEXT flags */
     #define ARG_FLAGNEXT    0x8000000000000001
     #define ARG_SUBRNEXT    0x8000000000000002
