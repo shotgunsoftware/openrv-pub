@@ -29,6 +29,27 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
+
+---------------------------------------
+arg
+
+```
+This is source code to an argument parser with lots of nifty features.
+It's written in C (Kernighan and Ritchie, not ANSI).
+See the man page arg_parse.3 for documentation.
+To test it run "make" and then play with the "tb" command.
+This code is available via anonymous ftp from
+hostess.graphics.cs.cmu.edu (128.2.206.188) in
+/afs/cs/user/ph/www/src/arg/libarg.tar.Z
+After you "get" the file, run
+    zcat libarg.tar.Z | tar xvf -
+If you find significant bugs in it, like it a lot, or enhance it significantly,
+please send me email.
+Paul Heckbert                                               ph@cs.cmu.edu
+Computer Science Dept., Carnegie Mellon University
+5000 Forbes Ave, Pittsburgh PA 15213-3891, USA
+1 May 1995
+
 ---------------------------------------
 cv / cxcore
 
