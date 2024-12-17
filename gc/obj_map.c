@@ -35,56 +35,70 @@ GC_API void GC_CALL GC_register_displacement(size_t offset)
 
 GC_INNER void GC_register_displacement_inner(size_t offset)
 {
-    if (offset >= VALID_OFFSET_SZ) {
+    if (offset >= VALID_OFFSET_SZ)
+    {
         ABORT("Bad argument to GC_register_displacement");
     }
-    if (!GC_valid_offsets[offset]) {
-      GC_valid_offsets[offset] = TRUE;
-      GC_modws_valid_offsets[offset % sizeof(word)] = TRUE;
+    if (!GC_valid_offsets[offset])
+    {
+        GC_valid_offsets[offset] = TRUE;
+        GC_modws_valid_offsets[offset % sizeof(word)] = TRUE;
     }
 }
 
 #ifdef MARK_BIT_PER_GRANULE
-  /* Add a heap block map for objects of size granules to obj_map.      */
-  /* Return FALSE on failure.                                           */
-  /* A size of 0 granules is used for large objects.                    */
-  GC_INNER GC_bool GC_add_map_entry(size_t granules)
-  {
+/* Add a heap block map for objects of size granules to obj_map.      */
+/* Return FALSE on failure.                                           */
+/* A size of 0 granules is used for large objects.                    */
+GC_INNER GC_bool GC_add_map_entry(size_t granules)
+{
     unsigned displ;
-    short * new_map;
+    short* new_map;
 
-    if (granules > BYTES_TO_GRANULES(MAXOBJBYTES)) granules = 0;
-    if (GC_obj_map[granules] != 0) {
-        return(TRUE);
+    if (granules > BYTES_TO_GRANULES(MAXOBJBYTES))
+        granules = 0;
+    if (GC_obj_map[granules] != 0)
+    {
+        return (TRUE);
     }
-    new_map = (short *)GC_scratch_alloc(MAP_LEN * sizeof(short));
-    if (new_map == 0) return(FALSE);
+    new_map = (short*)GC_scratch_alloc(MAP_LEN * sizeof(short));
+    if (new_map == 0)
+        return (FALSE);
     if (GC_print_stats)
         GC_log_printf("Adding block map for size of %u granules (%u bytes)\n",
-                  (unsigned)granules, (unsigned)(GRANULES_TO_BYTES(granules)));
-    if (granules == 0) {
-      for (displ = 0; displ < BYTES_TO_GRANULES(HBLKSIZE); displ++) {
-        new_map[displ] = 1;  /* Nonzero to get us out of marker fast path. */
-      }
-    } else {
-      for (displ = 0; displ < BYTES_TO_GRANULES(HBLKSIZE); displ++) {
-        new_map[displ] = (short)(displ % granules);
-      }
+                      (unsigned)granules,
+                      (unsigned)(GRANULES_TO_BYTES(granules)));
+    if (granules == 0)
+    {
+        for (displ = 0; displ < BYTES_TO_GRANULES(HBLKSIZE); displ++)
+        {
+            new_map[displ] = 1; /* Nonzero to get us out of marker fast path. */
+        }
+    }
+    else
+    {
+        for (displ = 0; displ < BYTES_TO_GRANULES(HBLKSIZE); displ++)
+        {
+            new_map[displ] = (short)(displ % granules);
+        }
     }
     GC_obj_map[granules] = new_map;
-    return(TRUE);
-  }
+    return (TRUE);
+}
 #endif
 
 GC_INNER void GC_initialize_offsets(void)
 {
-  unsigned i;
-  if (GC_all_interior_pointers) {
-    for (i = 0; i < VALID_OFFSET_SZ; ++i)
-      GC_valid_offsets[i] = TRUE;
-  } else {
-    BZERO(GC_valid_offsets, sizeof(GC_valid_offsets));
-    for (i = 0; i < sizeof(word); ++i)
-      GC_modws_valid_offsets[i] = FALSE;
-  }
+    unsigned i;
+    if (GC_all_interior_pointers)
+    {
+        for (i = 0; i < VALID_OFFSET_SZ; ++i)
+            GC_valid_offsets[i] = TRUE;
+    }
+    else
+    {
+        BZERO(GC_valid_offsets, sizeof(GC_valid_offsets));
+        for (i = 0; i < sizeof(word); ++i)
+            GC_modws_valid_offsets[i] = FALSE;
+    }
 }

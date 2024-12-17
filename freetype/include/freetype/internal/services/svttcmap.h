@@ -27,52 +27,41 @@
 #include FT_INTERNAL_SERVICE_H
 #include FT_TRUETYPE_TABLES_H
 
-
 FT_BEGIN_HEADER
-
 
 #define FT_SERVICE_ID_TT_CMAP "tt-cmaps"
 
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* <Struct>                                                              */
-  /*    TT_CMapInfo                                                        */
-  /*                                                                       */
-  /* <Description>                                                         */
-  /*    A structure used to store TrueType/sfnt specific cmap information  */
-  /*    which is not covered by the generic @FT_CharMap structure.  This   */
-  /*    structure can be accessed with the @FT_Get_TT_CMap_Info function.  */
-  /*                                                                       */
-  /* <Fields>                                                              */
-  /*    language ::                                                        */
-  /*      The language ID used in Mac fonts.  Definitions of values are in */
-  /*      freetype/ttnameid.h.                                             */
-  /*                                                                       */
-  typedef struct  TT_CMapInfo_
-  {
+/*************************************************************************/
+/*                                                                       */
+/* <Struct>                                                              */
+/*    TT_CMapInfo                                                        */
+/*                                                                       */
+/* <Description>                                                         */
+/*    A structure used to store TrueType/sfnt specific cmap information  */
+/*    which is not covered by the generic @FT_CharMap structure.  This   */
+/*    structure can be accessed with the @FT_Get_TT_CMap_Info function.  */
+/*                                                                       */
+/* <Fields>                                                              */
+/*    language ::                                                        */
+/*      The language ID used in Mac fonts.  Definitions of values are in */
+/*      freetype/ttnameid.h.                                             */
+/*                                                                       */
+typedef struct TT_CMapInfo_
+{
     FT_ULong language;
-    FT_Long  format;
+    FT_Long format;
 
-  } TT_CMapInfo;
+} TT_CMapInfo;
 
+typedef FT_Error (*TT_CMap_Info_GetFunc)(FT_CharMap charmap,
+                                         TT_CMapInfo* cmap_info);
 
-  typedef FT_Error
-  (*TT_CMap_Info_GetFunc)( FT_CharMap    charmap,
-                           TT_CMapInfo  *cmap_info );
+FT_DEFINE_SERVICE(TTCMaps) { TT_CMap_Info_GetFunc get_cmap_info; };
 
-
-  FT_DEFINE_SERVICE( TTCMaps )
-  {
-    TT_CMap_Info_GetFunc  get_cmap_info;
-  };
-
-  /* */
-
+/* */
 
 FT_END_HEADER
 
 #endif /* __SVTTCMAP_H__ */
-
 
 /* END */

@@ -15,7 +15,6 @@
 /*                                                                         */
 /***************************************************************************/
 
-
 #define FT_MAKE_OPTION_SINGLE_OBJECT
 
 #include <ft2build.h>
@@ -28,6 +27,5 @@
 #ifndef T1_CONFIG_OPTION_NO_AFM
 #include "t1afm.c"
 #endif
-
 
 /* END */

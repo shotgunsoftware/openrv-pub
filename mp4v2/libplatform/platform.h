@@ -18,10 +18,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined( _WIN32 )
-#   include "libplatform/platform_win32.h"
+#if defined(_WIN32)
+#include "libplatform/platform_win32.h"
 #else
-#   include "libplatform/platform_posix.h"
+#include "libplatform/platform_posix.h"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

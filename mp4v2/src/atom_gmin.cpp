@@ -19,40 +19,42 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4GminAtom::MP4GminAtom(MP4File &file)
-        : MP4Atom(file, "gmin")
+namespace mp4v2
 {
+    namespace impl
+    {
 
-    AddVersionAndFlags(); /* 0, 1 */
+        ///////////////////////////////////////////////////////////////////////////////
 
-    AddProperty(new MP4Integer16Property(*this, "graphicsMode")); /* 2 */
-    AddProperty(new MP4Integer16Property(*this, "opColorRed")); /* 3 */
-    AddProperty(new MP4Integer16Property(*this, "opColorGreen")); /* 4 */
-    AddProperty(new MP4Integer16Property(*this, "opColorBlue")); /* 5 */
-    AddProperty(new MP4Integer16Property(*this, "balance")); /* 6 */
-    AddReserved(*this, "reserved", 2); /* 7 */
+        MP4GminAtom::MP4GminAtom(MP4File& file)
+            : MP4Atom(file, "gmin")
+        {
 
-}
+            AddVersionAndFlags(); /* 0, 1 */
 
-void MP4GminAtom::Generate()
-{
+            AddProperty(
+                new MP4Integer16Property(*this, "graphicsMode"));       /* 2 */
+            AddProperty(new MP4Integer16Property(*this, "opColorRed")); /* 3 */
+            AddProperty(
+                new MP4Integer16Property(*this, "opColorGreen"));        /* 4 */
+            AddProperty(new MP4Integer16Property(*this, "opColorBlue")); /* 5 */
+            AddProperty(new MP4Integer16Property(*this, "balance"));     /* 6 */
+            AddReserved(*this, "reserved", 2);                           /* 7 */
+        }
 
-    MP4Atom::Generate();
+        void MP4GminAtom::Generate()
+        {
 
-    ((MP4Integer16Property*)m_pProperties[2])->SetValue(0x0040);
-    ((MP4Integer16Property*)m_pProperties[3])->SetValue(0x8000);
-    ((MP4Integer16Property*)m_pProperties[4])->SetValue(0x8000);
-    ((MP4Integer16Property*)m_pProperties[5])->SetValue(0x8000);
-    ((MP4Integer16Property*)m_pProperties[6])->SetValue(0x0000);
+            MP4Atom::Generate();
 
-}
+            ((MP4Integer16Property*)m_pProperties[2])->SetValue(0x0040);
+            ((MP4Integer16Property*)m_pProperties[3])->SetValue(0x8000);
+            ((MP4Integer16Property*)m_pProperties[4])->SetValue(0x8000);
+            ((MP4Integer16Property*)m_pProperties[5])->SetValue(0x8000);
+            ((MP4Integer16Property*)m_pProperties[6])->SetValue(0x0000);
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-}
-} // namespace mp4v2::impl
+    } // namespace impl
+} // namespace mp4v2

@@ -26,8 +26,8 @@
  */
 
 #ifndef __ftgl__
-#   warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
-#   include <FTGL/ftgl.h>
+#warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
+#include <FTGL/ftgl.h>
 #endif
 
 #ifndef __FTGlyph__
@@ -49,73 +49,73 @@ class FTGlyphImpl;
  */
 class FTGL_EXPORT FTGlyph
 {
-    protected:
-        /**
-         * Create a glyph.
-         *
-         * @param glyph  The Freetype glyph to be processed
-         */
-        FTGlyph(FT_GlyphSlot glyph);
+protected:
+    /**
+     * Create a glyph.
+     *
+     * @param glyph  The Freetype glyph to be processed
+     */
+    FTGlyph(FT_GlyphSlot glyph);
 
-    private:
-        /**
-         * Internal FTGL FTGlyph constructor. For private use only.
-         *
-         * @param pImpl  Internal implementation object. Will be destroyed
-         *               upon FTGlyph deletion.
-         */
-        FTGlyph(FTGlyphImpl *pImpl);
+private:
+    /**
+     * Internal FTGL FTGlyph constructor. For private use only.
+     *
+     * @param pImpl  Internal implementation object. Will be destroyed
+     *               upon FTGlyph deletion.
+     */
+    FTGlyph(FTGlyphImpl* pImpl);
 
-        /* Allow our internal subclasses to access the private constructor */
-        friend class FTBitmapGlyph;
-        friend class FTBufferGlyph;
-        friend class FTExtrudeGlyph;
-        friend class FTOutlineGlyph;
-        friend class FTPixmapGlyph;
-        friend class FTPolygonGlyph;
-        friend class FTTextureGlyph;
+    /* Allow our internal subclasses to access the private constructor */
+    friend class FTBitmapGlyph;
+    friend class FTBufferGlyph;
+    friend class FTExtrudeGlyph;
+    friend class FTOutlineGlyph;
+    friend class FTPixmapGlyph;
+    friend class FTPolygonGlyph;
+    friend class FTTextureGlyph;
 
-    public:
-        /**
-          * Destructor
-          */
-        virtual ~FTGlyph();
+public:
+    /**
+     * Destructor
+     */
+    virtual ~FTGlyph();
 
-        /**
-         * Renders this glyph at the current pen position.
-         *
-         * @param pen  The current pen position.
-         * @param renderMode  Render mode to display
-         * @return  The advance distance for this glyph.
-         */
-        virtual const FTPoint& Render(const FTPoint& pen, int renderMode) = 0;
+    /**
+     * Renders this glyph at the current pen position.
+     *
+     * @param pen  The current pen position.
+     * @param renderMode  Render mode to display
+     * @return  The advance distance for this glyph.
+     */
+    virtual const FTPoint& Render(const FTPoint& pen, int renderMode) = 0;
 
-        /**
-         * Return the advance width for this glyph.
-         *
-         * @return  advance width.
-         */
-        virtual float Advance() const;
+    /**
+     * Return the advance width for this glyph.
+     *
+     * @return  advance width.
+     */
+    virtual float Advance() const;
 
-        /**
-         * Return the bounding box for this glyph.
-         *
-         * @return  bounding box.
-         */
-        virtual const FTBBox& BBox() const;
+    /**
+     * Return the bounding box for this glyph.
+     *
+     * @return  bounding box.
+     */
+    virtual const FTBBox& BBox() const;
 
-        /**
-         * Queries for errors.
-         *
-         * @return  The current error code.
-         */
-        virtual FT_Error Error() const;
+    /**
+     * Queries for errors.
+     *
+     * @return  The current error code.
+     */
+    virtual FT_Error Error() const;
 
-    private:
-        /**
-         * Internal FTGL FTGlyph implementation object. For private use only.
-         */
-        FTGlyphImpl *impl;
+private:
+    /**
+     * Internal FTGL FTGlyph implementation object. For private use only.
+     */
+    FTGlyphImpl* impl;
 };
 
 #endif //__cplusplus
@@ -142,17 +142,18 @@ typedef struct _FTGLglyph FTGLglyph;
  * @param destroyCallback  A callback function to be called upon destruction.
  * @return  An FTGLglyph* object.
  */
-FTGL_EXPORT FTGLglyph *ftglCreateCustomGlyph(FTGLglyph *base, void *data,
-    void (*renderCallback) (FTGLglyph *, void *, FTGL_DOUBLE, FTGL_DOUBLE,
-                             int, FTGL_DOUBLE *, FTGL_DOUBLE *),
-    void (*destroyCallback) (FTGLglyph *, void *));
+FTGL_EXPORT FTGLglyph* ftglCreateCustomGlyph(
+    FTGLglyph* base, void* data,
+    void (*renderCallback)(FTGLglyph*, void*, FTGL_DOUBLE, FTGL_DOUBLE, int,
+                           FTGL_DOUBLE*, FTGL_DOUBLE*),
+    void (*destroyCallback)(FTGLglyph*, void*));
 
 /**
  * Destroy an FTGL glyph object.
  *
  * @param glyph  An FTGLglyph* object.
  */
-FTGL_EXPORT void ftglDestroyGlyph(FTGLglyph *glyph);
+FTGL_EXPORT void ftglDestroyGlyph(FTGLglyph* glyph);
 
 /**
  * Render a glyph at the current pen position and compute the corresponding
@@ -167,16 +168,16 @@ FTGL_EXPORT void ftglDestroyGlyph(FTGLglyph *glyph);
  * @param advancey  A pointer to an FTGL_DOUBLE where to write the advance's Y
  *                  component.
  */
-FTGL_EXPORT void ftglRenderGlyph(FTGLglyph *glyph, FTGL_DOUBLE penx,
+FTGL_EXPORT void ftglRenderGlyph(FTGLglyph* glyph, FTGL_DOUBLE penx,
                                  FTGL_DOUBLE peny, int renderMode,
-                                 FTGL_DOUBLE *advancex, FTGL_DOUBLE *advancey);
+                                 FTGL_DOUBLE* advancex, FTGL_DOUBLE* advancey);
 /**
  * Return the advance for a glyph.
  *
  * @param glyph  An FTGLglyph* object.
  * @return  The advance's X component.
  */
-FTGL_EXPORT float ftglGetGlyphAdvance(FTGLglyph *glyph);
+FTGL_EXPORT float ftglGetGlyphAdvance(FTGLglyph* glyph);
 
 /**
  * Return the bounding box for a glyph.
@@ -185,7 +186,7 @@ FTGL_EXPORT float ftglGetGlyphAdvance(FTGLglyph *glyph);
  * @param bounds  An array of 6 float values where the bounding box's lower
  *                left near and upper right far 3D coordinates will be stored.
  */
-FTGL_EXPORT void ftglGetGlyphBBox(FTGLglyph *glyph, float bounds[6]);
+FTGL_EXPORT void ftglGetGlyphBBox(FTGLglyph* glyph, float bounds[6]);
 
 /**
  * Query a glyph for errors.
@@ -197,5 +198,4 @@ FTGL_EXPORT FT_Error ftglGetGlyphError(FTGLglyph* glyph);
 
 FTGL_END_C_DECLS
 
-#endif  //  __FTGlyph__
-
+#endif //  __FTGlyph__

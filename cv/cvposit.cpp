@@ -2,7 +2,8 @@
 //
 //  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
 //
-//  By downloading, copying, installing or using the software you agree to this license.
+//  By downloading, copying, installing or using the software you agree to this
+license.
 //  If you do not agree to this license, do not download, install,
 //  copy or use the software.
 //
@@ -13,23 +14,29 @@
 // Copyright (C) 2000, Intel Corporation, all rights reserved.
 // Third party copyrights are property of their respective owners.
 //
-// Redistribution and use in source and binary forms, with or without modification,
+// Redistribution and use in source and binary forms, with or without
+modification,
 // are permitted provided that the following conditions are met:
 //
 //   * Redistribution's of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //
-//   * Redistribution's in binary form must reproduce the above copyright notice,
+//   * Redistribution's in binary form must reproduce the above copyright
+notice,
 //     this list of conditions and the following disclaimer in the documentation
 //     and/or other materials provided with the distribution.
 //
-//   * The name of Intel Corporation may not be used to endorse or promote products
+//   * The name of Intel Corporation may not be used to endorse or promote
+products
 //     derived from this software without specific prior written permission.
 //
-// This software is provided by the copyright holders and contributors "as is" and
+// This software is provided by the copyright holders and contributors "as is"
+and
 // any express or implied warranties, including, but not limited to, the implied
-// warranties of merchantability and fitness for a particular purpose are disclaimed.
-// In no event shall the Intel Corporation or contributors be liable for any direct,
+// warranties of merchantability and fitness for a particular purpose are
+disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any
+direct,
 // indirect, incidental, special, exemplary, or consequential damages
 // (including, but not limited to, procurement of substitute goods or services;
 // loss of use, data, or profits; or business interruption) however caused
@@ -49,11 +56,10 @@ struct CvPOSITObject
     float* img_vecs;
 };
 
-static void icvPseudoInverse3D( float *a, float *b, int n, int method );
+static void icvPseudoInverse3D(float* a, float* b, int n, int method);
 
-static  CvStatus  icvCreatePOSITObject( CvPoint3D32f *points,
-                                        int numPoints,
-                                        CvPOSITObject **ppObject )
+static CvStatus icvCreatePOSITObject(CvPoint3D32f* points, int numPoints,
+                                     CvPOSITObject** ppObject)
 {
     int i;
 
@@ -64,54 +70,53 @@ static  CvStatus  icvCreatePOSITObject( CvPoint3D32f *points,
     /* buffer for storing image vectors = N*2*float */
 
     int N = numPoints - 1;
-    int inv_matr_size = N * 3 * sizeof( float );
+    int inv_matr_size = N * 3 * sizeof(float);
     int obj_vec_size = inv_matr_size;
-    int img_vec_size = N * 2 * sizeof( float );
-    CvPOSITObject *pObject;
+    int img_vec_size = N * 2 * sizeof(float);
+    CvPOSITObject* pObject;
 
     /* check bad arguments */
-    if( points == NULL )
+    if (points == NULL)
         return CV_NULLPTR_ERR;
-    if( numPoints < 4 )
+    if (numPoints < 4)
         return CV_BADSIZE_ERR;
-    if( ppObject == NULL )
+    if (ppObject == NULL)
         return CV_NULLPTR_ERR;
 
     /* memory allocation */
-    pObject = (CvPOSITObject *) cvAlloc( sizeof( CvPOSITObject ) +
-                                         inv_matr_size + obj_vec_size + img_vec_size );
+    pObject = (CvPOSITObject*)cvAlloc(sizeof(CvPOSITObject) + inv_matr_size
+                                      + obj_vec_size + img_vec_size);
 
-    if( !pObject )
+    if (!pObject)
         return CV_OUTOFMEM_ERR;
 
     /* part the memory between all structures */
     pObject->N = N;
-    pObject->inv_matr = (float *) ((char *) pObject + sizeof( CvPOSITObject ));
-    pObject->obj_vecs = (float *) ((char *) (pObject->inv_matr) + inv_matr_size);
-    pObject->img_vecs = (float *) ((char *) (pObject->obj_vecs) + obj_vec_size);
+    pObject->inv_matr = (float*)((char*)pObject + sizeof(CvPOSITObject));
+    pObject->obj_vecs = (float*)((char*)(pObject->inv_matr) + inv_matr_size);
+    pObject->img_vecs = (float*)((char*)(pObject->obj_vecs) + obj_vec_size);
 
-/****************************************************************************************\
-*          Construct object vectors from object points                                   *
-\****************************************************************************************/
-    for( i = 0; i < numPoints - 1; i++ )
+    /****************************************************************************************\
+    *          Construct object vectors from object points *
+    \****************************************************************************************/
+    for (i = 0; i < numPoints - 1; i++)
     {
         pObject->obj_vecs[i] = points[i + 1].x - points[0].x;
         pObject->obj_vecs[N + i] = points[i + 1].y - points[0].y;
         pObject->obj_vecs[2 * N + i] = points[i + 1].z - points[0].z;
     }
-/****************************************************************************************\
-*   Compute pseudoinverse matrix                                                         *
-\****************************************************************************************/
-    icvPseudoInverse3D( pObject->obj_vecs, pObject->inv_matr, N, 0 );
+    /****************************************************************************************\
+    *   Compute pseudoinverse matrix *
+    \****************************************************************************************/
+    icvPseudoInverse3D(pObject->obj_vecs, pObject->inv_matr, N, 0);
 
     *ppObject = pObject;
     return CV_NO_ERR;
 }
 
-
-static  CvStatus  icvPOSIT( CvPOSITObject *pObject, CvPoint2D32f *imagePoints,
-                            float focalLength, CvTermCriteria criteria,
-                            CvMatr32f rotation, CvVect32f translation )
+static CvStatus icvPOSIT(CvPOSITObject* pObject, CvPoint2D32f* imagePoints,
+                         float focalLength, CvTermCriteria criteria,
+                         CvMatr32f rotation, CvVect32f translation)
 {
     int i, j, k;
     int count = 0, converged = 0;
@@ -121,34 +126,35 @@ static  CvStatus  icvPOSIT( CvPOSITObject *pObject, CvPoint2D32f *imagePoints,
 
     /* init variables */
     int N = pObject->N;
-    float *objectVectors = pObject->obj_vecs;
-    float *invMatrix = pObject->inv_matr;
-    float *imgVectors = pObject->img_vecs;
+    float* objectVectors = pObject->obj_vecs;
+    float* invMatrix = pObject->inv_matr;
+    float* imgVectors = pObject->img_vecs;
 
     /* Check bad arguments */
-    if( imagePoints == NULL )
+    if (imagePoints == NULL)
         return CV_NULLPTR_ERR;
-    if( pObject == NULL )
+    if (pObject == NULL)
         return CV_NULLPTR_ERR;
-    if( focalLength <= 0 )
+    if (focalLength <= 0)
         return CV_BADFACTOR_ERR;
-    if( !rotation )
+    if (!rotation)
         return CV_NULLPTR_ERR;
-    if( !translation )
+    if (!translation)
         return CV_NULLPTR_ERR;
-    if( (criteria.type == 0) || (criteria.type > (CV_TERMCRIT_ITER | CV_TERMCRIT_EPS)))
+    if ((criteria.type == 0)
+        || (criteria.type > (CV_TERMCRIT_ITER | CV_TERMCRIT_EPS)))
         return CV_BADFLAG_ERR;
-    if( (criteria.type & CV_TERMCRIT_EPS) && criteria.epsilon < 0 )
+    if ((criteria.type & CV_TERMCRIT_EPS) && criteria.epsilon < 0)
         return CV_BADFACTOR_ERR;
-    if( (criteria.type & CV_TERMCRIT_ITER) && criteria.max_iter <= 0 )
+    if ((criteria.type & CV_TERMCRIT_ITER) && criteria.max_iter <= 0)
         return CV_BADFACTOR_ERR;
 
-    while( !converged )
+    while (!converged)
     {
-        if( count == 0 )
+        if (count == 0)
         {
             /* subtract out origin to get image vectors */
-            for( i = 0; i < N; i++ )
+            for (i = 0; i < N; i++)
             {
                 imgVectors[i] = imagePoints[i + 1].x - imagePoints[0].x;
                 imgVectors[N + i] = imagePoints[i + 1].y - imagePoints[0].y;
@@ -157,14 +163,15 @@ static  CvStatus  icvPOSIT( CvPOSITObject *pObject, CvPoint2D32f *imagePoints,
         else
         {
             diff = 0;
-            /* Compute new SOP (scaled orthograthic projection) image from pose */
-            for( i = 0; i < N; i++ )
+            /* Compute new SOP (scaled orthograthic projection) image from pose
+             */
+            for (i = 0; i < N; i++)
             {
                 /* objectVector * k */
                 float old;
-                float tmp = objectVectors[i] * rotation[6] /*[2][0]*/ +
-                    objectVectors[N + i] * rotation[7]     /*[2][1]*/ +
-                    objectVectors[2 * N + i] * rotation[8] /*[2][2]*/;
+                float tmp = objectVectors[i] * rotation[6]       /*[2][0]*/
+                            + objectVectors[N + i] * rotation[7] /*[2][1]*/
+                            + objectVectors[2 * N + i] * rotation[8] /*[2][2]*/;
 
                 tmp *= inv_Z;
                 tmp += 1;
@@ -172,38 +179,40 @@ static  CvStatus  icvPOSIT( CvPOSITObject *pObject, CvPoint2D32f *imagePoints,
                 old = imgVectors[i];
                 imgVectors[i] = imagePoints[i + 1].x * tmp - imagePoints[0].x;
 
-                diff = MAX( diff, (float) fabs( imgVectors[i] - old ));
+                diff = MAX(diff, (float)fabs(imgVectors[i] - old));
 
                 old = imgVectors[N + i];
-                imgVectors[N + i] = imagePoints[i + 1].y * tmp - imagePoints[0].y;
+                imgVectors[N + i] =
+                    imagePoints[i + 1].y * tmp - imagePoints[0].y;
 
-                diff = MAX( diff, (float) fabs( imgVectors[N + i] - old ));
+                diff = MAX(diff, (float)fabs(imgVectors[N + i] - old));
             }
         }
 
         /* calculate I and J vectors */
-        for( i = 0; i < 2; i++ )
+        for (i = 0; i < 2; i++)
         {
-            for( j = 0; j < 3; j++ )
+            for (j = 0; j < 3; j++)
             {
-                rotation[3*i+j] /*[i][j]*/ = 0;
-                for( k = 0; k < N; k++ )
+                rotation[3 * i + j] /*[i][j]*/ = 0;
+                for (k = 0; k < N; k++)
                 {
-                    rotation[3*i+j] /*[i][j]*/ += invMatrix[j * N + k] * imgVectors[i * N + k];
+                    rotation[3 * i + j] /*[i][j]*/ +=
+                        invMatrix[j * N + k] * imgVectors[i * N + k];
                 }
             }
         }
 
-        inorm = rotation[0] /*[0][0]*/ * rotation[0] /*[0][0]*/ +
-                rotation[1] /*[0][1]*/ * rotation[1] /*[0][1]*/ + 
-                rotation[2] /*[0][2]*/ * rotation[2] /*[0][2]*/;
+        inorm = rotation[0] /*[0][0]*/ * rotation[0]   /*[0][0]*/
+                + rotation[1] /*[0][1]*/ * rotation[1] /*[0][1]*/
+                + rotation[2] /*[0][2]*/ * rotation[2] /*[0][2]*/;
 
-        jnorm = rotation[3] /*[1][0]*/ * rotation[3] /*[1][0]*/ +
-                rotation[4] /*[1][1]*/ * rotation[4] /*[1][1]*/ + 
-                rotation[5] /*[1][2]*/ * rotation[5] /*[1][2]*/;
+        jnorm = rotation[3] /*[1][0]*/ * rotation[3]   /*[1][0]*/
+                + rotation[4] /*[1][1]*/ * rotation[4] /*[1][1]*/
+                + rotation[5] /*[1][2]*/ * rotation[5] /*[1][2]*/;
 
-        invInorm = cvInvSqrt( inorm );
-        invJnorm = cvInvSqrt( jnorm );
+        invInorm = cvInvSqrt(inorm);
+        invJnorm = cvInvSqrt(jnorm);
 
         inorm *= invInorm;
         jnorm *= invJnorm;
@@ -217,21 +226,26 @@ static  CvStatus  icvPOSIT( CvPOSITObject *pObject, CvPoint2D32f *imagePoints,
         rotation[5] /*[1][2]*/ *= invJnorm;
 
         /* row2 = row0 x row1 (cross product) */
-        rotation[6] /*->m[2][0]*/ = rotation[1] /*->m[0][1]*/ * rotation[5] /*->m[1][2]*/ -
-                                    rotation[2] /*->m[0][2]*/ * rotation[4] /*->m[1][1]*/;
-        
-        rotation[7] /*->m[2][1]*/ = rotation[2] /*->m[0][2]*/ * rotation[3] /*->m[1][0]*/ -
-                                    rotation[0] /*->m[0][0]*/ * rotation[5] /*->m[1][2]*/;
-        
-        rotation[8] /*->m[2][2]*/ = rotation[0] /*->m[0][0]*/ * rotation[4] /*->m[1][1]*/ -
-                                    rotation[1] /*->m[0][1]*/ * rotation[3] /*->m[1][0]*/;
+        rotation[6] /*->m[2][0]*/ =
+            rotation[1] /*->m[0][1]*/ * rotation[5] /*->m[1][2]*/
+            - rotation[2] /*->m[0][2]*/ * rotation[4] /*->m[1][1]*/;
+
+        rotation[7] /*->m[2][1]*/ =
+            rotation[2] /*->m[0][2]*/ * rotation[3] /*->m[1][0]*/
+            - rotation[0] /*->m[0][0]*/ * rotation[5] /*->m[1][2]*/;
+
+        rotation[8] /*->m[2][2]*/ =
+            rotation[0] /*->m[0][0]*/ * rotation[4] /*->m[1][1]*/
+            - rotation[1] /*->m[0][1]*/ * rotation[3] /*->m[1][0]*/;
 
         scale = (inorm + jnorm) / 2.0f;
         inv_Z = scale * inv_focalLength;
 
         count++;
-        converged = ((criteria.type & CV_TERMCRIT_EPS) && (diff < criteria.epsilon));
-        converged |= ((criteria.type & CV_TERMCRIT_ITER) && (count == criteria.max_iter));
+        converged =
+            ((criteria.type & CV_TERMCRIT_EPS) && (diff < criteria.epsilon));
+        converged |= ((criteria.type & CV_TERMCRIT_ITER)
+                      && (count == criteria.max_iter));
     }
     invScale = 1 / scale;
     translation[0] = imagePoints[0].x * invScale;
@@ -241,33 +255,31 @@ static  CvStatus  icvPOSIT( CvPOSITObject *pObject, CvPoint2D32f *imagePoints,
     return CV_NO_ERR;
 }
 
-
-static  CvStatus  icvReleasePOSITObject( CvPOSITObject ** ppObject )
+static CvStatus icvReleasePOSITObject(CvPOSITObject** ppObject)
 {
-    cvFree( ppObject );
+    cvFree(ppObject);
     return CV_NO_ERR;
 }
 
 /*F///////////////////////////////////////////////////////////////////////////////////////
-//    Name:       icvPseudoInverse3D     
+//    Name:       icvPseudoInverse3D
 //    Purpose:    Pseudoinverse N x 3 matrix     N >= 3
-//    Context:   
+//    Context:
 //    Parameters:
 //                a - input matrix
 //                b - pseudoinversed a
 //                n - number of rows in a
 //                method - if 0, then b = inv(transpose(a)*a) * transpose(a)
 //                         if 1, then SVD used.
-//    Returns:   
+//    Returns:
 //    Notes:      Both matrix are stored by n-dimensional vectors.
 //                Now only method == 0 supported.
 //F*/
-void
-icvPseudoInverse3D( float *a, float *b, int n, int method )
+void icvPseudoInverse3D(float* a, float* b, int n, int method)
 {
     int k;
 
-    if( method == 0 )
+    if (method == 0)
     {
         float ata00 = 0;
         float ata11 = 0;
@@ -278,7 +290,7 @@ icvPseudoInverse3D( float *a, float *b, int n, int method )
         float det = 0;
 
         /* compute matrix ata = transpose(a) * a  */
-        for( k = 0; k < n; k++ )
+        for (k = 0; k < n; k++)
         {
             float a0 = a[k];
             float a1 = a[n + k];
@@ -310,7 +322,7 @@ icvPseudoInverse3D( float *a, float *b, int n, int method )
             inv_det = 1 / det;
 
             /* compute resultant matrix */
-            for( k = 0; k < n; k++ )
+            for (k = 0; k < n; k++)
             {
                 float a0 = a[k];
                 float a1 = a[n + k];
@@ -331,46 +343,42 @@ icvPseudoInverse3D( float *a, float *b, int n, int method )
     return;
 }
 
-CV_IMPL CvPOSITObject *
-cvCreatePOSITObject( CvPoint3D32f * points, int numPoints )
+CV_IMPL CvPOSITObject* cvCreatePOSITObject(CvPoint3D32f* points, int numPoints)
 {
-    CvPOSITObject *pObject = 0;
+    CvPOSITObject* pObject = 0;
 
-    CV_FUNCNAME( "cvCreatePOSITObject" );
+    CV_FUNCNAME("cvCreatePOSITObject");
 
     __BEGIN__;
 
-    IPPI_CALL( icvCreatePOSITObject( points, numPoints, &pObject ));
+    IPPI_CALL(icvCreatePOSITObject(points, numPoints, &pObject));
 
     __END__;
 
     return pObject;
 }
 
-
-CV_IMPL void
-cvPOSIT( CvPOSITObject * pObject, CvPoint2D32f * imagePoints,
-         double focalLength, CvTermCriteria criteria,
-         CvMatr32f rotation, CvVect32f translation )
+CV_IMPL void cvPOSIT(CvPOSITObject* pObject, CvPoint2D32f* imagePoints,
+                     double focalLength, CvTermCriteria criteria,
+                     CvMatr32f rotation, CvVect32f translation)
 {
-    CV_FUNCNAME( "cvPOSIT" );
+    CV_FUNCNAME("cvPOSIT");
 
     __BEGIN__;
 
-    IPPI_CALL( icvPOSIT( pObject, imagePoints,(float) focalLength, criteria,
-                         rotation, translation ));
+    IPPI_CALL(icvPOSIT(pObject, imagePoints, (float)focalLength, criteria,
+                       rotation, translation));
 
     __END__;
 }
 
-CV_IMPL void
-cvReleasePOSITObject( CvPOSITObject ** ppObject )
+CV_IMPL void cvReleasePOSITObject(CvPOSITObject** ppObject)
 {
-    CV_FUNCNAME( "cvReleasePOSITObject" );
+    CV_FUNCNAME("cvReleasePOSITObject");
 
     __BEGIN__;
 
-    IPPI_CALL( icvReleasePOSITObject( ppObject ));
+    IPPI_CALL(icvReleasePOSITObject(ppObject));
 
     __END__;
 }

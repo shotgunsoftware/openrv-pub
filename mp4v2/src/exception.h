@@ -9,9 +9,9 @@
 //  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 //  License for the specific language governing rights and limitations
 //  under the License.
-// 
+//
 //  The Original Code is MP4v2.
-// 
+//
 //  The Initial Developer of the Original Code is Kona Blend.
 //  Portions created by Kona Blend are Copyright (C) 2008.
 //  All Rights Reserved.
@@ -25,46 +25,46 @@
 #ifndef MP4V2_IMPL_MP4EXCEPTION_H
 #define MP4V2_IMPL_MP4EXCEPTION_H
 
-namespace mp4v2 { namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-class MP4V2_EXPORT Exception
+namespace mp4v2
 {
-public:
-    explicit Exception( const string&   what_,
-                        const char      *file_,
-                        int             line_,
-                        const char      *function_ );
-    virtual ~Exception();
+    namespace impl
+    {
 
-    virtual string      msg() const;
+        ///////////////////////////////////////////////////////////////////////////////
 
-public:
-    const string        what;
-    const string        file;
-    const int           line;
-    const string        function;
-};
+        class MP4V2_EXPORT Exception
+        {
+        public:
+            explicit Exception(const string& what_, const char* file_,
+                               int line_, const char* function_);
+            virtual ~Exception();
 
-class MP4V2_EXPORT PlatformException : public Exception
-{
-public:
-    explicit PlatformException( const string&   what_,
-                                int             errno_,
-                                const char      *file_,
-                                int             line_,
-                                const char      *function_ );
-    virtual ~PlatformException();
+            virtual string msg() const;
 
-    virtual string      msg() const;
+        public:
+            const string what;
+            const string file;
+            const int line;
+            const string function;
+        };
 
-public:
-    const int   m_errno;
-};
+        class MP4V2_EXPORT PlatformException : public Exception
+        {
+        public:
+            explicit PlatformException(const string& what_, int errno_,
+                                       const char* file_, int line_,
+                                       const char* function_);
+            virtual ~PlatformException();
 
-///////////////////////////////////////////////////////////////////////////////
+            virtual string msg() const;
 
-}} // namespace mp4v2::impl
+        public:
+            const int m_errno;
+        };
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2
 
 #endif // MP4V2_IMPL_MP4EXCEPTION_H

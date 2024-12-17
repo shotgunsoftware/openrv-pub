@@ -26,54 +26,58 @@
 #ifndef EIGEN2_QR_H
 #define EIGEN2_QR_H
 
-template<typename MatrixType>
-class QR : public HouseholderQR<MatrixType>
+template <typename MatrixType> class QR : public HouseholderQR<MatrixType>
 {
-  public:
-
+public:
     typedef HouseholderQR<MatrixType> Base;
-    typedef Block<const MatrixType, MatrixType::ColsAtCompileTime, MatrixType::ColsAtCompileTime> MatrixRBlockType;
+    typedef Block<const MatrixType, MatrixType::ColsAtCompileTime,
+                  MatrixType::ColsAtCompileTime>
+        MatrixRBlockType;
 
-    QR() : Base() {}
-
-    template<typename T>
-    explicit QR(const T& t) : Base(t) {}
-
-    template<typename OtherDerived, typename ResultType>
-    bool solve(const MatrixBase<OtherDerived>& b, ResultType *result) const
+    QR()
+        : Base()
     {
-      *result = static_cast<const Base*>(this)->solve(b);
-      return true;
     }
 
-    MatrixType matrixQ(void) const {
-      MatrixType ret = MatrixType::Identity(this->rows(), this->cols());
-      ret = this->householderQ() * ret;
-      return ret;
-    }
-
-    bool isFullRank() const {
-      return true;
-    }
-    
-    const TriangularView<MatrixRBlockType, UpperTriangular>
-    matrixR(void) const
+    template <typename T>
+    explicit QR(const T& t)
+        : Base(t)
     {
-      int cols = this->cols();
-      return MatrixRBlockType(this->matrixQR(), 0, 0, cols, cols).template triangularView<UpperTriangular>();
+    }
+
+    template <typename OtherDerived, typename ResultType>
+    bool solve(const MatrixBase<OtherDerived>& b, ResultType* result) const
+    {
+        *result = static_cast<const Base*>(this)->solve(b);
+        return true;
+    }
+
+    MatrixType matrixQ(void) const
+    {
+        MatrixType ret = MatrixType::Identity(this->rows(), this->cols());
+        ret = this->householderQ() * ret;
+        return ret;
+    }
+
+    bool isFullRank() const { return true; }
+
+    const TriangularView<MatrixRBlockType, UpperTriangular> matrixR(void) const
+    {
+        int cols = this->cols();
+        return MatrixRBlockType(this->matrixQR(), 0, 0, cols, cols)
+            .template triangularView<UpperTriangular>();
     }
 };
 
 /** \return the QR decomposition of \c *this.
-  *
-  * \sa class QR
-  */
-template<typename Derived>
+ *
+ * \sa class QR
+ */
+template <typename Derived>
 const QR<typename MatrixBase<Derived>::PlainObject>
 MatrixBase<Derived>::qr() const
 {
-  return QR<PlainObject>(eval());
+    return QR<PlainObject>(eval());
 }
-
 
 #endif // EIGEN2_QR_H

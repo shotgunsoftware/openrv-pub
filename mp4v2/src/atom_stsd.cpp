@@ -29,59 +29,63 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4StsdAtom::MP4StsdAtom(MP4File &file)
-        : MP4Atom(file, "stsd")
+namespace mp4v2
 {
-    AddVersionAndFlags();
+    namespace impl
+    {
 
-    MP4Integer32Property* pCount =
-        new MP4Integer32Property(*this, "entryCount");
-    pCount->SetReadOnly();
-    AddProperty(pCount);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    ExpectChildAtom("mp4a", Optional, Many);
-    ExpectChildAtom("enca", Optional, Many);
-    ExpectChildAtom("mp4s", Optional, Many);
-    ExpectChildAtom("mp4v", Optional, Many);
-    ExpectChildAtom("encv", Optional, Many);
-    ExpectChildAtom("rtp ", Optional, Many);
-    ExpectChildAtom("samr", Optional, Many); // For AMR-NB
-    ExpectChildAtom("sawb", Optional, Many); // For AMR-WB
-    ExpectChildAtom("s263", Optional, Many); // For H.263
-    ExpectChildAtom("avc1", Optional, Many);
-    ExpectChildAtom("alac", Optional, Many);
-    ExpectChildAtom("text", Optional, Many);
-    ExpectChildAtom("ac-3", Optional, Many);
-    ExpectChildAtom("AVdn", Optional, Many);
-    ExpectChildAtom("tmcd", Optional, OnlyOne);
-}
+        MP4StsdAtom::MP4StsdAtom(MP4File& file)
+            : MP4Atom(file, "stsd")
+        {
+            AddVersionAndFlags();
 
-void MP4StsdAtom::Read()
-{
-    /* do the usual read */
-    MP4Atom::Read();
+            MP4Integer32Property* pCount =
+                new MP4Integer32Property(*this, "entryCount");
+            pCount->SetReadOnly();
+            AddProperty(pCount);
 
-    // check that number of children == entryCount
-    MP4Integer32Property* pCount =
-        (MP4Integer32Property*)m_pProperties[2];
+            ExpectChildAtom("mp4a", Optional, Many);
+            ExpectChildAtom("enca", Optional, Many);
+            ExpectChildAtom("mp4s", Optional, Many);
+            ExpectChildAtom("mp4v", Optional, Many);
+            ExpectChildAtom("encv", Optional, Many);
+            ExpectChildAtom("rtp ", Optional, Many);
+            ExpectChildAtom("samr", Optional, Many); // For AMR-NB
+            ExpectChildAtom("sawb", Optional, Many); // For AMR-WB
+            ExpectChildAtom("s263", Optional, Many); // For H.263
+            ExpectChildAtom("avc1", Optional, Many);
+            ExpectChildAtom("alac", Optional, Many);
+            ExpectChildAtom("text", Optional, Many);
+            ExpectChildAtom("ac-3", Optional, Many);
+            ExpectChildAtom("AVdn", Optional, Many);
+            ExpectChildAtom("tmcd", Optional, OnlyOne);
+        }
 
-    if (m_pChildAtoms.Size() != pCount->GetValue()) {
-        log.warningf("%s: \"%s\": stsd inconsistency with number of entries",
-                     __FUNCTION__, GetFile().GetFilename().c_str() );
+        void MP4StsdAtom::Read()
+        {
+            /* do the usual read */
+            MP4Atom::Read();
 
-        /* fix it */
-        pCount->SetReadOnly(false);
-        pCount->SetValue(m_pChildAtoms.Size());
-        pCount->SetReadOnly(true);
-    }
-}
+            // check that number of children == entryCount
+            MP4Integer32Property* pCount =
+                (MP4Integer32Property*)m_pProperties[2];
 
-///////////////////////////////////////////////////////////////////////////////
+            if (m_pChildAtoms.Size() != pCount->GetValue())
+            {
+                log.warningf(
+                    "%s: \"%s\": stsd inconsistency with number of entries",
+                    __FUNCTION__, GetFile().GetFilename().c_str());
 
-}
-} // namespace mp4v2::impl
+                /* fix it */
+                pCount->SetReadOnly(false);
+                pCount->SetValue(m_pChildAtoms.Size());
+                pCount->SetReadOnly(true);
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

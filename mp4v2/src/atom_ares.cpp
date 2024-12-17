@@ -21,47 +21,45 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4ARESAtom::MP4ARESAtom (MP4File &file)
-        : MP4Atom(file, "ARES")
+namespace mp4v2
 {
-    MP4StringProperty* tagProp =
-        new MP4StringProperty(*this, "tag");
-    tagProp->SetFixedLength(4);
-    AddProperty(tagProp);
+    namespace impl
+    {
 
-    MP4StringProperty* versionProp =
-        new MP4StringProperty(*this, "version");
-    versionProp->SetFixedLength(4);
-    AddProperty(versionProp);
-    
-    AddProperty(new MP4Integer32Property(*this, "cid"));
-    AddProperty(new MP4Integer32Property(*this, "width"));
-    AddProperty(new MP4Integer32Property(*this, "height"));
-    AddProperty(new MP4Integer32Property(*this, "unknown1"));
-    AddProperty(new MP4Integer32Property(*this, "zero"));
-    AddProperty(new MP4Integer32Property(*this, "unknown2"));
-    AddReserved(*this, "padding", 80); // the rest
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-void MP4ARESAtom::Read()
-{
-    /* For some reason ARES is larger than it reports */
-    SetSize(GetSize() + 4);
-    SetEnd(GetEnd() + 4);
+        MP4ARESAtom::MP4ARESAtom(MP4File& file)
+            : MP4Atom(file, "ARES")
+        {
+            MP4StringProperty* tagProp = new MP4StringProperty(*this, "tag");
+            tagProp->SetFixedLength(4);
+            AddProperty(tagProp);
 
-    /* do the usual read */
-    MP4Atom::Read();
-}
+            MP4StringProperty* versionProp =
+                new MP4StringProperty(*this, "version");
+            versionProp->SetFixedLength(4);
+            AddProperty(versionProp);
 
-///////////////////////////////////////////////////////////////////////////////
+            AddProperty(new MP4Integer32Property(*this, "cid"));
+            AddProperty(new MP4Integer32Property(*this, "width"));
+            AddProperty(new MP4Integer32Property(*this, "height"));
+            AddProperty(new MP4Integer32Property(*this, "unknown1"));
+            AddProperty(new MP4Integer32Property(*this, "zero"));
+            AddProperty(new MP4Integer32Property(*this, "unknown2"));
+            AddReserved(*this, "padding", 80); // the rest
+        }
 
-}
-} // namespace mp4v2::impl
+        void MP4ARESAtom::Read()
+        {
+            /* For some reason ARES is larger than it reports */
+            SetSize(GetSize() + 4);
+            SetEnd(GetEnd() + 4);
 
+            /* do the usual read */
+            MP4Atom::Read();
+        }
 
+        ///////////////////////////////////////////////////////////////////////////////
 
+    } // namespace impl
+} // namespace mp4v2

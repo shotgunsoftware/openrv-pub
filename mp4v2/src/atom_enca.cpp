@@ -22,50 +22,50 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4EncaAtom::MP4EncaAtom(MP4File &file)
-        : MP4Atom(file, "enca")
+namespace mp4v2
 {
-    AddReserved(*this, "reserved1", 6); /* 0 */
+    namespace impl
+    {
 
-    AddProperty( /* 1 */
-        new MP4Integer16Property(*this, "dataReferenceIndex"));
+        ///////////////////////////////////////////////////////////////////////////////
 
-    AddReserved(*this, "reserved2", 16); /* 2 */
+        MP4EncaAtom::MP4EncaAtom(MP4File& file)
+            : MP4Atom(file, "enca")
+        {
+            AddReserved(*this, "reserved1", 6); /* 0 */
 
-    AddProperty( /* 3 */
-        new MP4Integer16Property(*this, "timeScale"));
+            AddProperty(/* 1 */
+                        new MP4Integer16Property(*this, "dataReferenceIndex"));
 
-    AddReserved(*this, "reserved3", 2); /* 4 */
+            AddReserved(*this, "reserved2", 16); /* 2 */
 
-    ExpectChildAtom("esds", Required, OnlyOne);
-    ExpectChildAtom("sinf", Required, OnlyOne);
-}
+            AddProperty(/* 3 */
+                        new MP4Integer16Property(*this, "timeScale"));
 
-void MP4EncaAtom::Generate()
-{
-    MP4Atom::Generate();
+            AddReserved(*this, "reserved3", 2); /* 4 */
 
-    ((MP4Integer16Property*)m_pProperties[1])->SetValue(1);
+            ExpectChildAtom("esds", Required, OnlyOne);
+            ExpectChildAtom("sinf", Required, OnlyOne);
+        }
 
-    // property reserved2 has non-zero fixed values
-    static uint8_t reserved2[16] = {
-        0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
-        0x00, 0x02, 0x00, 0x10,
-        0x00, 0x00, 0x00, 0x00,
-    };
-    m_pProperties[2]->SetReadOnly(false);
-    ((MP4BytesProperty*)m_pProperties[2])->
-    SetValue(reserved2, sizeof(reserved2));
-    m_pProperties[2]->SetReadOnly(true);
-}
+        void MP4EncaAtom::Generate()
+        {
+            MP4Atom::Generate();
 
-///////////////////////////////////////////////////////////////////////////////
+            ((MP4Integer16Property*)m_pProperties[1])->SetValue(1);
 
-}
-} // namespace mp4v2::impl
+            // property reserved2 has non-zero fixed values
+            static uint8_t reserved2[16] = {
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x02, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00,
+            };
+            m_pProperties[2]->SetReadOnly(false);
+            ((MP4BytesProperty*)m_pProperties[2])
+                ->SetValue(reserved2, sizeof(reserved2));
+            m_pProperties[2]->SetReadOnly(true);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

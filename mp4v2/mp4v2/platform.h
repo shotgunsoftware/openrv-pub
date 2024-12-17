@@ -7,12 +7,14 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-// I declared the stdint stuff below out since our vs2010 has stdint.h. 
+// I declared the stdint stuff below out since our vs2010 has stdint.h.
 
-// Thanks, MSFT, for making C99 a total PITA.  Declare this not to define any stdint stuff; this is useful
-// if you're going to be using mp4v2 on windows with some other library that defines its own stdint.
-// TODO msft has finally re-included stdint in vs2010, so maybe at some point in the future this won't be needed.
-//#ifndef MP4V2_NO_STDINT_DEFS
+// Thanks, MSFT, for making C99 a total PITA.  Declare this not to define any
+// stdint stuff; this is useful if you're going to be using mp4v2 on windows
+// with some other library that defines its own stdint.
+// TODO msft has finally re-included stdint in vs2010, so maybe at some point in
+// the future this won't be needed.
+// #ifndef MP4V2_NO_STDINT_DEFS
 //    #if defined( _WIN32 ) && !defined( __MINGW32__ )
 //        typedef char      int8_t;
 //        typedef short     int16_t;
@@ -24,26 +26,26 @@
 //        typedef unsigned int       uint32_t;
 //        typedef unsigned long long uint64_t;
 //    #else
-        #include <stdint.h>
+#include <stdint.h>
 //    #endif
-//#endif
+// #endif
 
-#if defined( _WIN32 ) || defined( __MINGW32__ )
-#   if defined( MP4V2_EXPORTS )
-#       define MP4V2_EXPORT __declspec(dllexport)
-#   elif defined( MP4V2_USE_DLL_IMPORT ) || !defined( MP4V2_USE_STATIC_LIB )
-#       define MP4V2_EXPORT __declspec(dllimport)
-#   else
-#       define MP4V2_EXPORT
-#   endif
+#if defined(_WIN32) || defined(__MINGW32__)
+#if defined(MP4V2_EXPORTS)
+#define MP4V2_EXPORT __declspec(dllexport)
+#elif defined(MP4V2_USE_DLL_IMPORT) || !defined(MP4V2_USE_STATIC_LIB)
+#define MP4V2_EXPORT __declspec(dllimport)
 #else
-#   define MP4V2_EXPORT __attribute__((visibility("default")))
+#define MP4V2_EXPORT
+#endif
+#else
+#define MP4V2_EXPORT __attribute__((visibility("default")))
 #endif
 
-#if defined( __GNUC__ )
-#   define MP4V2_DEPRECATED __attribute__((deprecated))
+#if defined(__GNUC__)
+#define MP4V2_DEPRECATED __attribute__((deprecated))
 #else
-#   define MP4V2_DEPRECATED
+#define MP4V2_DEPRECATED
 #endif
 
 /******************************************************************************
@@ -68,7 +70,7 @@
 #define TRUE 1
 #endif
 
-#if !defined( __cplusplus )
+#if !defined(__cplusplus)
 #ifndef bool
 #if SIZEOF_BOOL == 8
 typedef uint64_t bool;

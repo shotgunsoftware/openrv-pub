@@ -2,7 +2,8 @@
 //
 //  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
 //
-//  By downloading, copying, installing or using the software you agree to this license.
+//  By downloading, copying, installing or using the software you agree to this
+license.
 //  If you do not agree to this license, do not download, install,
 //  copy or use the software.
 //
@@ -13,23 +14,29 @@
 // Copyright (C) 2000, Intel Corporation, all rights reserved.
 // Third party copyrights are property of their respective owners.
 //
-// Redistribution and use in source and binary forms, with or without modification,
+// Redistribution and use in source and binary forms, with or without
+modification,
 // are permitted provided that the following conditions are met:
 //
 //   * Redistribution's of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //
-//   * Redistribution's in binary form must reproduce the above copyright notice,
+//   * Redistribution's in binary form must reproduce the above copyright
+notice,
 //     this list of conditions and the following disclaimer in the documentation
 //     and/or other materials provided with the distribution.
 //
-//   * The name of Intel Corporation may not be used to endorse or promote products
+//   * The name of Intel Corporation may not be used to endorse or promote
+products
 //     derived from this software without specific prior written permission.
 //
-// This software is provided by the copyright holders and contributors "as is" and
+// This software is provided by the copyright holders and contributors "as is"
+and
 // any express or implied warranties, including, but not limited to, the implied
-// warranties of merchantability and fitness for a particular purpose are disclaimed.
-// In no event shall the Intel Corporation or contributors be liable for any direct,
+// warranties of merchantability and fitness for a particular purpose are
+disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any
+direct,
 // indirect, incidental, special, exemplary, or consequential damages
 // (including, but not limited to, procurement of substitute goods or services;
 // loss of use, data, or profits; or business interruption) however caused
@@ -47,8 +54,8 @@
 
 #include "_cxcore.h"
 
-
-///////////////////////////// Functions Declaration //////////////////////////////////////
+///////////////////////////// Functions Declaration
+/////////////////////////////////////////
 
 /*
    Multiply-with-carry generator is used here:
@@ -56,170 +63,167 @@
    X(n+1) = temp mod (2^32)
    carry = temp / (2^32)
 */
-#define  ICV_RNG_NEXT(x)    ((uint64)(unsigned)(x)*1554115554 + ((x) >> 32))
-#define  ICV_CVT_FLT(x)     (((unsigned)(x) >> 9)|CV_1F)
-#define  ICV_1D             CV_BIG_INT(0x3FF0000000000000)
-#define  ICV_CVT_DBL(x)     (((uint64)(unsigned)(x) << 20)|((x) >> 44)|ICV_1D)
+#define ICV_RNG_NEXT(x) ((uint64)(unsigned)(x) * 1554115554 + ((x) >> 32))
+#define ICV_CVT_FLT(x) (((unsigned)(x) >> 9) | CV_1F)
+#define ICV_1D CV_BIG_INT(0x3FF0000000000000)
+#define ICV_CVT_DBL(x) (((uint64)(unsigned)(x) << 20) | ((x) >> 44) | ICV_1D)
 
 /***************************************************************************************\
-*                           Pseudo-Random Number Generators (PRNGs)                     *
+*                           Pseudo-Random Number Generators (PRNGs) *
 \***************************************************************************************/
 
-#define ICV_IMPL_RAND_BITS( flavor, arrtype, cast_macro )               \
-static CvStatus CV_STDCALL                                              \
-icvRandBits_##flavor##_C1R( arrtype* arr, int step, CvSize size,        \
-                            uint64* state, const int* param )           \
-{                                                                       \
-    uint64 temp = *state;                                               \
-    int small_flag = (param[12]|param[13]|param[14]|param[15]) <= 255;  \
-    step /= sizeof(arr[0]);                                             \
-                                                                        \
-    for( ; size.height--; arr += step )                                 \
-    {                                                                   \
-        int i, k = 3;                                                   \
-        const int* p = param;                                           \
-                                                                        \
-        if( !small_flag )                                               \
-        {                                                               \
-            for( i = 0; i <= size.width - 4; i += 4 )                   \
-            {                                                           \
-                unsigned t0, t1;                                        \
-                                                                        \
-                temp = ICV_RNG_NEXT(temp);                              \
-                t0 = ((unsigned)temp & p[i + 12]) + p[i];               \
-                temp = ICV_RNG_NEXT(temp);                              \
-                t1 = ((unsigned)temp & p[i + 13]) + p[i+1];             \
-                arr[i] = cast_macro((int)t0);                           \
-                arr[i+1] = cast_macro((int)t1);                         \
-                                                                        \
-                temp = ICV_RNG_NEXT(temp);                              \
-                t0 = ((unsigned)temp & p[i + 14]) + p[i+2];             \
-                temp = ICV_RNG_NEXT(temp);                              \
-                t1 = ((unsigned)temp & p[i + 15]) + p[i+3];             \
-                arr[i+2] = cast_macro((int)t0);                         \
-                arr[i+3] = cast_macro((int)t1);                         \
-                                                                        \
-                if( !--k )                                              \
-                {                                                       \
-                    k = 3;                                              \
-                    p -= 12;                                            \
-                }                                                       \
-            }                                                           \
-        }                                                               \
-        else                                                            \
-        {                                                               \
-            for( i = 0; i <= size.width - 4; i += 4 )                   \
-            {                                                           \
-                unsigned t0, t1, t;                                     \
-                                                                        \
-                temp = ICV_RNG_NEXT(temp);                              \
-                t = (unsigned)temp;                                     \
-                t0 = (t & p[i + 12]) + p[i];                            \
-                t1 = ((t >> 8) & p[i + 13]) + p[i+1];                   \
-                arr[i] = cast_macro((int)t0);                           \
-                arr[i+1] = cast_macro((int)t1);                         \
-                                                                        \
-                t0 = ((t >> 16) & p[i + 14]) + p[i + 2];                \
-                t1 = ((t >> 24) & p[i + 15]) + p[i + 3];                \
-                arr[i+2] = cast_macro((int)t0);                         \
-                arr[i+3] = cast_macro((int)t1);                         \
-                                                                        \
-                if( !--k )                                              \
-                {                                                       \
-                    k = 3;                                              \
-                    p -= 12;                                            \
-                }                                                       \
-            }                                                           \
-        }                                                               \
-                                                                        \
-        for( ; i < size.width; i++ )                                    \
-        {                                                               \
-            unsigned t0;                                                \
-            temp = ICV_RNG_NEXT(temp);                                  \
-                                                                        \
-            t0 = ((unsigned)temp & p[i + 12]) + p[i];                   \
-            arr[i] = cast_macro((int)t0);                               \
-        }                                                               \
-    }                                                                   \
-                                                                        \
-    *state = temp;                                                      \
-    return CV_OK;                                                       \
-}
+#define ICV_IMPL_RAND_BITS(flavor, arrtype, cast_macro)                       \
+    static CvStatus CV_STDCALL icvRandBits_##flavor##_C1R(                    \
+        arrtype* arr, int step, CvSize size, uint64* state, const int* param) \
+    {                                                                         \
+        uint64 temp = *state;                                                 \
+        int small_flag =                                                      \
+            (param[12] | param[13] | param[14] | param[15]) <= 255;           \
+        step /= sizeof(arr[0]);                                               \
+                                                                              \
+        for (; size.height--; arr += step)                                    \
+        {                                                                     \
+            int i, k = 3;                                                     \
+            const int* p = param;                                             \
+                                                                              \
+            if (!small_flag)                                                  \
+            {                                                                 \
+                for (i = 0; i <= size.width - 4; i += 4)                      \
+                {                                                             \
+                    unsigned t0, t1;                                          \
+                                                                              \
+                    temp = ICV_RNG_NEXT(temp);                                \
+                    t0 = ((unsigned)temp & p[i + 12]) + p[i];                 \
+                    temp = ICV_RNG_NEXT(temp);                                \
+                    t1 = ((unsigned)temp & p[i + 13]) + p[i + 1];             \
+                    arr[i] = cast_macro((int)t0);                             \
+                    arr[i + 1] = cast_macro((int)t1);                         \
+                                                                              \
+                    temp = ICV_RNG_NEXT(temp);                                \
+                    t0 = ((unsigned)temp & p[i + 14]) + p[i + 2];             \
+                    temp = ICV_RNG_NEXT(temp);                                \
+                    t1 = ((unsigned)temp & p[i + 15]) + p[i + 3];             \
+                    arr[i + 2] = cast_macro((int)t0);                         \
+                    arr[i + 3] = cast_macro((int)t1);                         \
+                                                                              \
+                    if (!--k)                                                 \
+                    {                                                         \
+                        k = 3;                                                \
+                        p -= 12;                                              \
+                    }                                                         \
+                }                                                             \
+            }                                                                 \
+            else                                                              \
+            {                                                                 \
+                for (i = 0; i <= size.width - 4; i += 4)                      \
+                {                                                             \
+                    unsigned t0, t1, t;                                       \
+                                                                              \
+                    temp = ICV_RNG_NEXT(temp);                                \
+                    t = (unsigned)temp;                                       \
+                    t0 = (t & p[i + 12]) + p[i];                              \
+                    t1 = ((t >> 8) & p[i + 13]) + p[i + 1];                   \
+                    arr[i] = cast_macro((int)t0);                             \
+                    arr[i + 1] = cast_macro((int)t1);                         \
+                                                                              \
+                    t0 = ((t >> 16) & p[i + 14]) + p[i + 2];                  \
+                    t1 = ((t >> 24) & p[i + 15]) + p[i + 3];                  \
+                    arr[i + 2] = cast_macro((int)t0);                         \
+                    arr[i + 3] = cast_macro((int)t1);                         \
+                                                                              \
+                    if (!--k)                                                 \
+                    {                                                         \
+                        k = 3;                                                \
+                        p -= 12;                                              \
+                    }                                                         \
+                }                                                             \
+            }                                                                 \
+                                                                              \
+            for (; i < size.width; i++)                                       \
+            {                                                                 \
+                unsigned t0;                                                  \
+                temp = ICV_RNG_NEXT(temp);                                    \
+                                                                              \
+                t0 = ((unsigned)temp & p[i + 12]) + p[i];                     \
+                arr[i] = cast_macro((int)t0);                                 \
+            }                                                                 \
+        }                                                                     \
+                                                                              \
+        *state = temp;                                                        \
+        return CV_OK;                                                         \
+    }
 
+#define ICV_IMPL_RAND(flavor, arrtype, worktype, cast_macro1, cast_macro2) \
+    static CvStatus CV_STDCALL icvRand_##flavor##_C1R(                     \
+        arrtype* arr, int step, CvSize size, uint64* state,                \
+        const double* param)                                               \
+    {                                                                      \
+        uint64 temp = *state;                                              \
+        step /= sizeof(arr[0]);                                            \
+                                                                           \
+        for (; size.height--; arr += step)                                 \
+        {                                                                  \
+            int i, k = 3;                                                  \
+            const double* p = param;                                       \
+                                                                           \
+            for (i = 0; i <= size.width - 4; i += 4)                       \
+            {                                                              \
+                worktype f0, f1;                                           \
+                Cv32suf t0, t1;                                            \
+                                                                           \
+                temp = ICV_RNG_NEXT(temp);                                 \
+                t0.u = ICV_CVT_FLT(temp);                                  \
+                temp = ICV_RNG_NEXT(temp);                                 \
+                t1.u = ICV_CVT_FLT(temp);                                  \
+                f0 = cast_macro1(t0.f * p[i + 12] + p[i]);                 \
+                f1 = cast_macro1(t1.f * p[i + 13] + p[i + 1]);             \
+                arr[i] = cast_macro2(f0);                                  \
+                arr[i + 1] = cast_macro2(f1);                              \
+                                                                           \
+                temp = ICV_RNG_NEXT(temp);                                 \
+                t0.u = ICV_CVT_FLT(temp);                                  \
+                temp = ICV_RNG_NEXT(temp);                                 \
+                t1.u = ICV_CVT_FLT(temp);                                  \
+                f0 = cast_macro1(t0.f * p[i + 14] + p[i + 2]);             \
+                f1 = cast_macro1(t1.f * p[i + 15] + p[i + 3]);             \
+                arr[i + 2] = cast_macro2(f0);                              \
+                arr[i + 3] = cast_macro2(f1);                              \
+                                                                           \
+                if (!--k)                                                  \
+                {                                                          \
+                    k = 3;                                                 \
+                    p -= 12;                                               \
+                }                                                          \
+            }                                                              \
+                                                                           \
+            for (; i < size.width; i++)                                    \
+            {                                                              \
+                worktype f0;                                               \
+                Cv32suf t0;                                                \
+                                                                           \
+                temp = ICV_RNG_NEXT(temp);                                 \
+                t0.u = ICV_CVT_FLT(temp);                                  \
+                f0 = cast_macro1(t0.f * p[i + 12] + p[i]);                 \
+                arr[i] = cast_macro2(f0);                                  \
+            }                                                              \
+        }                                                                  \
+                                                                           \
+        *state = temp;                                                     \
+        return CV_OK;                                                      \
+    }
 
-#define ICV_IMPL_RAND( flavor, arrtype, worktype, cast_macro1, cast_macro2 )\
-static CvStatus CV_STDCALL                                              \
-icvRand_##flavor##_C1R( arrtype* arr, int step, CvSize size,            \
-                        uint64* state, const double* param )            \
-{                                                                       \
-    uint64 temp = *state;                                               \
-    step /= sizeof(arr[0]);                                             \
-                                                                        \
-    for( ; size.height--; arr += step )                                 \
-    {                                                                   \
-        int i, k = 3;                                                   \
-        const double* p = param;                                        \
-                                                                        \
-        for( i = 0; i <= size.width - 4; i += 4 )                       \
-        {                                                               \
-            worktype f0, f1;                                            \
-            Cv32suf t0, t1;                                             \
-                                                                        \
-            temp = ICV_RNG_NEXT(temp);                                  \
-            t0.u = ICV_CVT_FLT(temp);                                   \
-            temp = ICV_RNG_NEXT(temp);                                  \
-            t1.u = ICV_CVT_FLT(temp);                                   \
-            f0 = cast_macro1( t0.f * p[i + 12] + p[i] );                \
-            f1 = cast_macro1( t1.f * p[i + 13] + p[i + 1] );            \
-            arr[i] = cast_macro2(f0);                                   \
-            arr[i+1] = cast_macro2(f1);                                 \
-                                                                        \
-            temp = ICV_RNG_NEXT(temp);                                  \
-            t0.u = ICV_CVT_FLT(temp);                                   \
-            temp = ICV_RNG_NEXT(temp);                                  \
-            t1.u = ICV_CVT_FLT(temp);                                   \
-            f0 = cast_macro1( t0.f * p[i + 14] + p[i + 2] );            \
-            f1 = cast_macro1( t1.f * p[i + 15] + p[i + 3] );            \
-            arr[i+2] = cast_macro2(f0);                                 \
-            arr[i+3] = cast_macro2(f1);                                 \
-                                                                        \
-            if( !--k )                                                  \
-            {                                                           \
-                k = 3;                                                  \
-                p -= 12;                                                \
-            }                                                           \
-        }                                                               \
-                                                                        \
-        for( ; i < size.width; i++ )                                    \
-        {                                                               \
-            worktype f0;                                                \
-            Cv32suf t0;                                                 \
-                                                                        \
-            temp = ICV_RNG_NEXT(temp);                                  \
-            t0.u = ICV_CVT_FLT(temp);                                   \
-            f0 = cast_macro1( t0.f * p[i + 12] + p[i] );                \
-            arr[i] = cast_macro2(f0);                                   \
-        }                                                               \
-    }                                                                   \
-                                                                        \
-    *state = temp;                                                      \
-    return CV_OK;                                                       \
-}
-
-
-static CvStatus CV_STDCALL
-icvRand_64f_C1R( double* arr, int step, CvSize size,
-                 uint64* state, const double* param )
+static CvStatus CV_STDCALL icvRand_64f_C1R(double* arr, int step, CvSize size,
+                                           uint64* state, const double* param)
 {
     uint64 temp = *state;
     step /= sizeof(arr[0]);
 
-    for( ; size.height--; arr += step )
+    for (; size.height--; arr += step)
     {
         int i, k = 3;
         const double* p = param;
 
-        for( i = 0; i <= size.width - 4; i += 4 )
+        for (i = 0; i <= size.width - 4; i += 4)
         {
             double f0, f1;
             Cv64suf t0, t1;
@@ -231,7 +235,7 @@ icvRand_64f_C1R( double* arr, int step, CvSize size,
             f0 = t0.f * p[i + 12] + p[i];
             f1 = t1.f * p[i + 13] + p[i + 1];
             arr[i] = f0;
-            arr[i+1] = f1;
+            arr[i + 1] = f1;
 
             temp = ICV_RNG_NEXT(temp);
             t0.u = ICV_CVT_DBL(temp);
@@ -239,17 +243,17 @@ icvRand_64f_C1R( double* arr, int step, CvSize size,
             t1.u = ICV_CVT_DBL(temp);
             f0 = t0.f * p[i + 14] + p[i + 2];
             f1 = t1.f * p[i + 15] + p[i + 3];
-            arr[i+2] = f0;
-            arr[i+3] = f1;
+            arr[i + 2] = f0;
+            arr[i + 3] = f1;
 
-            if( !--k )
+            if (!--k)
             {
                 k = 3;
                 p -= 12;
             }
         }
 
-        for( ; i < size.width; i++ )
+        for (; i < size.width; i++)
         {
             double f0;
             Cv64suf t0;
@@ -265,7 +269,6 @@ icvRand_64f_C1R( double* arr, int step, CvSize size,
     return CV_OK;
 }
 
-
 /***************************************************************************************\
     The code below implements algorithm from the paper:
 
@@ -275,53 +278,53 @@ icvRand_64f_C1R( double* arr, int step, CvSize size,
     Pages 341-350, September, 1998.
 \***************************************************************************************/
 
-static CvStatus CV_STDCALL
-icvRandn_0_1_32f_C1R( float* arr, int len, uint64* state )
+static CvStatus CV_STDCALL icvRandn_0_1_32f_C1R(float* arr, int len,
+                                                uint64* state)
 {
     uint64 temp = *state;
     int i;
     temp = ICV_RNG_NEXT(temp);
 
-    for( i = 0; i < len; i++ )
+    for (i = 0; i < len; i++)
     {
         double x, y, v, ax, bx;
 
-        for(;;)
+        for (;;)
         {
-            x = ((int)temp)*1.167239e-9;
+            x = ((int)temp) * 1.167239e-9;
             temp = ICV_RNG_NEXT(temp);
             ax = fabs(x);
-            v = 2.8658 - ax*(2.0213 - 0.3605*ax);
-            y = ((unsigned)temp)*2.328306e-10;
+            v = 2.8658 - ax * (2.0213 - 0.3605 * ax);
+            y = ((unsigned)temp) * 2.328306e-10;
             temp = ICV_RNG_NEXT(temp);
 
-            if( y < v || ax < 1.17741 )
+            if (y < v || ax < 1.17741)
                 break;
 
             bx = x;
-            x = bx > 0 ? 0.8857913*(2.506628 - ax) : -0.8857913*(2.506628 - ax);
-            
-            if( y > v + 0.0506 )
+            x = bx > 0 ? 0.8857913 * (2.506628 - ax)
+                       : -0.8857913 * (2.506628 - ax);
+
+            if (y > v + 0.0506)
                 break;
 
-            if( log(y) < .6931472 - .5*bx*bx )
+            if (log(y) < .6931472 - .5 * bx * bx)
             {
                 x = bx;
                 break;
             }
 
-            if( log(1.8857913 - y) < .5718733-.5*x*x )
+            if (log(1.8857913 - y) < .5718733 - .5 * x * x)
                 break;
 
             do
             {
-                v = ((int)temp)*4.656613e-10;
-                x = -log(fabs(v))*.3989423;
+                v = ((int)temp) * 4.656613e-10;
+                x = -log(fabs(v)) * .3989423;
                 temp = ICV_RNG_NEXT(temp);
-                y = -log(((unsigned)temp)*2.328306e-10);
+                y = -log(((unsigned)temp) * 2.328306e-10);
                 temp = ICV_RNG_NEXT(temp);
-            }
-            while( y+y < x*x );
+            } while (y + y < x * x);
 
             x = v > 0 ? 2.506628 + x : -2.506628 - x;
             break;
@@ -333,86 +336,82 @@ icvRandn_0_1_32f_C1R( float* arr, int len, uint64* state )
     return CV_OK;
 }
 
+#define RAND_BUF_SIZE 96
 
-#define RAND_BUF_SIZE  96
+#define ICV_IMPL_RANDN(flavor, arrtype, worktype, cast_macro1, cast_macro2)  \
+    static CvStatus CV_STDCALL icvRandn_##flavor##_C1R(                      \
+        arrtype* arr, int step, CvSize size, uint64* state,                  \
+        const double* param)                                                 \
+    {                                                                        \
+        float buffer[RAND_BUF_SIZE];                                         \
+        step /= sizeof(arr[0]);                                              \
+                                                                             \
+        for (; size.height--; arr += step)                                   \
+        {                                                                    \
+            int i, j, len = RAND_BUF_SIZE;                                   \
+                                                                             \
+            for (i = 0; i < size.width; i += RAND_BUF_SIZE)                  \
+            {                                                                \
+                int k = 3;                                                   \
+                const double* p = param;                                     \
+                                                                             \
+                if (i + len > size.width)                                    \
+                    len = size.width - i;                                    \
+                                                                             \
+                icvRandn_0_1_32f_C1R(buffer, len, state);                    \
+                                                                             \
+                for (j = 0; j <= len - 4; j += 4)                            \
+                {                                                            \
+                    worktype f0, f1;                                         \
+                                                                             \
+                    f0 = cast_macro1(buffer[j] * p[j + 12] + p[j]);          \
+                    f1 = cast_macro1(buffer[j + 1] * p[j + 13] + p[j + 1]);  \
+                    arr[i + j] = cast_macro2(f0);                            \
+                    arr[i + j + 1] = cast_macro2(f1);                        \
+                                                                             \
+                    f0 = cast_macro1(buffer[j + 2] * p[j + 14] + p[j + 2]);  \
+                    f1 = cast_macro1(buffer[j + 3] * p[j + 15] + p[j + 3]);  \
+                    arr[i + j + 2] = cast_macro2(f0);                        \
+                    arr[i + j + 3] = cast_macro2(f1);                        \
+                                                                             \
+                    if (--k == 0)                                            \
+                    {                                                        \
+                        k = 3;                                               \
+                        p -= 12;                                             \
+                    }                                                        \
+                }                                                            \
+                                                                             \
+                for (; j < len; j++)                                         \
+                {                                                            \
+                    worktype f0 = cast_macro1(buffer[j] * p[j + 12] + p[j]); \
+                    arr[i + j] = cast_macro2(f0);                            \
+                }                                                            \
+            }                                                                \
+        }                                                                    \
+                                                                             \
+        return CV_OK;                                                        \
+    }
 
+ICV_IMPL_RAND_BITS(8u, uchar, CV_CAST_8U)
+ICV_IMPL_RAND_BITS(16u, ushort, CV_CAST_16U)
+ICV_IMPL_RAND_BITS(16s, short, CV_CAST_16S)
+ICV_IMPL_RAND_BITS(32s, int, CV_CAST_32S)
 
-#define ICV_IMPL_RANDN( flavor, arrtype, worktype, cast_macro1, cast_macro2 )   \
-static CvStatus CV_STDCALL                                                      \
-icvRandn_##flavor##_C1R( arrtype* arr, int step, CvSize size,                   \
-                         uint64* state, const double* param )                   \
-{                                                                               \
-    float buffer[RAND_BUF_SIZE];                                                \
-    step /= sizeof(arr[0]);                                                     \
-                                                                                \
-    for( ; size.height--; arr += step )                                         \
-    {                                                                           \
-        int i, j, len = RAND_BUF_SIZE;                                          \
-                                                                                \
-        for( i = 0; i < size.width; i += RAND_BUF_SIZE )                        \
-        {                                                                       \
-            int k = 3;                                                          \
-            const double* p = param;                                            \
-                                                                                \
-            if( i + len > size.width )                                          \
-                len = size.width - i;                                           \
-                                                                                \
-            icvRandn_0_1_32f_C1R( buffer, len, state );                         \
-                                                                                \
-            for( j = 0; j <= len - 4; j += 4 )                                  \
-            {                                                                   \
-                worktype f0, f1;                                                \
-                                                                                \
-                f0 = cast_macro1( buffer[j]*p[j+12] + p[j] );                   \
-                f1 = cast_macro1( buffer[j+1]*p[j+13] + p[j+1] );               \
-                arr[i+j] = cast_macro2(f0);                                     \
-                arr[i+j+1] = cast_macro2(f1);                                   \
-                                                                                \
-                f0 = cast_macro1( buffer[j+2]*p[j+14] + p[j+2] );               \
-                f1 = cast_macro1( buffer[j+3]*p[j+15] + p[j+3] );               \
-                arr[i+j+2] = cast_macro2(f0);                                   \
-                arr[i+j+3] = cast_macro2(f1);                                   \
-                                                                                \
-                if( --k == 0 )                                                  \
-                {                                                               \
-                    k = 3;                                                      \
-                    p -= 12;                                                    \
-                }                                                               \
-            }                                                                   \
-                                                                                \
-            for( ; j < len; j++ )                                               \
-            {                                                                   \
-                worktype f0 = cast_macro1( buffer[j]*p[j+12] + p[j] );          \
-                arr[i+j] = cast_macro2(f0);                                     \
-            }                                                                   \
-        }                                                                       \
-    }                                                                           \
-                                                                                \
-    return CV_OK;                                                               \
-}
+ICV_IMPL_RAND(8u, uchar, int, cvFloor, CV_CAST_8U)
+ICV_IMPL_RAND(16u, ushort, int, cvFloor, CV_CAST_16U)
+ICV_IMPL_RAND(16s, short, int, cvFloor, CV_CAST_16S)
+ICV_IMPL_RAND(32s, int, int, cvFloor, CV_CAST_32S)
+ICV_IMPL_RAND(32f, float, float, CV_CAST_32F, CV_NOP)
 
+ICV_IMPL_RANDN(8u, uchar, int, cvRound, CV_CAST_8U)
+ICV_IMPL_RANDN(16u, ushort, int, cvRound, CV_CAST_16U)
+ICV_IMPL_RANDN(16s, short, int, cvRound, CV_CAST_16S)
+ICV_IMPL_RANDN(32s, int, int, cvRound, CV_CAST_32S)
+ICV_IMPL_RANDN(32f, float, float, CV_CAST_32F, CV_NOP)
+ICV_IMPL_RANDN(64f, double, double, CV_CAST_64F, CV_NOP)
 
-ICV_IMPL_RAND_BITS( 8u, uchar, CV_CAST_8U )
-ICV_IMPL_RAND_BITS( 16u, ushort, CV_CAST_16U )
-ICV_IMPL_RAND_BITS( 16s, short, CV_CAST_16S )
-ICV_IMPL_RAND_BITS( 32s, int, CV_CAST_32S )
-
-ICV_IMPL_RAND( 8u, uchar, int, cvFloor, CV_CAST_8U )
-ICV_IMPL_RAND( 16u, ushort, int, cvFloor, CV_CAST_16U )
-ICV_IMPL_RAND( 16s, short, int, cvFloor, CV_CAST_16S )
-ICV_IMPL_RAND( 32s, int, int, cvFloor, CV_CAST_32S )
-ICV_IMPL_RAND( 32f, float, float, CV_CAST_32F, CV_NOP )
-
-ICV_IMPL_RANDN( 8u, uchar, int, cvRound, CV_CAST_8U )
-ICV_IMPL_RANDN( 16u, ushort, int, cvRound, CV_CAST_16U )
-ICV_IMPL_RANDN( 16s, short, int, cvRound, CV_CAST_16S )
-ICV_IMPL_RANDN( 32s, int, int, cvRound, CV_CAST_32S )
-ICV_IMPL_RANDN( 32f, float, float, CV_CAST_32F, CV_NOP )
-ICV_IMPL_RANDN( 64f, double, double, CV_CAST_64F, CV_NOP )
-
-static void icvInitRandTable( CvFuncTable* fastrng_tab,
-                              CvFuncTable* rng_tab,
-                              CvFuncTable* normal_tab )
+static void icvInitRandTable(CvFuncTable* fastrng_tab, CvFuncTable* rng_tab,
+                             CvFuncTable* normal_tab)
 {
     fastrng_tab->fn_2d[CV_8U] = (void*)icvRandBits_8u_C1R;
     fastrng_tab->fn_2d[CV_8S] = 0;
@@ -437,14 +436,13 @@ static void icvInitRandTable( CvFuncTable* fastrng_tab,
     normal_tab->fn_2d[CV_64F] = (void*)icvRandn_64f_C1R;
 }
 
-
-CV_IMPL void
-cvRandArr( CvRNG* rng, CvArr* arr, int disttype, CvScalar param1, CvScalar param2 )
+CV_IMPL void cvRandArr(CvRNG* rng, CvArr* arr, int disttype, CvScalar param1,
+                       CvScalar param2)
 {
     static CvFuncTable rng_tab[2], fastrng_tab;
     static int inittab = 0;
 
-    CV_FUNCNAME( "cvRandArr" );
+    CV_FUNCNAME("cvRandArr");
 
     __BEGIN__;
 
@@ -461,40 +459,40 @@ cvRandArr( CvRNG* rng, CvArr* arr, int disttype, CvScalar param1, CvScalar param
     CvMatND stub_nd;
     CvNArrayIterator iterator_state, *iterator = 0;
 
-    if( !inittab )
+    if (!inittab)
     {
-        icvInitRandTable( &fastrng_tab, &rng_tab[CV_RAND_UNI],
-                          &rng_tab[CV_RAND_NORMAL] );
+        icvInitRandTable(&fastrng_tab, &rng_tab[CV_RAND_UNI],
+                         &rng_tab[CV_RAND_NORMAL]);
         inittab = 1;
     }
 
-    if( !rng )
-        CV_ERROR( CV_StsNullPtr, "Null pointer to RNG state" );
+    if (!rng)
+        CV_ERROR(CV_StsNullPtr, "Null pointer to RNG state");
 
-    if( CV_IS_MATND(mat) )
+    if (CV_IS_MATND(mat))
     {
         iterator = &iterator_state;
-        CV_CALL( cvInitNArrayIterator( 1, &arr, 0, &stub_nd, iterator ));
+        CV_CALL(cvInitNArrayIterator(1, &arr, 0, &stub_nd, iterator));
         type = CV_MAT_TYPE(iterator->hdr[0]->type);
         size = iterator->size;
         is_nd = 1;
     }
     else
     {
-        if( !CV_IS_MAT(mat))
+        if (!CV_IS_MAT(mat))
         {
             int coi = 0;
-            CV_CALL( mat = cvGetMat( mat, &stub, &coi ));
+            CV_CALL(mat = cvGetMat(mat, &stub, &coi));
 
-            if( coi != 0 )
-                CV_ERROR( CV_BadCOI, "COI is not supported" );
+            if (coi != 0)
+                CV_ERROR(CV_BadCOI, "COI is not supported");
         }
 
-        type = CV_MAT_TYPE( mat->type );
-        size = cvGetMatSize( mat );
+        type = CV_MAT_TYPE(mat->type);
+        size = cvGetMatSize(mat);
         mat_step = mat->step;
 
-        if( mat->height > 1 && CV_IS_MAT_CONT( mat->type ))
+        if (mat->height > 1 && CV_IS_MAT_CONT(mat->type))
         {
             size.width *= size.height;
             mat_step = CV_STUB_STEP;
@@ -502,30 +500,31 @@ cvRandArr( CvRNG* rng, CvArr* arr, int disttype, CvScalar param1, CvScalar param
         }
     }
 
-    depth = CV_MAT_DEPTH( type );
-    channels = CV_MAT_CN( type );
+    depth = CV_MAT_DEPTH(type);
+    channels = CV_MAT_CN(type);
     size.width *= channels;
 
-    if( disttype == CV_RAND_UNI )
+    if (disttype == CV_RAND_UNI)
     {
-        if( depth <= CV_32S )
+        if (depth <= CV_32S)
         {
-            for( i = 0, fast_int_mode = 1; i < channels; i++ )
+            for (i = 0, fast_int_mode = 1; i < channels; i++)
             {
-                int t0 = iparam[0][i] = cvCeil( param1.val[i] );
-                int t1 = iparam[1][i] = cvFloor( param2.val[i] ) - t0;
+                int t0 = iparam[0][i] = cvCeil(param1.val[i]);
+                int t1 = iparam[1][i] = cvFloor(param2.val[i]) - t0;
                 double diff = param1.val[i] - param2.val[i];
 
-                fast_int_mode &= INT_MIN <= diff && diff <= INT_MAX && (t1 & (t1 - 1)) == 0;
+                fast_int_mode &=
+                    INT_MIN <= diff && diff <= INT_MAX && (t1 & (t1 - 1)) == 0;
             }
         }
 
-        if( fast_int_mode )
+        if (fast_int_mode)
         {
-            for( i = 0; i < channels; i++ )
+            for (i = 0; i < channels; i++)
                 iparam[1][i]--;
-        
-            for( ; i < 12; i++ )
+
+            for (; i < 12; i++)
             {
                 int t0 = iparam[0][i - channels];
                 int t1 = iparam[1][i - channels];
@@ -534,12 +533,12 @@ cvRandArr( CvRNG* rng, CvArr* arr, int disttype, CvScalar param1, CvScalar param
                 iparam[1][i] = t1;
             }
 
-            CV_GET_FUNC_PTR( func, (CvFunc2D_1A2P)(fastrng_tab.fn_2d[depth]));
+            CV_GET_FUNC_PTR(func, (CvFunc2D_1A2P)(fastrng_tab.fn_2d[depth]));
             param = iparam;
         }
         else
         {
-            for( i = 0; i < channels; i++ )
+            for (i = 0; i < channels; i++)
             {
                 double t0 = param1.val[i];
                 double t1 = param2.val[i];
@@ -548,12 +547,12 @@ cvRandArr( CvRNG* rng, CvArr* arr, int disttype, CvScalar param1, CvScalar param
                 dparam[1][i] = t1 - t0;
             }
 
-            CV_GET_FUNC_PTR( func, (CvFunc2D_1A2P)(rng_tab[0].fn_2d[depth]));
+            CV_GET_FUNC_PTR(func, (CvFunc2D_1A2P)(rng_tab[0].fn_2d[depth]));
         }
     }
-    else if( disttype == CV_RAND_NORMAL )
+    else if (disttype == CV_RAND_NORMAL)
     {
-        for( i = 0; i < channels; i++ )
+        for (i = 0; i < channels; i++)
         {
             double t0 = param1.val[i];
             double t1 = param2.val[i];
@@ -562,16 +561,16 @@ cvRandArr( CvRNG* rng, CvArr* arr, int disttype, CvScalar param1, CvScalar param
             dparam[1][i] = t1;
         }
 
-        CV_GET_FUNC_PTR( func, (CvFunc2D_1A2P)(rng_tab[1].fn_2d[depth]));
+        CV_GET_FUNC_PTR(func, (CvFunc2D_1A2P)(rng_tab[1].fn_2d[depth]));
     }
     else
     {
-        CV_ERROR( CV_StsBadArg, "Unknown distribution type" );
+        CV_ERROR(CV_StsBadArg, "Unknown distribution type");
     }
 
-    if( !fast_int_mode )
+    if (!fast_int_mode)
     {
-        for( i = channels; i < 12; i++ )
+        for (i = channels; i < 12; i++)
         {
             double t0 = dparam[0][i - channels];
             double t1 = dparam[1][i - channels];
@@ -581,17 +580,16 @@ cvRandArr( CvRNG* rng, CvArr* arr, int disttype, CvScalar param1, CvScalar param
         }
     }
 
-    if( !is_nd )
+    if (!is_nd)
     {
-        IPPI_CALL( func( mat->data.ptr, mat_step, size, rng, param ));
+        IPPI_CALL(func(mat->data.ptr, mat_step, size, rng, param));
     }
     else
     {
         do
         {
-            IPPI_CALL( func( iterator->ptr[0], CV_STUB_STEP, size, rng, param ));
-        }
-        while( cvNextNArraySlice( iterator ));
+            IPPI_CALL(func(iterator->ptr[0], CV_STUB_STEP, size, rng, param));
+        } while (cvNextNArraySlice(iterator));
     }
 
     __END__;

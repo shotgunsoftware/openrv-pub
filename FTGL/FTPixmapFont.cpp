@@ -31,53 +31,45 @@
 #include "FTInternals.h"
 #include "FTPixmapFontImpl.h"
 
-
 //
 //  FTPixmapFont
 //
 
+FTPixmapFont::FTPixmapFont(char const* fontFilePath)
+    : FTFont(new FTPixmapFontImpl(this, fontFilePath))
+{
+}
 
-FTPixmapFont::FTPixmapFont(char const *fontFilePath) :
-    FTFont(new FTPixmapFontImpl(this, fontFilePath))
-{}
+FTPixmapFont::FTPixmapFont(const unsigned char* pBufferBytes,
+                           size_t bufferSizeInBytes)
+    : FTFont(new FTPixmapFontImpl(this, pBufferBytes, bufferSizeInBytes))
+{
+}
 
-
-FTPixmapFont::FTPixmapFont(const unsigned char *pBufferBytes,
-                           size_t bufferSizeInBytes) :
-    FTFont(new FTPixmapFontImpl(this, pBufferBytes, bufferSizeInBytes))
-{}
-
-
-FTPixmapFont::~FTPixmapFont()
-{}
-
+FTPixmapFont::~FTPixmapFont() {}
 
 FTGlyph* FTPixmapFont::MakeGlyph(FT_GlyphSlot ftGlyph)
 {
     return new FTPixmapGlyph(ftGlyph);
 }
 
-
 //
 //  FTPixmapFontImpl
 //
 
-
-FTPixmapFontImpl::FTPixmapFontImpl(FTFont *ftFont, const char* fontFilePath)
-: FTFontImpl(ftFont, fontFilePath)
+FTPixmapFontImpl::FTPixmapFontImpl(FTFont* ftFont, const char* fontFilePath)
+    : FTFontImpl(ftFont, fontFilePath)
 {
     load_flags = FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP;
 }
 
-
-FTPixmapFontImpl::FTPixmapFontImpl(FTFont *ftFont,
-                                   const unsigned char *pBufferBytes,
+FTPixmapFontImpl::FTPixmapFontImpl(FTFont* ftFont,
+                                   const unsigned char* pBufferBytes,
                                    size_t bufferSizeInBytes)
-: FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes)
+    : FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes)
 {
     load_flags = FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP;
 }
-
 
 template <typename T>
 inline FTPoint FTPixmapFontImpl::RenderI(const T* string, const int len,
@@ -104,8 +96,8 @@ inline FTPoint FTPixmapFontImpl::RenderI(const T* string, const int len,
     glPixelTransferf(GL_BLUE_SCALE, ftglColour[2]);
     glPixelTransferf(GL_ALPHA_SCALE, ftglColour[3]);
 
-    FTPoint tmp = FTFontImpl::Render(string, len,
-                                     position, spacing, renderMode);
+    FTPoint tmp =
+        FTFontImpl::Render(string, len, position, spacing, renderMode);
 
     glPopClientAttrib();
     glPopAttrib();
@@ -113,19 +105,16 @@ inline FTPoint FTPixmapFontImpl::RenderI(const T* string, const int len,
     return tmp;
 }
 
-
-FTPoint FTPixmapFontImpl::Render(const char * string, const int len,
+FTPoint FTPixmapFontImpl::Render(const char* string, const int len,
                                  FTPoint position, FTPoint spacing,
                                  int renderMode)
 {
     return RenderI(string, len, position, spacing, renderMode);
 }
 
-
-FTPoint FTPixmapFontImpl::Render(const wchar_t * string, const int len,
+FTPoint FTPixmapFontImpl::Render(const wchar_t* string, const int len,
                                  FTPoint position, FTPoint spacing,
                                  int renderMode)
 {
     return RenderI(string, len, position, spacing, renderMode);
 }
-

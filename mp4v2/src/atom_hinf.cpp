@@ -21,44 +21,49 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 { namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4HinfAtom::MP4HinfAtom(MP4File &file)
-        : MP4Atom(file, "hinf")
+namespace mp4v2
 {
-    ExpectChildAtom("trpy", Optional, OnlyOne);
-    ExpectChildAtom("nump", Optional, OnlyOne);
-    ExpectChildAtom("tpyl", Optional, OnlyOne);
-    ExpectChildAtom("maxr", Optional, Many);
-    ExpectChildAtom("dmed", Optional, OnlyOne);
-    ExpectChildAtom("dimm", Optional, OnlyOne);
-    ExpectChildAtom("drep", Optional, OnlyOne);
-    ExpectChildAtom("tmin", Optional, OnlyOne);
-    ExpectChildAtom("tmax", Optional, OnlyOne);
-    ExpectChildAtom("pmax", Optional, OnlyOne);
-    ExpectChildAtom("dmax", Optional, OnlyOne);
-    ExpectChildAtom("payt", Optional, OnlyOne);
-}
+    namespace impl
+    {
 
-void MP4HinfAtom::Generate()
-{
-    // hinf is special in that although all it's child atoms
-    // are optional (on read), if we generate it for writing
-    // we really want all the children
+        ///////////////////////////////////////////////////////////////////////////////
 
-    for (uint32_t i = 0; i < m_pChildAtomInfos.Size(); i++) {
-        MP4Atom* pChildAtom =
-            CreateAtom(m_File, this, m_pChildAtomInfos[i]->m_name);
+        MP4HinfAtom::MP4HinfAtom(MP4File& file)
+            : MP4Atom(file, "hinf")
+        {
+            ExpectChildAtom("trpy", Optional, OnlyOne);
+            ExpectChildAtom("nump", Optional, OnlyOne);
+            ExpectChildAtom("tpyl", Optional, OnlyOne);
+            ExpectChildAtom("maxr", Optional, Many);
+            ExpectChildAtom("dmed", Optional, OnlyOne);
+            ExpectChildAtom("dimm", Optional, OnlyOne);
+            ExpectChildAtom("drep", Optional, OnlyOne);
+            ExpectChildAtom("tmin", Optional, OnlyOne);
+            ExpectChildAtom("tmax", Optional, OnlyOne);
+            ExpectChildAtom("pmax", Optional, OnlyOne);
+            ExpectChildAtom("dmax", Optional, OnlyOne);
+            ExpectChildAtom("payt", Optional, OnlyOne);
+        }
 
-        AddChildAtom(pChildAtom);
+        void MP4HinfAtom::Generate()
+        {
+            // hinf is special in that although all it's child atoms
+            // are optional (on read), if we generate it for writing
+            // we really want all the children
 
-        // and ask it to self generate
-        pChildAtom->Generate();
-    }
-}
+            for (uint32_t i = 0; i < m_pChildAtomInfos.Size(); i++)
+            {
+                MP4Atom* pChildAtom =
+                    CreateAtom(m_File, this, m_pChildAtomInfos[i]->m_name);
 
-///////////////////////////////////////////////////////////////////////////////
+                AddChildAtom(pChildAtom);
 
-}} // namespace mp4v2::impl
+                // and ask it to self generate
+                pChildAtom->Generate();
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

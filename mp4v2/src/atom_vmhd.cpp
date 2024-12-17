@@ -21,26 +21,28 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4VmhdAtom::MP4VmhdAtom(MP4File &file)
-        : MP4Atom(file, "vmhd")
+namespace mp4v2
 {
-    AddVersionAndFlags();
-    AddReserved(*this, "reserved", 8);
-}
+    namespace impl
+    {
 
-void MP4VmhdAtom::Generate()
-{
-    MP4Atom::Generate();
+        ///////////////////////////////////////////////////////////////////////////////
 
-    SetFlags(1);
-}
+        MP4VmhdAtom::MP4VmhdAtom(MP4File& file)
+            : MP4Atom(file, "vmhd")
+        {
+            AddVersionAndFlags();
+            AddReserved(*this, "reserved", 8);
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        void MP4VmhdAtom::Generate()
+        {
+            MP4Atom::Generate();
 
-}
-} // namespace mp4v2::impl
+            SetFlags(1);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

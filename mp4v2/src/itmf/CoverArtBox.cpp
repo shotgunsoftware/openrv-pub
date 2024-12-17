@@ -9,9 +9,9 @@
 //  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 //  License for the specific language governing rights and limitations
 //  under the License.
-// 
+//
 //  The Original Code is MP4v2.
-// 
+//
 //  The Initial Developer of the Original Code is Kona Blend.
 //  Portions created by Kona Blend are Copyright (C) 2008.
 //  All Rights Reserved.
@@ -23,239 +23,253 @@
 
 #include "impl.h"
 
-namespace mp4v2 { namespace impl { namespace itmf {
-
-///////////////////////////////////////////////////////////////////////////////
-
-CoverArtBox::Item::Item()
-    : type     ( BT_UNDEFINED )
-    , buffer   ( NULL )
-    , size     ( 0 )
-    , autofree ( false )
+namespace mp4v2
 {
-}
+    namespace impl
+    {
+        namespace itmf
+        {
 
-///////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////////////////
 
-CoverArtBox::Item::Item( const Item& rhs )
-    : type     ( BT_UNDEFINED )
-    , buffer   ( NULL )
-    , size     ( 0 )
-    , autofree ( false )
-{
-    operator=( rhs );
-}
+            CoverArtBox::Item::Item()
+                : type(BT_UNDEFINED)
+                , buffer(NULL)
+                , size(0)
+                , autofree(false)
+            {
+            }
 
-///////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////////////////
 
-CoverArtBox::Item::~Item()
-{
-    reset();
-}
+            CoverArtBox::Item::Item(const Item& rhs)
+                : type(BT_UNDEFINED)
+                , buffer(NULL)
+                , size(0)
+                , autofree(false)
+            {
+                operator=(rhs);
+            }
 
-///////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////////////////
 
-CoverArtBox::Item&
-CoverArtBox::Item::operator=( const Item& rhs )
-{
-    type     = rhs.type;
-    size     = rhs.size;
-    autofree = rhs.autofree;
+            CoverArtBox::Item::~Item() { reset(); }
 
-    if( rhs.autofree ) {
-        buffer = (uint8_t*)MP4Malloc(rhs.size);
-        memcpy( buffer, rhs.buffer, rhs.size );
-    }
-    else {
-        buffer = rhs.buffer;
-    }
+            ///////////////////////////////////////////////////////////////////////////////
 
-    return *this;
-}
+            CoverArtBox::Item& CoverArtBox::Item::operator=(const Item& rhs)
+            {
+                type = rhs.type;
+                size = rhs.size;
+                autofree = rhs.autofree;
 
-///////////////////////////////////////////////////////////////////////////////
+                if (rhs.autofree)
+                {
+                    buffer = (uint8_t*)MP4Malloc(rhs.size);
+                    memcpy(buffer, rhs.buffer, rhs.size);
+                }
+                else
+                {
+                    buffer = rhs.buffer;
+                }
 
-void
-CoverArtBox::Item::reset()
-{
-    if( autofree && buffer )
-        MP4Free( buffer );
+                return *this;
+            }
 
-    type     = BT_UNDEFINED;
-    buffer   = NULL;
-    size     = 0;
-    autofree = false;
-}
+            ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
+            void CoverArtBox::Item::reset()
+            {
+                if (autofree && buffer)
+                    MP4Free(buffer);
 
-bool
-CoverArtBox::add( MP4FileHandle hFile, const Item& item )
-{
-    MP4File& file = *((MP4File*)hFile);
+                type = BT_UNDEFINED;
+                buffer = NULL;
+                size = 0;
+                autofree = false;
+            }
 
-    const char* const covr_name = "moov.udta.meta.ilst.covr";
-    MP4Atom* covr = file.FindAtom( covr_name );
-    if( !covr ) {
-        file.AddDescendantAtoms( "moov", "udta.meta.ilst.covr" );
+            ///////////////////////////////////////////////////////////////////////////////
 
-        covr = file.FindAtom( covr_name );
-        if( !covr )
-            return true;
-    }
+            bool CoverArtBox::add(MP4FileHandle hFile, const Item& item)
+            {
+                MP4File& file = *((MP4File*)hFile);
 
-    // use empty data atom if one exists
-    MP4Atom* data = NULL;
-    uint32_t index = 0;
-    const uint32_t atomc = covr->GetNumberOfChildAtoms();
-    for( uint32_t i = 0; i < atomc; i++ ) {
-        MP4Atom* atom = covr->GetChildAtom( i );
+                const char* const covr_name = "moov.udta.meta.ilst.covr";
+                MP4Atom* covr = file.FindAtom(covr_name);
+                if (!covr)
+                {
+                    file.AddDescendantAtoms("moov", "udta.meta.ilst.covr");
 
-        MP4BytesProperty* metadata = NULL;
-        if( !atom->FindProperty( "data.metadata", (MP4Property**)&metadata ))
-            continue;
+                    covr = file.FindAtom(covr_name);
+                    if (!covr)
+                        return true;
+                }
 
-        if( metadata->GetCount() )
-            continue;
+                // use empty data atom if one exists
+                MP4Atom* data = NULL;
+                uint32_t index = 0;
+                const uint32_t atomc = covr->GetNumberOfChildAtoms();
+                for (uint32_t i = 0; i < atomc; i++)
+                {
+                    MP4Atom* atom = covr->GetChildAtom(i);
 
-        data = atom;
-        index = i;
-        break;
-    }
+                    MP4BytesProperty* metadata = NULL;
+                    if (!atom->FindProperty("data.metadata",
+                                            (MP4Property**)&metadata))
+                        continue;
 
-    // no empty atom found, create one.
-    if( !data ) {
-        data = MP4Atom::CreateAtom( file, covr, "data" );
-        covr->AddChildAtom( data );
-        data->Generate();
-        index = covr->GetNumberOfChildAtoms() - 1;
-    }
+                    if (metadata->GetCount())
+                        continue;
 
-    return set( hFile, item, index );
-}
+                    data = atom;
+                    index = i;
+                    break;
+                }
 
-///////////////////////////////////////////////////////////////////////////////
+                // no empty atom found, create one.
+                if (!data)
+                {
+                    data = MP4Atom::CreateAtom(file, covr, "data");
+                    covr->AddChildAtom(data);
+                    data->Generate();
+                    index = covr->GetNumberOfChildAtoms() - 1;
+                }
 
-bool
-CoverArtBox::get( MP4FileHandle hFile, Item& item, uint32_t index )
-{
-    item.reset();
-    MP4File& file = *((MP4File*)hFile);
+                return set(hFile, item, index);
+            }
 
-    MP4Atom* covr = file.FindAtom( "moov.udta.meta.ilst.covr" );
-    if( !covr )
-        return true;
+            ///////////////////////////////////////////////////////////////////////////////
 
-    if( !(index < covr->GetNumberOfChildAtoms()) )
-        return true;
+            bool CoverArtBox::get(MP4FileHandle hFile, Item& item,
+                                  uint32_t index)
+            {
+                item.reset();
+                MP4File& file = *((MP4File*)hFile);
 
-    MP4DataAtom* data = static_cast<MP4DataAtom*>( covr->GetChildAtom( index ));
-    if( !data )
-        return true;
+                MP4Atom* covr = file.FindAtom("moov.udta.meta.ilst.covr");
+                if (!covr)
+                    return true;
 
-    MP4BytesProperty* metadata = NULL;
-    if ( !data->FindProperty( "data.metadata", (MP4Property**)&metadata ))
-        return true;
+                if (!(index < covr->GetNumberOfChildAtoms()))
+                    return true;
 
-    metadata->GetValue( &item.buffer, &item.size );
-    item.autofree = true;
-    item.type = data->typeCode.GetValue();
+                MP4DataAtom* data =
+                    static_cast<MP4DataAtom*>(covr->GetChildAtom(index));
+                if (!data)
+                    return true;
 
-    return false;
-}
+                MP4BytesProperty* metadata = NULL;
+                if (!data->FindProperty("data.metadata",
+                                        (MP4Property**)&metadata))
+                    return true;
 
-///////////////////////////////////////////////////////////////////////////////
+                metadata->GetValue(&item.buffer, &item.size);
+                item.autofree = true;
+                item.type = data->typeCode.GetValue();
 
-bool
-CoverArtBox::list( MP4FileHandle hFile, ItemList& out )
-{
-    out.clear();
-    MP4File& file = *((MP4File*)hFile);
-    MP4ItmfItemList* itemList = genericGetItemsByCode( file, "covr" ); // alloc
+                return false;
+            }
 
-    if( itemList->size ) {
-        MP4ItmfDataList& dataList = itemList->elements[0].dataList;
-        out.resize( dataList.size );
-        for( uint32_t i = 0; i < dataList.size; i++ )
-            get( hFile, out[i], i );
-    }
+            ///////////////////////////////////////////////////////////////////////////////
 
-    genericItemListFree( itemList ); // free
-    return false;
-}
+            bool CoverArtBox::list(MP4FileHandle hFile, ItemList& out)
+            {
+                out.clear();
+                MP4File& file = *((MP4File*)hFile);
+                MP4ItmfItemList* itemList =
+                    genericGetItemsByCode(file, "covr"); // alloc
 
-///////////////////////////////////////////////////////////////////////////////
+                if (itemList->size)
+                {
+                    MP4ItmfDataList& dataList = itemList->elements[0].dataList;
+                    out.resize(dataList.size);
+                    for (uint32_t i = 0; i < dataList.size; i++)
+                        get(hFile, out[i], i);
+                }
 
-bool
-CoverArtBox::remove( MP4FileHandle hFile, uint32_t index )
-{
-    MP4File& file = *((MP4File*)hFile);
+                genericItemListFree(itemList); // free
+                return false;
+            }
 
-    MP4Atom* covr = file.FindAtom( "moov.udta.meta.ilst.covr" );
-    if( !covr )
-        return true;
+            ///////////////////////////////////////////////////////////////////////////////
 
-    // wildcard mode: delete covr and all images
-    if( index == numeric_limits<uint32_t>::max() ) {
-        covr->GetParentAtom()->DeleteChildAtom( covr );
-        delete covr;
-        return false;
-    }
+            bool CoverArtBox::remove(MP4FileHandle hFile, uint32_t index)
+            {
+                MP4File& file = *((MP4File*)hFile);
 
-    if( !(index < covr->GetNumberOfChildAtoms()) )
-        return true;
+                MP4Atom* covr = file.FindAtom("moov.udta.meta.ilst.covr");
+                if (!covr)
+                    return true;
 
-    MP4Atom* data = covr->GetChildAtom( index );
-    if( !data )
-        return true;
+                // wildcard mode: delete covr and all images
+                if (index == numeric_limits<uint32_t>::max())
+                {
+                    covr->GetParentAtom()->DeleteChildAtom(covr);
+                    delete covr;
+                    return false;
+                }
 
-    // delete single image
-    covr->DeleteChildAtom( data );
-    delete data;
+                if (!(index < covr->GetNumberOfChildAtoms()))
+                    return true;
 
-    // delete empty covr
-    if( covr->GetNumberOfChildAtoms() == 0 ) {
-        covr->GetParentAtom()->DeleteChildAtom( covr );
-        delete covr;
-    }
+                MP4Atom* data = covr->GetChildAtom(index);
+                if (!data)
+                    return true;
 
-    return false;
-}
+                // delete single image
+                covr->DeleteChildAtom(data);
+                delete data;
 
-///////////////////////////////////////////////////////////////////////////////
+                // delete empty covr
+                if (covr->GetNumberOfChildAtoms() == 0)
+                {
+                    covr->GetParentAtom()->DeleteChildAtom(covr);
+                    delete covr;
+                }
 
-bool
-CoverArtBox::set( MP4FileHandle hFile, const Item& item, uint32_t index )
-{
-    MP4File& file = *((MP4File*)hFile);
+                return false;
+            }
 
-    MP4Atom* covr = file.FindAtom( "moov.udta.meta.ilst.covr" );
-    if( !covr )
-        return true;
+            ///////////////////////////////////////////////////////////////////////////////
 
-    if( !(index < covr->GetNumberOfChildAtoms()) )
-        return true;
+            bool CoverArtBox::set(MP4FileHandle hFile, const Item& item,
+                                  uint32_t index)
+            {
+                MP4File& file = *((MP4File*)hFile);
 
-    MP4DataAtom* data = static_cast<MP4DataAtom*>( covr->GetChildAtom( index ));
-    if( !data )
-        return true;
+                MP4Atom* covr = file.FindAtom("moov.udta.meta.ilst.covr");
+                if (!covr)
+                    return true;
 
-    MP4BytesProperty* metadata = NULL;
-    if ( !data->FindProperty( "data.metadata", (MP4Property**)&metadata ))
-        return true;
+                if (!(index < covr->GetNumberOfChildAtoms()))
+                    return true;
 
-    // autodetect type if BT_UNDEFINED
-    const BasicType final_type = (item.type == BT_UNDEFINED)
-        ? computeBasicType( item.buffer, item.size )
-        : item.type;
+                MP4DataAtom* data =
+                    static_cast<MP4DataAtom*>(covr->GetChildAtom(index));
+                if (!data)
+                    return true;
 
-    // set type; note: not really flags due to b0rked atom structure
-    data->typeCode.SetValue( final_type );
-    metadata->SetValue( item.buffer, item.size );
+                MP4BytesProperty* metadata = NULL;
+                if (!data->FindProperty("data.metadata",
+                                        (MP4Property**)&metadata))
+                    return true;
 
-    return false;
-}
+                // autodetect type if BT_UNDEFINED
+                const BasicType final_type =
+                    (item.type == BT_UNDEFINED)
+                        ? computeBasicType(item.buffer, item.size)
+                        : item.type;
 
-///////////////////////////////////////////////////////////////////////////////
+                // set type; note: not really flags due to b0rked atom structure
+                data->typeCode.SetValue(final_type);
+                metadata->SetValue(item.buffer, item.size);
 
-}}} // namespace mp4v2::impl::itmf
+                return false;
+            }
+
+            ///////////////////////////////////////////////////////////////////////////////
+
+        } // namespace itmf
+    } // namespace impl
+} // namespace mp4v2

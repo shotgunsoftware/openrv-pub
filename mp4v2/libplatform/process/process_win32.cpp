@@ -1,16 +1,19 @@
 #include "libplatform/impl.h"
 #include <process.h>
 
-namespace mp4v2 { namespace platform { namespace process {
-
-///////////////////////////////////////////////////////////////////////////////
-
-int32_t
-getpid()
+namespace mp4v2
 {
-    return ::_getpid();
-}
+    namespace platform
+    {
+        namespace process
+        {
 
-///////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////////////////////////////////////////////////////////
 
-}}} // namespace mp4v2::platform::process
+            int32_t getpid() { return ::_getpid(); }
+
+            ///////////////////////////////////////////////////////////////////////////////
+
+        } // namespace process
+    } // namespace platform
+} // namespace mp4v2

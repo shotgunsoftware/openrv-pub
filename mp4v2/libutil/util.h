@@ -15,10 +15,14 @@
 /// which may or may not make it into some form of public API, at which time
 /// it will be moved out of this namespace.
 ///
-namespace mp4v2 { namespace util {
-    using namespace std;
-    using namespace mp4v2::impl;
-}} // namespace mp4v2::util
+namespace mp4v2
+{
+    namespace util
+    {
+        using namespace std;
+        using namespace mp4v2::impl;
+    } // namespace util
+} // namespace mp4v2
 
 ///////////////////////////////////////////////////////////////////////////////
 

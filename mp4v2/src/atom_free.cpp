@@ -21,36 +21,36 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4FreeAtom::MP4FreeAtom( MP4File &file, const char* type )
-    : MP4Atom( file, type ? type : "free" )
+namespace mp4v2
 {
-}
+    namespace impl
+    {
 
-void MP4FreeAtom::Read()
-{
-    Skip();
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-void MP4FreeAtom::Write()
-{
-    bool use64 = (GetSize() > (0xFFFFFFFF - 8));
-    BeginWrite(use64);
+        MP4FreeAtom::MP4FreeAtom(MP4File& file, const char* type)
+            : MP4Atom(file, type ? type : "free")
+        {
+        }
+
+        void MP4FreeAtom::Read() { Skip(); }
+
+        void MP4FreeAtom::Write()
+        {
+            bool use64 = (GetSize() > (0xFFFFFFFF - 8));
+            BeginWrite(use64);
 #if 1
-    for (uint64_t ix = 0; ix < GetSize(); ix++) {
-        m_File.WriteUInt8(0);
-    }
+            for (uint64_t ix = 0; ix < GetSize(); ix++)
+            {
+                m_File.WriteUInt8(0);
+            }
 #else
-    m_File.SetPosition(m_File.GetPosition() + GetSize());
+            m_File.SetPosition(m_File.GetPosition() + GetSize());
 #endif
-    FinishWrite(use64);
-}
+            FinishWrite(use64);
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-}
-} // namespace mp4v2::impl
+    } // namespace impl
+} // namespace mp4v2

@@ -33,40 +33,34 @@
 #include "FTOutlineGlyphImpl.h"
 #include "FTVectoriser.h"
 
-
 //
 //  FTGLOutlineGlyph
 //
 
-
 FTOutlineGlyph::FTOutlineGlyph(FT_GlyphSlot glyph, float outset,
-                               bool useDisplayList) :
-    FTGlyph(new FTOutlineGlyphImpl(glyph, outset, useDisplayList))
-{}
+                               bool useDisplayList)
+    : FTGlyph(new FTOutlineGlyphImpl(glyph, outset, useDisplayList))
+{
+}
 
-
-FTOutlineGlyph::~FTOutlineGlyph()
-{}
-
+FTOutlineGlyph::~FTOutlineGlyph() {}
 
 const FTPoint& FTOutlineGlyph::Render(const FTPoint& pen, int renderMode)
 {
-    FTOutlineGlyphImpl *myimpl = dynamic_cast<FTOutlineGlyphImpl *>(impl);
+    FTOutlineGlyphImpl* myimpl = dynamic_cast<FTOutlineGlyphImpl*>(impl);
     return myimpl->RenderImpl(pen, renderMode);
 }
-
 
 //
 //  FTGLOutlineGlyphImpl
 //
 
-
 FTOutlineGlyphImpl::FTOutlineGlyphImpl(FT_GlyphSlot glyph, float _outset,
                                        bool useDisplayList)
-:   FTGlyphImpl(glyph),
-    glList(0)
+    : FTGlyphImpl(glyph)
+    , glList(0)
 {
-    if(ft_glyph_format_outline != glyph->format)
+    if (ft_glyph_format_outline != glyph->format)
     {
         err = 0x14; // Invalid_Outline
         return;
@@ -74,7 +68,7 @@ FTOutlineGlyphImpl::FTOutlineGlyphImpl(FT_GlyphSlot glyph, float _outset,
 
     vectoriser = new FTVectoriser(glyph);
 
-    if((vectoriser->ContourCount() < 1) || (vectoriser->PointCount() < 3))
+    if ((vectoriser->ContourCount() < 1) || (vectoriser->PointCount() < 3))
     {
         delete vectoriser;
         vectoriser = NULL;
@@ -83,7 +77,7 @@ FTOutlineGlyphImpl::FTOutlineGlyphImpl(FT_GlyphSlot glyph, float _outset,
 
     outset = _outset;
 
-    if(useDisplayList)
+    if (useDisplayList)
     {
         glList = glGenLists(1);
         glNewList(glList, GL_COMPILE);
@@ -97,29 +91,27 @@ FTOutlineGlyphImpl::FTOutlineGlyphImpl(FT_GlyphSlot glyph, float _outset,
     }
 }
 
-
 FTOutlineGlyphImpl::~FTOutlineGlyphImpl()
 {
-    if(glList)
+    if (glList)
     {
         glDeleteLists(glList, 1);
     }
-    else if(vectoriser)
+    else if (vectoriser)
     {
         delete vectoriser;
     }
 }
 
-
 const FTPoint& FTOutlineGlyphImpl::RenderImpl(const FTPoint& pen,
                                               int renderMode)
 {
     glTranslatef(pen.Xf(), pen.Yf(), pen.Zf());
-    if(glList)
+    if (glList)
     {
         glCallList(glList);
     }
-    else if(vectoriser)
+    else if (vectoriser)
     {
         DoRender();
     }
@@ -128,22 +120,20 @@ const FTPoint& FTOutlineGlyphImpl::RenderImpl(const FTPoint& pen,
     return advance;
 }
 
-
 void FTOutlineGlyphImpl::DoRender()
 {
-    for(unsigned int c = 0; c < vectoriser->ContourCount(); ++c)
+    for (unsigned int c = 0; c < vectoriser->ContourCount(); ++c)
     {
         const FTContour* contour = vectoriser->Contour(c);
 
         glBegin(GL_LINE_LOOP);
-            for(unsigned int i = 0; i < contour->PointCount(); ++i)
-            {
-                FTPoint point = FTPoint(contour->Point(i).X() + contour->Outset(i).X() * outset,
-                                        contour->Point(i).Y() + contour->Outset(i).Y() * outset,
-                                        0);
-                glVertex2f(point.Xf() / 64.0f, point.Yf() / 64.0f);
-            }
+        for (unsigned int i = 0; i < contour->PointCount(); ++i)
+        {
+            FTPoint point = FTPoint(
+                contour->Point(i).X() + contour->Outset(i).X() * outset,
+                contour->Point(i).Y() + contour->Outset(i).Y() * outset, 0);
+            glVertex2f(point.Xf() / 64.0f, point.Yf() / 64.0f);
+        }
         glEnd();
     }
 }
-

@@ -15,12 +15,11 @@
 /*                                                                         */
 /***************************************************************************/
 
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* This file is used to define the PSHinter error enumeration constants. */
-  /*                                                                       */
-  /*************************************************************************/
+/*************************************************************************/
+/*                                                                       */
+/* This file is used to define the PSHinter error enumeration constants. */
+/*                                                                       */
+/*************************************************************************/
 
 #ifndef __PSHNTERR_H__
 #define __PSHNTERR_H__
@@ -29,12 +28,11 @@
 
 #undef __FTERRORS_H__
 
-#define FT_ERR_PREFIX  PSH_Err_
-#define FT_ERR_BASE    FT_Mod_Err_PShinter
+#define FT_ERR_PREFIX PSH_Err_
+#define FT_ERR_BASE FT_Mod_Err_PShinter
 
 #include FT_ERRORS_H
 
 #endif /* __PSHNTERR_H__ */
-
 
 /* END */

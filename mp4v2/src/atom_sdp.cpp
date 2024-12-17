@@ -21,43 +21,47 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4SdpAtom::MP4SdpAtom(MP4File &file) : MP4Atom(file, "sdp ")
+namespace mp4v2
 {
-    AddProperty(
-        new MP4StringProperty(*this, "sdpText"));
-}
+    namespace impl
+    {
 
-void MP4SdpAtom::Read()
-{
-    // read sdp string, length is implicit in size of atom
-    uint64_t size = GetEnd() - m_File.GetPosition();
-    char* data = (char*)MP4Malloc(size + 1);
-    ASSERT(data != NULL);
-    m_File.ReadBytes((uint8_t*)data, size);
-    data[size] = '\0';
-    ((MP4StringProperty*)m_pProperties[0])->SetValue(data);
-    MP4Free(data);
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-void MP4SdpAtom::Write()
-{
-    // since length of string is implicit in size of atom
-    // we need to handle this specially, and not write the terminating \0
-    MP4StringProperty* pSdp = (MP4StringProperty*)m_pProperties[0];
-    const char* sdpText = pSdp->GetValue();
-    if (sdpText) {
-        pSdp->SetFixedLength((uint32_t)strlen(sdpText));
-    }
-    MP4Atom::Write();
-    pSdp->SetFixedLength(0);
-}
+        MP4SdpAtom::MP4SdpAtom(MP4File& file)
+            : MP4Atom(file, "sdp ")
+        {
+            AddProperty(new MP4StringProperty(*this, "sdpText"));
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        void MP4SdpAtom::Read()
+        {
+            // read sdp string, length is implicit in size of atom
+            uint64_t size = GetEnd() - m_File.GetPosition();
+            char* data = (char*)MP4Malloc(size + 1);
+            ASSERT(data != NULL);
+            m_File.ReadBytes((uint8_t*)data, size);
+            data[size] = '\0';
+            ((MP4StringProperty*)m_pProperties[0])->SetValue(data);
+            MP4Free(data);
+        }
 
-}
-} // namespace mp4v2::impl
+        void MP4SdpAtom::Write()
+        {
+            // since length of string is implicit in size of atom
+            // we need to handle this specially, and not write the terminating
+            // \0
+            MP4StringProperty* pSdp = (MP4StringProperty*)m_pProperties[0];
+            const char* sdpText = pSdp->GetValue();
+            if (sdpText)
+            {
+                pSdp->SetFixedLength((uint32_t)strlen(sdpText));
+            }
+            MP4Atom::Write();
+            pSdp->SetFixedLength(0);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

@@ -32,20 +32,18 @@
 #include "FTFace.h"
 #include "FTCharmap.h"
 
-
 FTGlyphContainer::FTGlyphContainer(FTFace* f)
-:   face(f),
-    err(0)
+    : face(f)
+    , err(0)
 {
     glyphs.push_back(NULL);
     charMap = new FTCharmap(face);
 }
 
-
 FTGlyphContainer::~FTGlyphContainer()
 {
     GlyphVector::iterator it;
-    for(it = glyphs.begin(); it != glyphs.end(); ++it)
+    for (it = glyphs.begin(); it != glyphs.end(); ++it)
     {
         delete *it;
     }
@@ -54,7 +52,6 @@ FTGlyphContainer::~FTGlyphContainer()
     delete charMap;
 }
 
-
 bool FTGlyphContainer::CharMap(FT_Encoding encoding)
 {
     bool result = charMap->CharMap(encoding);
@@ -62,12 +59,10 @@ bool FTGlyphContainer::CharMap(FT_Encoding encoding)
     return result;
 }
 
-
 unsigned int FTGlyphContainer::FontIndex(const unsigned int charCode) const
 {
     return charMap->FontIndex(charCode);
 }
-
 
 void FTGlyphContainer::Add(FTGlyph* tempGlyph, const unsigned int charCode)
 {
@@ -75,19 +70,16 @@ void FTGlyphContainer::Add(FTGlyph* tempGlyph, const unsigned int charCode)
     glyphs.push_back(tempGlyph);
 }
 
-
 const FTGlyph* const FTGlyphContainer::Glyph(const unsigned int charCode) const
 {
     unsigned int index = charMap->GlyphListIndex(charCode);
     return glyphs[index];
 }
 
-
 FTBBox FTGlyphContainer::BBox(const unsigned int charCode) const
 {
     return Glyph(charCode)->BBox();
 }
-
 
 float FTGlyphContainer::Advance(const unsigned int charCode,
                                 const unsigned int nextCharCode)
@@ -98,7 +90,6 @@ float FTGlyphContainer::Advance(const unsigned int charCode,
     return face->KernAdvance(left, right).Xf() + Glyph(charCode)->Advance();
 }
 
-
 FTPoint FTGlyphContainer::Render(const unsigned int charCode,
                                  const unsigned int nextCharCode,
                                  FTPoint penPosition, int renderMode)
@@ -108,7 +99,7 @@ FTPoint FTGlyphContainer::Render(const unsigned int charCode,
 
     FTPoint kernAdvance = face->KernAdvance(left, right);
 
-    if(!face->Error())
+    if (!face->Error())
     {
         unsigned int index = charMap->GlyphListIndex(charCode);
         kernAdvance += glyphs[index]->Render(penPosition, renderMode);
@@ -116,4 +107,3 @@ FTPoint FTGlyphContainer::Render(const unsigned int charCode,
 
     return kernAdvance;
 }
-

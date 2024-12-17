@@ -139,7 +139,7 @@
 /* #undef LARGE_CONFIG */
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
-   */
+ */
 #define LT_OBJDIR ".libs/"
 
 /* See doc/README.macros. */
@@ -197,7 +197,7 @@
 /* #undef REDIRECT_REALLOC */
 
 /* The number of caller frames saved when allocating with the debugging API.
-   */
+ */
 /* #undef SAVE_CALL_COUNT */
 
 /* Define to tune the collector for small heap sizes. */

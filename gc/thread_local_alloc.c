@@ -16,7 +16,7 @@
 #if defined(THREAD_LOCAL_ALLOC)
 
 #ifndef THREADS
-# error "invalid config - THREAD_LOCAL_ALLOC requires GC_THREADS"
+#error "invalid config - THREAD_LOCAL_ALLOC requires GC_THREADS"
 #endif
 
 #include "private/thread_local_alloc.h"
@@ -24,29 +24,32 @@
 #include <stdlib.h>
 
 #if defined(USE_COMPILER_TLS)
-  __thread
+__thread
 #elif defined(USE_WIN32_COMPILER_TLS)
-  __declspec(thread)
+__declspec(thread)
 #endif
-GC_key_t GC_thread_key;
+    GC_key_t GC_thread_key;
 
 static GC_bool keys_initialized;
 
 /* Return a single nonempty freelist fl to the global one pointed to    */
 /* by gfl.      */
 
-static void return_single_freelist(void *fl, void **gfl)
+static void return_single_freelist(void* fl, void** gfl)
 {
     void *q, **qptr;
 
-    if (*gfl == 0) {
-      *gfl = fl;
-    } else {
-      GC_ASSERT(GC_size(fl) == GC_size(*gfl));
-      /* Concatenate: */
+    if (*gfl == 0)
+    {
+        *gfl = fl;
+    }
+    else
+    {
+        GC_ASSERT(GC_size(fl) == GC_size(*gfl));
+        /* Concatenate: */
         qptr = &(obj_link(fl));
         while ((word)(q = *qptr) >= HBLKSIZE)
-          qptr = &(obj_link(q));
+            qptr = &(obj_link(q));
         GC_ASSERT(0 == q);
         *qptr = *gfl;
         *gfl = fl;
@@ -55,24 +58,28 @@ static void return_single_freelist(void *fl, void **gfl)
 
 /* Recover the contents of the freelist array fl into the global one gfl.*/
 /* We hold the allocator lock.                                          */
-static void return_freelists(void **fl, void **gfl)
+static void return_freelists(void** fl, void** gfl)
 {
     int i;
 
-    for (i = 1; i < TINY_FREELISTS; ++i) {
-        if ((word)(fl[i]) >= HBLKSIZE) {
-          return_single_freelist(fl[i], gfl+i);
+    for (i = 1; i < TINY_FREELISTS; ++i)
+    {
+        if ((word)(fl[i]) >= HBLKSIZE)
+        {
+            return_single_freelist(fl[i], gfl + i);
         }
         /* Clear fl[i], since the thread structure may hang around.     */
         /* Do it in a way that is likely to trap if we access it.       */
         fl[i] = (ptr_t)HBLKSIZE;
     }
     /* The 0 granule freelist really contains 1 granule objects.        */
-#   ifdef GC_GCJ_SUPPORT
-      if (fl[0] == ERROR_FL) return;
-#   endif
-    if ((word)(fl[0]) >= HBLKSIZE) {
-        return_single_freelist(fl[0], gfl+1);
+#ifdef GC_GCJ_SUPPORT
+    if (fl[0] == ERROR_FL)
+        return;
+#endif
+    if ((word)(fl[0]) >= HBLKSIZE)
+    {
+        return_single_freelist(fl[0], gfl + 1);
     }
 }
 
@@ -83,31 +90,35 @@ GC_INNER void GC_init_thread_local(GC_tlfs p)
     int i;
 
     GC_ASSERT(I_HOLD_LOCK());
-    if (!keys_initialized) {
-        if (0 != GC_key_create(&GC_thread_key, 0)) {
+    if (!keys_initialized)
+    {
+        if (0 != GC_key_create(&GC_thread_key, 0))
+        {
             ABORT("Failed to create key for local allocator");
         }
         keys_initialized = TRUE;
     }
-    if (0 != GC_setspecific(GC_thread_key, p)) {
+    if (0 != GC_setspecific(GC_thread_key, p))
+    {
         ABORT("Failed to set thread specific allocation pointers");
     }
-    for (i = 1; i < TINY_FREELISTS; ++i) {
-        p -> ptrfree_freelists[i] = (void *)(word)1;
-        p -> normal_freelists[i] = (void *)(word)1;
-#       ifdef GC_GCJ_SUPPORT
-          p -> gcj_freelists[i] = (void *)(word)1;
-#       endif
+    for (i = 1; i < TINY_FREELISTS; ++i)
+    {
+        p->ptrfree_freelists[i] = (void*)(word)1;
+        p->normal_freelists[i] = (void*)(word)1;
+#ifdef GC_GCJ_SUPPORT
+        p->gcj_freelists[i] = (void*)(word)1;
+#endif
     }
     /* Set up the size 0 free lists.    */
     /* We now handle most of them like regular free lists, to ensure    */
     /* That explicit deallocation works.  However, allocation of a      */
     /* size 0 "gcj" object is always an error.                          */
-    p -> ptrfree_freelists[0] = (void *)(word)1;
-    p -> normal_freelists[0] = (void *)(word)1;
-#   ifdef GC_GCJ_SUPPORT
-        p -> gcj_freelists[0] = ERROR_FL;
-#   endif
+    p->ptrfree_freelists[0] = (void*)(word)1;
+    p->normal_freelists[0] = (void*)(word)1;
+#ifdef GC_GCJ_SUPPORT
+    p->gcj_freelists[0] = ERROR_FL;
+#endif
 }
 
 /* We hold the allocator lock.  */
@@ -115,83 +126,87 @@ GC_INNER void GC_destroy_thread_local(GC_tlfs p)
 {
     /* We currently only do this from the thread itself or from */
     /* the fork handler for a child process.                    */
-#   ifndef HANDLE_FORK
-      GC_ASSERT(GC_getspecific(GC_thread_key) == (void *)p);
-#   endif
-    return_freelists(p -> ptrfree_freelists, GC_aobjfreelist);
-    return_freelists(p -> normal_freelists, GC_objfreelist);
-#   ifdef GC_GCJ_SUPPORT
-        return_freelists(p -> gcj_freelists, (void **)GC_gcjobjfreelist);
-#   endif
+#ifndef HANDLE_FORK
+    GC_ASSERT(GC_getspecific(GC_thread_key) == (void*)p);
+#endif
+    return_freelists(p->ptrfree_freelists, GC_aobjfreelist);
+    return_freelists(p->normal_freelists, GC_objfreelist);
+#ifdef GC_GCJ_SUPPORT
+    return_freelists(p->gcj_freelists, (void**)GC_gcjobjfreelist);
+#endif
 }
 
 #ifdef GC_ASSERTIONS
-  /* Defined in pthread_support.c or win32_threads.c. */
-  GC_bool GC_is_thread_tsd_valid(void *tsd);
+/* Defined in pthread_support.c or win32_threads.c. */
+GC_bool GC_is_thread_tsd_valid(void* tsd);
 #endif
 
-GC_API void * GC_CALL GC_malloc(size_t bytes)
+GC_API void* GC_CALL GC_malloc(size_t bytes)
 {
     size_t granules = ROUNDED_UP_GRANULES(bytes);
-    void *tsd;
-    void *result;
-    void **tiny_fl;
+    void* tsd;
+    void* result;
+    void** tiny_fl;
 
-#   if !defined(USE_PTHREAD_SPECIFIC) && !defined(USE_WIN32_SPECIFIC)
-      GC_key_t k = GC_thread_key;
-      if (EXPECT(0 == k, FALSE)) {
+#if !defined(USE_PTHREAD_SPECIFIC) && !defined(USE_WIN32_SPECIFIC)
+    GC_key_t k = GC_thread_key;
+    if (EXPECT(0 == k, FALSE))
+    {
         /* We haven't yet run GC_init_parallel.  That means     */
         /* we also aren't locking, so this is fairly cheap.     */
         return GC_core_malloc(bytes);
-      }
-      tsd = GC_getspecific(k);
-#   else
-      tsd = GC_getspecific(GC_thread_key);
-#   endif
-#   if !defined(USE_COMPILER_TLS) && !defined(USE_WIN32_COMPILER_TLS)
-      if (EXPECT(0 == tsd, FALSE)) {
+    }
+    tsd = GC_getspecific(k);
+#else
+    tsd = GC_getspecific(GC_thread_key);
+#endif
+#if !defined(USE_COMPILER_TLS) && !defined(USE_WIN32_COMPILER_TLS)
+    if (EXPECT(0 == tsd, FALSE))
+    {
         return GC_core_malloc(bytes);
-      }
-#   endif
+    }
+#endif
     GC_ASSERT(GC_is_initialized);
 
     GC_ASSERT(GC_is_thread_tsd_valid(tsd));
 
-    tiny_fl = ((GC_tlfs)tsd) -> normal_freelists;
-    GC_FAST_MALLOC_GRANS(result, granules, tiny_fl, DIRECT_GRANULES,
-                         NORMAL, GC_core_malloc(bytes), obj_link(result)=0);
-#   ifdef LOG_ALLOCS
-      GC_err_printf("GC_malloc(%u) = %p : %u\n",
-                        (unsigned)bytes, result, (unsigned)GC_gc_no);
-#   endif
+    tiny_fl = ((GC_tlfs)tsd)->normal_freelists;
+    GC_FAST_MALLOC_GRANS(result, granules, tiny_fl, DIRECT_GRANULES, NORMAL,
+                         GC_core_malloc(bytes), obj_link(result) = 0);
+#ifdef LOG_ALLOCS
+    GC_err_printf("GC_malloc(%u) = %p : %u\n", (unsigned)bytes, result,
+                  (unsigned)GC_gc_no);
+#endif
     return result;
 }
 
-GC_API void * GC_CALL GC_malloc_atomic(size_t bytes)
+GC_API void* GC_CALL GC_malloc_atomic(size_t bytes)
 {
     size_t granules = ROUNDED_UP_GRANULES(bytes);
-    void *tsd;
-    void *result;
-    void **tiny_fl;
+    void* tsd;
+    void* result;
+    void** tiny_fl;
 
-#   if !defined(USE_PTHREAD_SPECIFIC) && !defined(USE_WIN32_SPECIFIC)
-      GC_key_t k = GC_thread_key;
-      if (EXPECT(0 == k, FALSE)) {
+#if !defined(USE_PTHREAD_SPECIFIC) && !defined(USE_WIN32_SPECIFIC)
+    GC_key_t k = GC_thread_key;
+    if (EXPECT(0 == k, FALSE))
+    {
         /* We haven't yet run GC_init_parallel.  That means     */
         /* we also aren't locking, so this is fairly cheap.     */
         return GC_core_malloc_atomic(bytes);
-      }
-      tsd = GC_getspecific(k);
-#   else
-      tsd = GC_getspecific(GC_thread_key);
-#   endif
-#   if !defined(USE_COMPILER_TLS) && !defined(USE_WIN32_COMPILER_TLS)
-      if (EXPECT(0 == tsd, FALSE)) {
+    }
+    tsd = GC_getspecific(k);
+#else
+    tsd = GC_getspecific(GC_thread_key);
+#endif
+#if !defined(USE_COMPILER_TLS) && !defined(USE_WIN32_COMPILER_TLS)
+    if (EXPECT(0 == tsd, FALSE))
+    {
         return GC_core_malloc_atomic(bytes);
-      }
-#   endif
+    }
+#endif
     GC_ASSERT(GC_is_initialized);
-    tiny_fl = ((GC_tlfs)tsd) -> ptrfree_freelists;
+    tiny_fl = ((GC_tlfs)tsd)->ptrfree_freelists;
     GC_FAST_MALLOC_GRANS(result, granules, tiny_fl, DIRECT_GRANULES, PTRFREE,
                          GC_core_malloc_atomic(bytes), (void)0 /* no init */);
     return result;
@@ -199,9 +214,9 @@ GC_API void * GC_CALL GC_malloc_atomic(size_t bytes)
 
 #ifdef GC_GCJ_SUPPORT
 
-# include "atomic_ops.h" /* for AO_compiler_barrier() */
+#include "atomic_ops.h" /* for AO_compiler_barrier() */
 
-# include "gc/gc_gcj.h"
+#include "gc/gc_gcj.h"
 
 /* Gcj-style allocation without locks is extremely tricky.  The         */
 /* fundamental issue is that we may end up marking a free list, which   */
@@ -223,23 +238,26 @@ GC_API void * GC_CALL GC_malloc_atomic(size_t bytes)
 /* incremental GC should be enabled before we fork a second thread.     */
 /* Unlike the other thread local allocation calls, we assume that the   */
 /* collector has been explicitly initialized.                           */
-GC_API void * GC_CALL GC_gcj_malloc(size_t bytes,
-                                    void * ptr_to_struct_containing_descr)
+GC_API void* GC_CALL GC_gcj_malloc(size_t bytes,
+                                   void* ptr_to_struct_containing_descr)
 {
-  if (GC_EXPECT(GC_incremental, 0)) {
-    return GC_core_gcj_malloc(bytes, ptr_to_struct_containing_descr);
-  } else {
-    size_t granules = ROUNDED_UP_GRANULES(bytes);
-    void *result;
-    void **tiny_fl = ((GC_tlfs)GC_getspecific(GC_thread_key))
-                                        -> gcj_freelists;
-    GC_ASSERT(GC_gcj_malloc_initialized);
-    GC_FAST_MALLOC_GRANS(result, granules, tiny_fl, DIRECT_GRANULES,
-                         GC_gcj_kind,
-                         GC_core_gcj_malloc(bytes,
-                                            ptr_to_struct_containing_descr),
-                         {AO_compiler_barrier();
-                          *(void **)result = ptr_to_struct_containing_descr;});
+    if (GC_EXPECT(GC_incremental, 0))
+    {
+        return GC_core_gcj_malloc(bytes, ptr_to_struct_containing_descr);
+    }
+    else
+    {
+        size_t granules = ROUNDED_UP_GRANULES(bytes);
+        void* result;
+        void** tiny_fl =
+            ((GC_tlfs)GC_getspecific(GC_thread_key))->gcj_freelists;
+        GC_ASSERT(GC_gcj_malloc_initialized);
+        GC_FAST_MALLOC_GRANS(
+            result, granules, tiny_fl, DIRECT_GRANULES, GC_gcj_kind,
+            GC_core_gcj_malloc(bytes, ptr_to_struct_containing_descr), {
+                AO_compiler_barrier();
+                *(void**)result = ptr_to_struct_containing_descr;
+            });
         /* This forces the initialization of the "method ptr".          */
         /* This is necessary to ensure some very subtle properties      */
         /* required if a GC is run in the middle of such an allocation. */
@@ -258,8 +276,8 @@ GC_API void * GC_CALL GC_gcj_malloc(size_t bytes,
         /* marker, by misinterpreting the freelist link as a vtable     */
         /* pointer, might find a random "mark descriptor" in the next   */
         /* object.                                                      */
-    return result;
-  }
+        return result;
+    }
 }
 
 #endif /* GC_GCJ_SUPPORT */
@@ -273,34 +291,40 @@ GC_INNER void GC_mark_thread_local_fls_for(GC_tlfs p)
     ptr_t q;
     int j;
 
-    for (j = 0; j < TINY_FREELISTS; ++j) {
-      q = p -> ptrfree_freelists[j];
-      if ((word)q > HBLKSIZE) GC_set_fl_marks(q);
-      q = p -> normal_freelists[j];
-      if ((word)q > HBLKSIZE) GC_set_fl_marks(q);
-#     ifdef GC_GCJ_SUPPORT
-        if (j > 0) {
-          q = p -> gcj_freelists[j];
-          if ((word)q > HBLKSIZE) GC_set_fl_marks(q);
+    for (j = 0; j < TINY_FREELISTS; ++j)
+    {
+        q = p->ptrfree_freelists[j];
+        if ((word)q > HBLKSIZE)
+            GC_set_fl_marks(q);
+        q = p->normal_freelists[j];
+        if ((word)q > HBLKSIZE)
+            GC_set_fl_marks(q);
+#ifdef GC_GCJ_SUPPORT
+        if (j > 0)
+        {
+            q = p->gcj_freelists[j];
+            if ((word)q > HBLKSIZE)
+                GC_set_fl_marks(q);
         }
-#     endif /* GC_GCJ_SUPPORT */
+#endif /* GC_GCJ_SUPPORT */
     }
 }
 
 #if defined(GC_ASSERTIONS)
-    /* Check that all thread-local free-lists in p are completely marked. */
-    void GC_check_tls_for(GC_tlfs p)
-    {
-        int j;
+/* Check that all thread-local free-lists in p are completely marked. */
+void GC_check_tls_for(GC_tlfs p)
+{
+    int j;
 
-        for (j = 1; j < TINY_FREELISTS; ++j) {
-          GC_check_fl_marks(&p->ptrfree_freelists[j]);
-          GC_check_fl_marks(&p->normal_freelists[j]);
-#         ifdef GC_GCJ_SUPPORT
-            GC_check_fl_marks(&p->gcj_freelists[j]);
-#         endif
-        }
+    for (j = 1; j < TINY_FREELISTS; ++j)
+    {
+        GC_check_fl_marks(&p->ptrfree_freelists[j]);
+        GC_check_fl_marks(&p->normal_freelists[j]);
+#ifdef GC_GCJ_SUPPORT
+        GC_check_fl_marks(&p->gcj_freelists[j]);
+#endif
     }
+}
 #endif /* GC_ASSERTIONS */
 
 #endif /* THREAD_LOCAL_ALLOC */

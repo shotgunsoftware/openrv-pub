@@ -7,8 +7,8 @@
 // a copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the Software
-// is furnished to do so, subject to the following conditions:
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
@@ -26,7 +26,6 @@
 
 #include "lcms2_internal.h"
 
-
 // ------------------------------------------------------------------------
 
 // Gamut boundary description by using Jan Morovic's Segment maxima method
@@ -36,10 +35,11 @@
 // alpha = Hab
 // theta = L*
 
-#define SECTORS 16      // number of divisions in alpha and theta
+#define SECTORS 16 // number of divisions in alpha and theta
 
 // Spherical coordinates
-typedef struct {
+typedef struct
+{
 
     cmsFloat64Number r;
     cmsFloat64Number alpha;
@@ -47,43 +47,44 @@ typedef struct {
 
 } cmsSpherical;
 
-typedef  enum {
-        GP_EMPTY,
-        GP_SPECIFIED,
-        GP_MODELED
+typedef enum
+{
+    GP_EMPTY,
+    GP_SPECIFIED,
+    GP_MODELED
 
-    } GDBPointType;
+} GDBPointType;
 
-
-typedef struct {
+typedef struct
+{
 
     GDBPointType Type;
-    cmsSpherical p;         // Keep also alpha & theta of maximum
+    cmsSpherical p; // Keep also alpha & theta of maximum
 
 } cmsGDBPoint;
 
-
-typedef struct {
+typedef struct
+{
 
     cmsContext ContextID;
     cmsGDBPoint Gamut[SECTORS][SECTORS];
 
 } cmsGDB;
 
-
 // A line using the parametric form
 // P = a + t*u
-typedef struct {
+typedef struct
+{
 
     cmsVEC3 a;
     cmsVEC3 u;
 
 } cmsLine;
 
-
 // A plane using the parametric form
 // Q = b + r*v + s*w
-typedef struct {
+typedef struct
+{
 
     cmsVEC3 b;
     cmsVEC3 v;
@@ -91,23 +92,22 @@ typedef struct {
 
 } cmsPlane;
 
-
-
 // --------------------------------------------------------------------------------------------
 
 // ATAN2() which always returns degree positive numbers
 
-static
-cmsFloat64Number _cmsAtan2(cmsFloat64Number y, cmsFloat64Number x)
+static cmsFloat64Number _cmsAtan2(cmsFloat64Number y, cmsFloat64Number x)
 {
     cmsFloat64Number a;
 
     // Deal with undefined case
-    if (x == 0.0 && y == 0.0) return 0;
+    if (x == 0.0 && y == 0.0)
+        return 0;
 
     a = (atan2(y, x) * 180.0) / M_PI;
 
-    while (a < 0) {
+    while (a < 0)
+    {
         a += 360;
     }
 
@@ -115,31 +115,29 @@ cmsFloat64Number _cmsAtan2(cmsFloat64Number y, cmsFloat64Number x)
 }
 
 // Convert to spherical coordinates
-static
-void ToSpherical(cmsSpherical* sp, const cmsVEC3* v)
+static void ToSpherical(cmsSpherical* sp, const cmsVEC3* v)
 {
 
     cmsFloat64Number L, a, b;
 
-    L = v ->n[VX];
-    a = v ->n[VY];
-    b = v ->n[VZ];
+    L = v->n[VX];
+    a = v->n[VY];
+    b = v->n[VZ];
 
-    sp ->r = sqrt( L*L + a*a + b*b );
+    sp->r = sqrt(L * L + a * a + b * b);
 
-   if (sp ->r == 0) {
-        sp ->alpha = sp ->theta = 0;
+    if (sp->r == 0)
+    {
+        sp->alpha = sp->theta = 0;
         return;
     }
 
-    sp ->alpha = _cmsAtan2(a, b);
-    sp ->theta = _cmsAtan2(sqrt(a*a + b*b), L);
+    sp->alpha = _cmsAtan2(a, b);
+    sp->theta = _cmsAtan2(sqrt(a * a + b * b), L);
 }
 
-
 // Convert to cartesian from spherical
-static
-void ToCartesian(cmsVEC3* v, const cmsSpherical* sp)
+static void ToCartesian(cmsVEC3* v, const cmsSpherical* sp)
 {
     cmsFloat64Number sin_alpha;
     cmsFloat64Number cos_alpha;
@@ -147,62 +145,53 @@ void ToCartesian(cmsVEC3* v, const cmsSpherical* sp)
     cmsFloat64Number cos_theta;
     cmsFloat64Number L, a, b;
 
-    sin_alpha = sin((M_PI * sp ->alpha) / 180.0);
-    cos_alpha = cos((M_PI * sp ->alpha) / 180.0);
-    sin_theta = sin((M_PI * sp ->theta) / 180.0);
-    cos_theta = cos((M_PI * sp ->theta) / 180.0);
+    sin_alpha = sin((M_PI * sp->alpha) / 180.0);
+    cos_alpha = cos((M_PI * sp->alpha) / 180.0);
+    sin_theta = sin((M_PI * sp->theta) / 180.0);
+    cos_theta = cos((M_PI * sp->theta) / 180.0);
 
-    a = sp ->r * sin_theta * sin_alpha;
-    b = sp ->r * sin_theta * cos_alpha;
-    L = sp ->r * cos_theta;
+    a = sp->r * sin_theta * sin_alpha;
+    b = sp->r * sin_theta * cos_alpha;
+    L = sp->r * cos_theta;
 
-    v ->n[VX] = L;
-    v ->n[VY] = a;
-    v ->n[VZ] = b;
+    v->n[VX] = L;
+    v->n[VY] = a;
+    v->n[VZ] = b;
 }
-
 
 // Quantize sector of a spherical coordinate. Saturate 360, 180 to last sector
 // The limits are the centers of each sector, so
-static
-void QuantizeToSector(const cmsSpherical* sp, int* alpha, int* theta)
+static void QuantizeToSector(const cmsSpherical* sp, int* alpha, int* theta)
 {
-    *alpha = (int) floor(((sp->alpha * (SECTORS)) / 360.0) );
-    *theta = (int) floor(((sp->theta * (SECTORS)) / 180.0) );
+    *alpha = (int)floor(((sp->alpha * (SECTORS)) / 360.0));
+    *theta = (int)floor(((sp->theta * (SECTORS)) / 180.0));
 
     if (*alpha >= SECTORS)
-        *alpha = SECTORS-1;
+        *alpha = SECTORS - 1;
     if (*theta >= SECTORS)
-        *theta = SECTORS-1;
+        *theta = SECTORS - 1;
 }
-
 
 // Line determined by 2 points
-static
-void LineOf2Points(cmsLine* line, cmsVEC3* a, cmsVEC3* b)
+static void LineOf2Points(cmsLine* line, cmsVEC3* a, cmsVEC3* b)
 {
 
-    _cmsVEC3init(&line ->a, a ->n[VX], a ->n[VY], a ->n[VZ]);
-    _cmsVEC3init(&line ->u, b ->n[VX] - a ->n[VX],
-                            b ->n[VY] - a ->n[VY],
-                            b ->n[VZ] - a ->n[VZ]);
+    _cmsVEC3init(&line->a, a->n[VX], a->n[VY], a->n[VZ]);
+    _cmsVEC3init(&line->u, b->n[VX] - a->n[VX], b->n[VY] - a->n[VY],
+                 b->n[VZ] - a->n[VZ]);
 }
-
 
 // Evaluate parametric line
-static
-void GetPointOfLine(cmsVEC3* p, const cmsLine* line, cmsFloat64Number t)
+static void GetPointOfLine(cmsVEC3* p, const cmsLine* line, cmsFloat64Number t)
 {
-    p ->n[VX] = line ->a.n[VX] + t * line->u.n[VX];
-    p ->n[VY] = line ->a.n[VY] + t * line->u.n[VY];
-    p ->n[VZ] = line ->a.n[VZ] + t * line->u.n[VZ];
+    p->n[VX] = line->a.n[VX] + t * line->u.n[VX];
+    p->n[VY] = line->a.n[VY] + t * line->u.n[VY];
+    p->n[VZ] = line->a.n[VZ] + t * line->u.n[VZ];
 }
 
-
-
 /*
-    Closest point in sector line1 to sector line2 (both are defined as 0 <=t <= 1)
-    http://softsurfer.com/Archive/algorithm_0106/algorithm_0106.htm
+    Closest point in sector line1 to sector line2 (both are defined as 0 <=t <=
+   1) http://softsurfer.com/Archive/algorithm_0106/algorithm_0106.htm
 
     Copyright 2001, softSurfer (www.softsurfer.com)
     This code may be freely used and modified for any purpose
@@ -213,51 +202,56 @@ void GetPointOfLine(cmsVEC3* p, const cmsLine* line, cmsFloat64Number t)
 
 */
 
-static
-cmsBool ClosestLineToLine(cmsVEC3* r, const cmsLine* line1, const cmsLine* line2)
+static cmsBool ClosestLineToLine(cmsVEC3* r, const cmsLine* line1,
+                                 const cmsLine* line2)
 {
     cmsFloat64Number a, b, c, d, e, D;
     cmsFloat64Number sc, sN, sD;
     cmsFloat64Number tc, tN, tD;
     cmsVEC3 w0;
 
-    _cmsVEC3minus(&w0, &line1 ->a, &line2 ->a);
+    _cmsVEC3minus(&w0, &line1->a, &line2->a);
 
-    a  = _cmsVEC3dot(&line1 ->u, &line1 ->u);
-    b  = _cmsVEC3dot(&line1 ->u, &line2 ->u);
-    c  = _cmsVEC3dot(&line2 ->u, &line2 ->u);
-    d  = _cmsVEC3dot(&line1 ->u, &w0);
-    e  = _cmsVEC3dot(&line2 ->u, &w0);
+    a = _cmsVEC3dot(&line1->u, &line1->u);
+    b = _cmsVEC3dot(&line1->u, &line2->u);
+    c = _cmsVEC3dot(&line2->u, &line2->u);
+    d = _cmsVEC3dot(&line1->u, &w0);
+    e = _cmsVEC3dot(&line2->u, &w0);
 
-    D  = a*c - b * b;      // Denominator
-    sD = tD = D;           // default sD = D >= 0
+    D = a * c - b * b; // Denominator
+    sD = tD = D;       // default sD = D >= 0
 
-    if (D <  MATRIX_DET_TOLERANCE) {   // the lines are almost parallel
+    if (D < MATRIX_DET_TOLERANCE)
+    { // the lines are almost parallel
 
-        sN = 0.0;        // force using point P0 on segment S1
-        sD = 1.0;        // to prevent possible division by 0.0 later
+        sN = 0.0; // force using point P0 on segment S1
+        sD = 1.0; // to prevent possible division by 0.0 later
         tN = e;
         tD = c;
     }
-    else {                // get the closest points on the infinite lines
+    else
+    { // get the closest points on the infinite lines
 
-        sN = (b*e - c*d);
-        tN = (a*e - b*d);
+        sN = (b * e - c * d);
+        tN = (a * e - b * d);
 
-        if (sN < 0.0) {       // sc < 0 => the s=0 edge is visible
+        if (sN < 0.0)
+        { // sc < 0 => the s=0 edge is visible
 
             sN = 0.0;
             tN = e;
             tD = c;
         }
-        else if (sN > sD) {   // sc > 1 => the s=1 edge is visible
+        else if (sN > sD)
+        { // sc > 1 => the s=1 edge is visible
             sN = sD;
             tN = e + b;
             tD = c;
         }
     }
 
-    if (tN < 0.0) {           // tc < 0 => the t=0 edge is visible
+    if (tN < 0.0)
+    { // tc < 0 => the t=0 edge is visible
 
         tN = 0.0;
         // recompute sc for this edge
@@ -265,12 +259,14 @@ cmsBool ClosestLineToLine(cmsVEC3* r, const cmsLine* line1, const cmsLine* line2
             sN = 0.0;
         else if (-d > a)
             sN = sD;
-        else {
+        else
+        {
             sN = -d;
             sD = a;
         }
     }
-    else if (tN > tD) {      // tc > 1 => the t=1 edge is visible
+    else if (tN > tD)
+    { // tc > 1 => the t=1 edge is visible
 
         tN = tD;
 
@@ -279,7 +275,8 @@ cmsBool ClosestLineToLine(cmsVEC3* r, const cmsLine* line1, const cmsLine* line2
             sN = 0;
         else if ((-d + b) > a)
             sN = sD;
-        else {
+        else
+        {
             sN = (-d + b);
             sD = a;
         }
@@ -292,34 +289,30 @@ cmsBool ClosestLineToLine(cmsVEC3* r, const cmsLine* line1, const cmsLine* line2
     return TRUE;
 }
 
-
-
 // ------------------------------------------------------------------ Wrapper
 
-
 // Allocate & free structure
-cmsHANDLE  CMSEXPORT cmsGBDAlloc(cmsContext ContextID)
+cmsHANDLE CMSEXPORT cmsGBDAlloc(cmsContext ContextID)
 {
-    cmsGDB* gbd = (cmsGDB*) _cmsMallocZero(ContextID, sizeof(cmsGDB));
-    if (gbd == NULL) return NULL;
+    cmsGDB* gbd = (cmsGDB*)_cmsMallocZero(ContextID, sizeof(cmsGDB));
+    if (gbd == NULL)
+        return NULL;
 
-    gbd -> ContextID = ContextID;
+    gbd->ContextID = ContextID;
 
-    return (cmsHANDLE) gbd;
+    return (cmsHANDLE)gbd;
 }
-
 
 void CMSEXPORT cmsGBDFree(cmsHANDLE hGBD)
 {
-    cmsGDB* gbd = (cmsGDB*) hGBD;
+    cmsGDB* gbd = (cmsGDB*)hGBD;
     if (hGBD != NULL)
-        _cmsFree(gbd->ContextID, (void*) gbd);
+        _cmsFree(gbd->ContextID, (void*)gbd);
 }
 
-
 // Auxiliar to retrieve a pointer to the segmentr containing the Lab value
-static
-cmsGDBPoint* GetPoint(cmsGDB* gbd, const cmsCIELab* Lab, cmsSpherical* sp)
+static cmsGDBPoint* GetPoint(cmsGDB* gbd, const cmsCIELab* Lab,
+                             cmsSpherical* sp)
 {
     cmsVEC3 v;
     int alpha, theta;
@@ -330,55 +323,61 @@ cmsGDBPoint* GetPoint(cmsGDB* gbd, const cmsCIELab* Lab, cmsSpherical* sp)
     _cmsAssert(sp != NULL);
 
     // Center L* by substracting half of its domain, that's 50
-    _cmsVEC3init(&v, Lab ->L - 50.0, Lab ->a, Lab ->b);
+    _cmsVEC3init(&v, Lab->L - 50.0, Lab->a, Lab->b);
 
     // Convert to spherical coordinates
     ToSpherical(sp, &v);
 
-    if (sp ->r < 0 || sp ->alpha < 0 || sp->theta < 0) {
-         cmsSignalError(gbd ->ContextID, cmsERROR_RANGE, "spherical value out of range");
-         return NULL;
+    if (sp->r < 0 || sp->alpha < 0 || sp->theta < 0)
+    {
+        cmsSignalError(gbd->ContextID, cmsERROR_RANGE,
+                       "spherical value out of range");
+        return NULL;
     }
 
     // On which sector it falls?
     QuantizeToSector(sp, &alpha, &theta);
 
-    if (alpha < 0 || theta < 0 || alpha >= SECTORS || theta >= SECTORS) {
-         cmsSignalError(gbd ->ContextID, cmsERROR_RANGE, " quadrant out of range");
-         return NULL;
+    if (alpha < 0 || theta < 0 || alpha >= SECTORS || theta >= SECTORS)
+    {
+        cmsSignalError(gbd->ContextID, cmsERROR_RANGE,
+                       " quadrant out of range");
+        return NULL;
     }
 
     // Get pointer to the sector
-    return &gbd ->Gamut[theta][alpha];
+    return &gbd->Gamut[theta][alpha];
 }
 
 // Add a point to gamut descriptor. Point to add is in Lab color space.
 // GBD is centered on a=b=0 and L*=50
 cmsBool CMSEXPORT cmsGDBAddPoint(cmsHANDLE hGBD, const cmsCIELab* Lab)
 {
-    cmsGDB* gbd = (cmsGDB*) hGBD;
+    cmsGDB* gbd = (cmsGDB*)hGBD;
     cmsGDBPoint* ptr;
     cmsSpherical sp;
 
-
     // Get pointer to the sector
     ptr = GetPoint(gbd, Lab, &sp);
-    if (ptr == NULL) return FALSE;
+    if (ptr == NULL)
+        return FALSE;
 
     // If no samples at this sector, add it
-    if (ptr ->Type == GP_EMPTY) {
+    if (ptr->Type == GP_EMPTY)
+    {
 
-        ptr -> Type = GP_SPECIFIED;
-        ptr -> p    = sp;
+        ptr->Type = GP_SPECIFIED;
+        ptr->p = sp;
     }
-    else {
-
+    else
+    {
 
         // Substitute only if radius is greater
-        if (sp.r > ptr -> p.r) {
+        if (sp.r > ptr->p.r)
+        {
 
-                ptr -> Type = GP_SPECIFIED;
-                ptr -> p    = sp;
+            ptr->Type = GP_SPECIFIED;
+            ptr->p = sp;
         }
     }
 
@@ -388,20 +387,22 @@ cmsBool CMSEXPORT cmsGDBAddPoint(cmsHANDLE hGBD, const cmsCIELab* Lab)
 // Check if a given point falls inside gamut
 cmsBool CMSEXPORT cmsGDBCheckPoint(cmsHANDLE hGBD, const cmsCIELab* Lab)
 {
-    cmsGDB* gbd = (cmsGDB*) hGBD;
+    cmsGDB* gbd = (cmsGDB*)hGBD;
     cmsGDBPoint* ptr;
     cmsSpherical sp;
 
     // Get pointer to the sector
     ptr = GetPoint(gbd, Lab, &sp);
-    if (ptr == NULL) return FALSE;
+    if (ptr == NULL)
+        return FALSE;
 
     // If no samples at this sector, return no data
-    if (ptr ->Type == GP_EMPTY) return FALSE;
+    if (ptr->Type == GP_EMPTY)
+        return FALSE;
 
     // In gamut only if radius is greater
 
-    return (sp.r <= ptr -> p.r);
+    return (sp.r <= ptr->p.r);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
@@ -422,28 +423,28 @@ cmsBool CMSEXPORT cmsGDBCheckPoint(cmsHANDLE hGBD, const cmsCIELab* Lab)
 // {-2,+1}, {-1, +1}, {0, +1}, {+1,  +1}, {+2,  +1},
 // {-2,+2}, {-1, +2}, {0, +2}, {+1,  +2}, {+2,  +2}};
 
-
-static
-const struct _spiral {
+static const struct _spiral
+{
 
     int AdvX, AdvY;
 
-    } Spiral[] = { {0,  -1}, {+1, -1}, {+1,  0}, {+1, +1}, {0,  +1}, {-1, +1},
-                   {-1,  0}, {-1, -1}, {-1, -2}, {0,  -2}, {+1, -2}, {+2, -2},
-                   {+2, -1}, {+2,  0}, {+2, +1}, {+2, +2}, {+1, +2}, {0,  +2},
-                   {-1, +2}, {-2, +2}, {-2, +1}, {-2, 0},  {-2, -1}, {-2, -2} };
+} Spiral[] = {{0, -1},  {+1, -1}, {+1, 0},  {+1, +1}, {0, +1},  {-1, +1},
+              {-1, 0},  {-1, -1}, {-1, -2}, {0, -2},  {+1, -2}, {+2, -2},
+              {+2, -1}, {+2, 0},  {+2, +1}, {+2, +2}, {+1, +2}, {0, +2},
+              {-1, +2}, {-2, +2}, {-2, +1}, {-2, 0},  {-2, -1}, {-2, -2}};
 
 #define NSTEPS (sizeof(Spiral) / sizeof(struct _spiral))
 
-static
-int FindNearSectors(cmsGDB* gbd, int alpha, int theta, cmsGDBPoint* Close[])
+static int FindNearSectors(cmsGDB* gbd, int alpha, int theta,
+                           cmsGDBPoint* Close[])
 {
     int nSectors = 0;
     int a, t;
     cmsUInt32Number i;
     cmsGDBPoint* pt;
 
-    for (i=0; i < NSTEPS; i++) {
+    for (i = 0; i < NSTEPS; i++)
+    {
 
         a = alpha + Spiral[i].AdvX;
         t = theta + Spiral[i].AdvY;
@@ -453,12 +454,15 @@ int FindNearSectors(cmsGDB* gbd, int alpha, int theta, cmsGDBPoint* Close[])
         t %= SECTORS;
 
         // Cycle at the begin
-        if (a < 0) a = SECTORS + a;
-        if (t < 0) t = SECTORS + t;
+        if (a < 0)
+            a = SECTORS + a;
+        if (t < 0)
+            t = SECTORS + t;
 
-        pt = &gbd ->Gamut[t][a];
+        pt = &gbd->Gamut[t][a];
 
-        if (pt -> Type != GP_EMPTY) {
+        if (pt->Type != GP_EMPTY)
+        {
 
             Close[nSectors++] = pt;
         }
@@ -467,10 +471,9 @@ int FindNearSectors(cmsGDB* gbd, int alpha, int theta, cmsGDBPoint* Close[])
     return nSectors;
 }
 
-
-// Interpolate a missing sector. Method identifies whatever this is top, bottom or mid
-static
-cmsBool InterpolateMissingSector(cmsGDB* gbd, int alpha, int theta)
+// Interpolate a missing sector. Method identifies whatever this is top, bottom
+// or mid
+static cmsBool InterpolateMissingSector(cmsGDB* gbd, int alpha, int theta)
 {
     cmsSpherical sp;
     cmsVEC3 Lab;
@@ -483,16 +486,16 @@ cmsBool InterpolateMissingSector(cmsGDB* gbd, int alpha, int theta)
     int k, m;
 
     // Is that point already specified?
-    if (gbd ->Gamut[theta][alpha].Type != GP_EMPTY) return TRUE;
+    if (gbd->Gamut[theta][alpha].Type != GP_EMPTY)
+        return TRUE;
 
     // Fill close points
     nCloseSectors = FindNearSectors(gbd, alpha, theta, Close);
 
-
     // Find a central point on the sector
-    sp.alpha = (cmsFloat64Number) ((alpha + 0.5) * 360.0) / (SECTORS);
-    sp.theta = (cmsFloat64Number) ((theta + 0.5) * 180.0) / (SECTORS);
-    sp.r     = 50.0;
+    sp.alpha = (cmsFloat64Number)((alpha + 0.5) * 360.0) / (SECTORS);
+    sp.theta = (cmsFloat64Number)((theta + 0.5) * 180.0) / (SECTORS);
+    sp.r = 50.0;
 
     // Convert to Cartesian
     ToCartesian(&Lab, &sp);
@@ -506,9 +509,11 @@ cmsBool InterpolateMissingSector(cmsGDB* gbd, int alpha, int theta)
     closel.alpha = 0;
     closel.theta = 0;
 
-    for (k=0; k < nCloseSectors; k++) {
+    for (k = 0; k < nCloseSectors; k++)
+    {
 
-        for(m = k+1; m < nCloseSectors; m++) {
+        for (m = k + 1; m < nCloseSectors; m++)
+        {
 
             cmsVEC3 temp, a1, a2;
 
@@ -524,53 +529,56 @@ cmsBool InterpolateMissingSector(cmsGDB* gbd, int alpha, int theta)
             // Convert to spherical
             ToSpherical(&templ, &temp);
 
-
-            if ( templ.r > closel.r &&
-                 templ.theta >= (theta*180.0/SECTORS) &&
-                 templ.theta <= ((theta+1)*180.0/SECTORS) &&
-                 templ.alpha >= (alpha*360.0/SECTORS) &&
-                 templ.alpha <= ((alpha+1)*360.0/SECTORS)) {
+            if (templ.r > closel.r && templ.theta >= (theta * 180.0 / SECTORS)
+                && templ.theta <= ((theta + 1) * 180.0 / SECTORS)
+                && templ.alpha >= (alpha * 360.0 / SECTORS)
+                && templ.alpha <= ((alpha + 1) * 360.0 / SECTORS))
+            {
 
                 closel = templ;
             }
         }
     }
 
-    gbd ->Gamut[theta][alpha].p = closel;
-    gbd ->Gamut[theta][alpha].Type = GP_MODELED;
+    gbd->Gamut[theta][alpha].p = closel;
+    gbd->Gamut[theta][alpha].Type = GP_MODELED;
 
     return TRUE;
-
 }
-
 
 // Interpolate missing parts. The algorithm fist computes slices at
 // theta=0 and theta=Max.
 cmsBool CMSEXPORT cmsGDBCompute(cmsHANDLE hGBD, cmsUInt32Number dwFlags)
 {
     int alpha, theta;
-    cmsGDB* gbd = (cmsGDB*) hGBD;
+    cmsGDB* gbd = (cmsGDB*)hGBD;
 
     _cmsAssert(hGBD != NULL);
 
     // Interpolate black
-    for (alpha = 0; alpha < SECTORS; alpha++) {
+    for (alpha = 0; alpha < SECTORS; alpha++)
+    {
 
-        if (!InterpolateMissingSector(gbd, alpha, 0)) return FALSE;
+        if (!InterpolateMissingSector(gbd, alpha, 0))
+            return FALSE;
     }
 
     // Interpolate white
-    for (alpha = 0; alpha < SECTORS; alpha++) {
+    for (alpha = 0; alpha < SECTORS; alpha++)
+    {
 
-        if (!InterpolateMissingSector(gbd, alpha, SECTORS-1)) return FALSE;
+        if (!InterpolateMissingSector(gbd, alpha, SECTORS - 1))
+            return FALSE;
     }
 
-
     // Interpolate Mid
-    for (theta = 1; theta < SECTORS; theta++) {
-        for (alpha = 0; alpha < SECTORS; alpha++) {
+    for (theta = 1; theta < SECTORS; theta++)
+    {
+        for (alpha = 0; alpha < SECTORS; alpha++)
+        {
 
-            if (!InterpolateMissingSector(gbd, alpha, theta)) return FALSE;
+            if (!InterpolateMissingSector(gbd, alpha, theta))
+                return FALSE;
         }
     }
 
@@ -579,9 +587,6 @@ cmsBool CMSEXPORT cmsGDBCompute(cmsHANDLE hGBD, cmsUInt32Number dwFlags)
 
     cmsUNUSED_PARAMETER(dwFlags);
 }
-
-
-
 
 // --------------------------------------------------------------------------------------------------------
 
@@ -732,4 +737,3 @@ cmsBool cmsGBDdumpVRML(cmsHANDLE hGBD, const char* fname)
     return TRUE;
 }
 #endif
-

@@ -21,73 +21,72 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4AVdnAtom::MP4AVdnAtom (MP4File &file)
-        : MP4Atom(file, "AVdn")
+namespace mp4v2
 {
-    AddReserved(*this, "reserved1", 6); /* 0 */
+    namespace impl
+    {
 
-    AddProperty( /* 1 */
-        new MP4Integer16Property(*this, "dataReferenceIndex"));
+        ///////////////////////////////////////////////////////////////////////////////
 
-    AddReserved(*this, "reserved2", 16); /* 2 */
+        MP4AVdnAtom::MP4AVdnAtom(MP4File& file)
+            : MP4Atom(file, "AVdn")
+        {
+            AddReserved(*this, "reserved1", 6); /* 0 */
 
-    AddProperty( /* 3 */
-        new MP4Integer16Property(*this, "width"));
-    AddProperty( /* 4 */
-        new MP4Integer16Property(*this, "height"));
+            AddProperty(/* 1 */
+                        new MP4Integer16Property(*this, "dataReferenceIndex"));
 
-    AddReserved(*this, "reserved3", 14); /* 5 */
+            AddReserved(*this, "reserved2", 16); /* 2 */
 
-    MP4StringProperty* pProp =
-        new MP4StringProperty(*this, "compressorName");
-    pProp->SetFixedLength(32);
-    pProp->SetCountedFormat(true);
-    pProp->SetValue("");
-    AddProperty(pProp); /* 6 */
+            AddProperty(/* 3 */
+                        new MP4Integer16Property(*this, "width"));
+            AddProperty(/* 4 */
+                        new MP4Integer16Property(*this, "height"));
 
-    AddProperty(/* 7 */
-        new MP4Integer16Property(*this, "depth"));
-    AddProperty(/* 8 */
-        new MP4Integer16Property(*this, "colorTableId"));
+            AddReserved(*this, "reserved3", 14); /* 5 */
 
-    ExpectChildAtom("ACLR", Optional, OnlyOne);
-    ExpectChildAtom("APRG", Optional, OnlyOne);
-    ExpectChildAtom("ARES", Optional, OnlyOne);
-    ExpectChildAtom("colr", Optional, OnlyOne);
-    ExpectChildAtom("pasp", Optional, OnlyOne);
-}
+            MP4StringProperty* pProp =
+                new MP4StringProperty(*this, "compressorName");
+            pProp->SetFixedLength(32);
+            pProp->SetCountedFormat(true);
+            pProp->SetValue("");
+            AddProperty(pProp); /* 6 */
 
-void MP4AVdnAtom::Generate()
-{
-    MP4Atom::Generate();
+            AddProperty(/* 7 */
+                        new MP4Integer16Property(*this, "depth"));
+            AddProperty(/* 8 */
+                        new MP4Integer16Property(*this, "colorTableId"));
 
-    ((MP4Integer16Property*)m_pProperties[1])->SetValue(1);
+            ExpectChildAtom("ACLR", Optional, OnlyOne);
+            ExpectChildAtom("APRG", Optional, OnlyOne);
+            ExpectChildAtom("ARES", Optional, OnlyOne);
+            ExpectChildAtom("colr", Optional, OnlyOne);
+            ExpectChildAtom("pasp", Optional, OnlyOne);
+        }
 
-    // property reserved3 has non-zero fixed values
-    static uint8_t reserved3[14] = {
-        0x00, 0x48, 0x00, 0x00,
-        0x00, 0x48, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00,
-        0x00, 0x01,
-    };
-    m_pProperties[5]->SetReadOnly(false);
-    ((MP4BytesProperty*)m_pProperties[5])->
-    SetValue(reserved3, sizeof(reserved3));
-    m_pProperties[5]->SetReadOnly(true);
+        void MP4AVdnAtom::Generate()
+        {
+            MP4Atom::Generate();
 
-    // depth and color table id values - should be set later
-    // as far as depth - color table is most likely 0xff
-    ((MP4IntegerProperty *)m_pProperties[7])->SetValue(0x18);
-    ((MP4IntegerProperty *)m_pProperties[8])->SetValue(0xffff);
+            ((MP4Integer16Property*)m_pProperties[1])->SetValue(1);
 
-}
+            // property reserved3 has non-zero fixed values
+            static uint8_t reserved3[14] = {
+                0x00, 0x48, 0x00, 0x00, 0x00, 0x48, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+            };
+            m_pProperties[5]->SetReadOnly(false);
+            ((MP4BytesProperty*)m_pProperties[5])
+                ->SetValue(reserved3, sizeof(reserved3));
+            m_pProperties[5]->SetReadOnly(true);
 
-///////////////////////////////////////////////////////////////////////////////
+            // depth and color table id values - should be set later
+            // as far as depth - color table is most likely 0xff
+            ((MP4IntegerProperty*)m_pProperties[7])->SetValue(0x18);
+            ((MP4IntegerProperty*)m_pProperties[8])->SetValue(0xffff);
+        }
 
-}
-} // namespace mp4v2::impl
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

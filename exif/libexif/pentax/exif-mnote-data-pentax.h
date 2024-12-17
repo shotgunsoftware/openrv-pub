@@ -7,10 +7,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -28,22 +28,29 @@
 #include <libexif/pentax/mnote-pentax-entry.h>
 #include <libexif/exif-mem.h>
 
-enum PentaxVersion {pentaxV1 = 1, pentaxV2 = 2, pentaxV3 = 4, casioV2 = 4 };
+enum PentaxVersion
+{
+    pentaxV1 = 1,
+    pentaxV2 = 2,
+    pentaxV3 = 4,
+    casioV2 = 4
+};
 
 typedef struct _ExifMnoteDataPentax ExifMnoteDataPentax;
 
-struct _ExifMnoteDataPentax {
-	ExifMnoteData parent;
+struct _ExifMnoteDataPentax
+{
+    ExifMnoteData parent;
 
-	MnotePentaxEntry *entries;
-	unsigned int count;
+    MnotePentaxEntry* entries;
+    unsigned int count;
 
-	ExifByteOrder order;
-	unsigned int offset;
+    ExifByteOrder order;
+    unsigned int offset;
 
-	enum PentaxVersion version;
+    enum PentaxVersion version;
 };
 
-EXIF_EXPORT ExifMnoteData *exif_mnote_data_pentax_new (ExifMem *);
+EXIF_EXPORT ExifMnoteData* exif_mnote_data_pentax_new(ExifMem*);
 
 #endif /* __EXIF_MNOTE_DATA_PENTAX_H__ */

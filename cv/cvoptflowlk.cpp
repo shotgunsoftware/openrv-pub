@@ -2,7 +2,8 @@
 //
 //  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
 //
-//  By downloading, copying, installing or using the software you agree to this license.
+//  By downloading, copying, installing or using the software you agree to this
+license.
 //  If you do not agree to this license, do not download, install,
 //  copy or use the software.
 //
@@ -13,23 +14,29 @@
 // Copyright (C) 2000, Intel Corporation, all rights reserved.
 // Third party copyrights are property of their respective owners.
 //
-// Redistribution and use in source and binary forms, with or without modification,
+// Redistribution and use in source and binary forms, with or without
+modification,
 // are permitted provided that the following conditions are met:
 //
 //   * Redistribution's of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //
-//   * Redistribution's in binary form must reproduce the above copyright notice,
+//   * Redistribution's in binary form must reproduce the above copyright
+notice,
 //     this list of conditions and the following disclaimer in the documentation
 //     and/or other materials provided with the distribution.
 //
-//   * The name of Intel Corporation may not be used to endorse or promote products
+//   * The name of Intel Corporation may not be used to endorse or promote
+products
 //     derived from this software without specific prior written permission.
 //
-// This software is provided by the copyright holders and contributors "as is" and
+// This software is provided by the copyright holders and contributors "as is"
+and
 // any express or implied warranties, including, but not limited to, the implied
-// warranties of merchantability and fitness for a particular purpose are disclaimed.
-// In no event shall the Intel Corporation or contributors be liable for any direct,
+// warranties of merchantability and fitness for a particular purpose are
+disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any
+direct,
 // indirect, incidental, special, exemplary, or consequential damages
 // (including, but not limited to, procurement of substitute goods or services;
 // loss of use, data, or profits; or business interruption) however caused
@@ -47,14 +54,14 @@ typedef struct
     float yy;
     float xt;
     float yt;
-}
-icvDerProduct;
+} icvDerProduct;
 
+#define CONV(A, B, C) ((float)(A + (B << 1) + C))
 
-#define CONV( A, B, C)  ((float)( A +  (B<<1)  + C ))
 /*F///////////////////////////////////////////////////////////////////////////////////////
 //    Name: icvCalcOpticalFlowLK_8u32fR ( Lucas & Kanade method )
-//    Purpose: calculate Optical flow for 2 images using Lucas & Kanade algorithm
+//    Purpose: calculate Optical flow for 2 images using Lucas & Kanade
+algorithm
 //    Context:
 //    Parameters:
 //            imgA,         // pointer to first frame ROI
@@ -79,14 +86,9 @@ icvDerProduct;
 //
 //
 //F*/
-static CvStatus CV_STDCALL
-icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
-                             uchar * imgB,
-                             int imgStep,
-                             CvSize imgSize,
-                             CvSize winSize,
-                             float *velocityX,
-                             float *velocityY, int velStep )
+static CvStatus CV_STDCALL icvCalcOpticalFlowLK_8u32fR(
+    uchar* imgA, uchar* imgB, int imgStep, CvSize imgSize, CvSize winSize,
+    float* velocityX, float* velocityY, int velStep)
 {
     /* Loops indexes */
     int i, j, k;
@@ -94,12 +96,12 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
     /* Gaussian separable kernels */
     float GaussX[16];
     float GaussY[16];
-    float *KerX;
-    float *KerY;
+    float* KerX;
+    float* KerY;
 
     /* Buffers for Sobel calculations */
-    float *MemX[2];
-    float *MemY[2];
+    float* MemX[2];
+    float* MemY[2];
 
     float ConvX, ConvY;
     float GradX, GradY, GradT;
@@ -123,10 +125,10 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
     int BufferSize;
 
     /* buffers derivatives product */
-    icvDerProduct *II;
+    icvDerProduct* II;
 
     /* buffers for gaussian horisontal convolution */
-    icvDerProduct *WII;
+    icvDerProduct* WII;
 
     /* variables for storing number of first pixel of image line */
     int Line1;
@@ -148,46 +150,46 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
     velStep /= sizeof(velocityX[0]);
 
     /* Checking bad arguments */
-    if( imgA == NULL )
+    if (imgA == NULL)
         return CV_NULLPTR_ERR;
-    if( imgB == NULL )
+    if (imgB == NULL)
         return CV_NULLPTR_ERR;
 
-    if( imageHeight < winHeight )
+    if (imageHeight < winHeight)
         return CV_BADSIZE_ERR;
-    if( imageWidth < winWidth )
-        return CV_BADSIZE_ERR;
-
-    if( winHeight >= 16 )
-        return CV_BADSIZE_ERR;
-    if( winWidth >= 16 )
+    if (imageWidth < winWidth)
         return CV_BADSIZE_ERR;
 
-    if( !(winHeight & 1) )
+    if (winHeight >= 16)
         return CV_BADSIZE_ERR;
-    if( !(winWidth & 1) )
+    if (winWidth >= 16)
+        return CV_BADSIZE_ERR;
+
+    if (!(winHeight & 1))
+        return CV_BADSIZE_ERR;
+    if (!(winWidth & 1))
         return CV_BADSIZE_ERR;
 
     BufferHeight = winHeight;
     BufferWidth = imageWidth;
 
     /****************************************************************************************/
-    /* Computing Gaussian coeffs                                                            */
+    /* Computing Gaussian coeffs */
     /****************************************************************************************/
     GaussX[0] = 1;
     GaussY[0] = 1;
-    for( i = 1; i < winWidth; i++ )
+    for (i = 1; i < winWidth; i++)
     {
         GaussX[i] = 1;
-        for( j = i - 1; j > 0; j-- )
+        for (j = i - 1; j > 0; j--)
         {
             GaussX[j] += GaussX[j - 1];
         }
     }
-    for( i = 1; i < winHeight; i++ )
+    for (i = 1; i < winHeight; i++)
     {
         GaussY[i] = 1;
-        for( j = i - 1; j > 0; j-- )
+        for (j = i - 1; j > 0; j--)
         {
             GaussY[j] += GaussY[j - 1];
         }
@@ -196,86 +198,83 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
     KerY = &GaussY[VerRadius];
 
     /****************************************************************************************/
-    /* Allocating memory for all buffers                                                    */
+    /* Allocating memory for all buffers */
     /****************************************************************************************/
-    for( k = 0; k < 2; k++ )
+    for (k = 0; k < 2; k++)
     {
-        MemX[k] = (float *) cvAlloc( (imgSize.height) * sizeof( float ));
+        MemX[k] = (float*)cvAlloc((imgSize.height) * sizeof(float));
 
-        if( MemX[k] == NULL )
+        if (MemX[k] == NULL)
             NoMem = 1;
-        MemY[k] = (float *) cvAlloc( (imgSize.width) * sizeof( float ));
+        MemY[k] = (float*)cvAlloc((imgSize.width) * sizeof(float));
 
-        if( MemY[k] == NULL )
+        if (MemY[k] == NULL)
             NoMem = 1;
     }
 
     BufferSize = BufferHeight * BufferWidth;
 
-    II = (icvDerProduct *) cvAlloc( BufferSize * sizeof( icvDerProduct ));
-    WII = (icvDerProduct *) cvAlloc( BufferSize * sizeof( icvDerProduct ));
+    II = (icvDerProduct*)cvAlloc(BufferSize * sizeof(icvDerProduct));
+    WII = (icvDerProduct*)cvAlloc(BufferSize * sizeof(icvDerProduct));
 
-
-    if( (II == NULL) || (WII == NULL) )
+    if ((II == NULL) || (WII == NULL))
         NoMem = 1;
 
-    if( NoMem )
+    if (NoMem)
     {
-        for( k = 0; k < 2; k++ )
+        for (k = 0; k < 2; k++)
         {
-            if( MemX[k] )
-                cvFree( &MemX[k] );
+            if (MemX[k])
+                cvFree(&MemX[k]);
 
-            if( MemY[k] )
-                cvFree( &MemY[k] );
+            if (MemY[k])
+                cvFree(&MemY[k]);
         }
-        if( II )
-            cvFree( &II );
-        if( WII )
-            cvFree( &WII );
+        if (II)
+            cvFree(&II);
+        if (WII)
+            cvFree(&WII);
 
         return CV_OUTOFMEM_ERR;
     }
 
     /****************************************************************************************/
-    /*        Calculate first line of memX and memY                                         */
+    /*        Calculate first line of memX and memY */
     /****************************************************************************************/
-    MemY[0][0] = MemY[1][0] = CONV( imgA[0], imgA[0], imgA[1] );
-    MemX[0][0] = MemX[1][0] = CONV( imgA[0], imgA[0], imgA[imgStep] );
+    MemY[0][0] = MemY[1][0] = CONV(imgA[0], imgA[0], imgA[1]);
+    MemX[0][0] = MemX[1][0] = CONV(imgA[0], imgA[0], imgA[imgStep]);
 
-    for( j = 1; j < imageWidth - 1; j++ )
+    for (j = 1; j < imageWidth - 1; j++)
     {
-        MemY[0][j] = MemY[1][j] = CONV( imgA[j - 1], imgA[j], imgA[j + 1] );
+        MemY[0][j] = MemY[1][j] = CONV(imgA[j - 1], imgA[j], imgA[j + 1]);
     }
 
     pixNumber = imgStep;
-    for( i = 1; i < imageHeight - 1; i++ )
+    for (i = 1; i < imageHeight - 1; i++)
     {
-        MemX[0][i] = MemX[1][i] = CONV( imgA[pixNumber - imgStep],
-                                        imgA[pixNumber], imgA[pixNumber + imgStep] );
+        MemX[0][i] = MemX[1][i] =
+            CONV(imgA[pixNumber - imgStep], imgA[pixNumber],
+                 imgA[pixNumber + imgStep]);
         pixNumber += imgStep;
     }
 
-    MemY[0][imageWidth - 1] =
-        MemY[1][imageWidth - 1] = CONV( imgA[imageWidth - 2],
-                                        imgA[imageWidth - 1], imgA[imageWidth - 1] );
+    MemY[0][imageWidth - 1] = MemY[1][imageWidth - 1] =
+        CONV(imgA[imageWidth - 2], imgA[imageWidth - 1], imgA[imageWidth - 1]);
 
-    MemX[0][imageHeight - 1] =
-        MemX[1][imageHeight - 1] = CONV( imgA[pixNumber - imgStep],
-                                         imgA[pixNumber], imgA[pixNumber] );
-
+    MemX[0][imageHeight - 1] = MemX[1][imageHeight - 1] =
+        CONV(imgA[pixNumber - imgStep], imgA[pixNumber], imgA[pixNumber]);
 
     /****************************************************************************************/
-    /*    begin scan image, calc derivatives and solve system                               */
+    /*    begin scan image, calc derivatives and solve system */
     /****************************************************************************************/
 
     PixelLine = -VerRadius;
     ConvLine = 0;
     BufferAddress = -BufferWidth;
 
-    while( PixelLine < imageHeight )
+    while (PixelLine < imageHeight)
     {
-        if( ConvLine < imageHeight )
+        if (ConvLine < imageHeight)
         {
             /*Here we calculate derivatives for line of image */
             int address;
@@ -287,13 +286,14 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
 
             int memYline = L3 & 1;
 
-            if( L1 < 0 )
+            if (L1 < 0)
                 L1 = 0;
-            if( L3 >= imageHeight )
+            if (L3 >= imageHeight)
                 L3 = imageHeight - 1;
 
             BufferAddress += BufferWidth;
-            BufferAddress -= ((BufferAddress >= BufferSize) ? 0xffffffff : 0) & BufferSize;
+            BufferAddress -=
+                ((BufferAddress >= BufferSize) ? 0xffffffff : 0) & BufferSize;
 
             address = BufferAddress;
 
@@ -302,8 +302,8 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
             Line3 = L3 * imgStep;
 
             /* Process first pixel */
-            ConvX = CONV( imgA[Line1 + 1], imgA[Line2 + 1], imgA[Line3 + 1] );
-            ConvY = CONV( imgA[Line3], imgA[Line3], imgA[Line3 + 1] );
+            ConvX = CONV(imgA[Line1 + 1], imgA[Line2 + 1], imgA[Line3 + 1]);
+            ConvY = CONV(imgA[Line3], imgA[Line3], imgA[Line3 + 1]);
 
             GradY = ConvY - MemY[memYline][0];
             GradX = ConvX - MemX[1][L2];
@@ -311,7 +311,7 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
             MemY[memYline][0] = ConvY;
             MemX[1][L2] = ConvX;
 
-            GradT = (float) (imgB[Line2] - imgA[Line2]);
+            GradT = (float)(imgB[Line2] - imgA[Line2]);
 
             II[address].xx = GradX * GradX;
             II[address].xy = GradX * GradY;
@@ -320,10 +320,12 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
             II[address].yt = GradY * GradT;
             address++;
             /* Process middle of line */
-            for( j = 1; j < imageWidth - 1; j++ )
+            for (j = 1; j < imageWidth - 1; j++)
             {
-                ConvX = CONV( imgA[Line1 + j + 1], imgA[Line2 + j + 1], imgA[Line3 + j + 1] );
-                ConvY = CONV( imgA[Line3 + j - 1], imgA[Line3 + j], imgA[Line3 + j + 1] );
+                ConvX = CONV(imgA[Line1 + j + 1], imgA[Line2 + j + 1],
+                             imgA[Line3 + j + 1]);
+                ConvY = CONV(imgA[Line3 + j - 1], imgA[Line3 + j],
+                             imgA[Line3 + j + 1]);
 
                 GradY = ConvY - MemY[memYline][j];
                 GradX = ConvX - MemX[(j - 1) & 1][L2];
@@ -331,7 +333,7 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                 MemY[memYline][j] = ConvY;
                 MemX[(j - 1) & 1][L2] = ConvX;
 
-                GradT = (float) (imgB[Line2 + j] - imgA[Line2 + j]);
+                GradT = (float)(imgB[Line2 + j] - imgA[Line2 + j]);
 
                 II[address].xx = GradX * GradX;
                 II[address].xy = GradX * GradY;
@@ -342,19 +344,21 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                 address++;
             }
             /* Process last pixel of line */
-            ConvX = CONV( imgA[Line1 + imageWidth - 1], imgA[Line2 + imageWidth - 1],
-                          imgA[Line3 + imageWidth - 1] );
+            ConvX =
+                CONV(imgA[Line1 + imageWidth - 1], imgA[Line2 + imageWidth - 1],
+                     imgA[Line3 + imageWidth - 1]);
 
-            ConvY = CONV( imgA[Line3 + imageWidth - 2], imgA[Line3 + imageWidth - 1],
-                          imgA[Line3 + imageWidth - 1] );
-
+            ConvY =
+                CONV(imgA[Line3 + imageWidth - 2], imgA[Line3 + imageWidth - 1],
+                     imgA[Line3 + imageWidth - 1]);
 
             GradY = ConvY - MemY[memYline][imageWidth - 1];
             GradX = ConvX - MemX[(imageWidth - 2) & 1][L2];
 
             MemY[memYline][imageWidth - 1] = ConvY;
 
-            GradT = (float) (imgB[Line2 + imageWidth - 1] - imgA[Line2 + imageWidth - 1]);
+            GradT = (float)(imgB[Line2 + imageWidth - 1]
+                            - imgA[Line2 + imageWidth - 1]);
 
             II[address].xx = GradX * GradX;
             II[address].xy = GradX * GradY;
@@ -366,11 +370,12 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
             /* End of derivatives for line */
 
             /****************************************************************************************/
-            /* ---------Calculating horizontal convolution of processed line----------------------- */
+            /* ---------Calculating horizontal convolution of processed
+             * line----------------------- */
             /****************************************************************************************/
             address -= BufferWidth;
             /* process first HorRadius pixels */
-            for( j = 0; j < HorRadius; j++ )
+            for (j = 0; j < HorRadius; j++)
             {
                 int jj;
 
@@ -380,7 +385,7 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                 WII[address].xt = 0;
                 WII[address].yt = 0;
 
-                for( jj = -j; jj <= HorRadius; jj++ )
+                for (jj = -j; jj <= HorRadius; jj++)
                 {
                     float Ker = KerX[jj];
 
@@ -393,7 +398,7 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                 address++;
             }
             /* process inner part of line */
-            for( j = HorRadius; j < imageWidth - HorRadius; j++ )
+            for (j = HorRadius; j < imageWidth - HorRadius; j++)
             {
                 int jj;
                 float Ker0 = KerX[0];
@@ -404,15 +409,20 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                 WII[address].xt = 0;
                 WII[address].yt = 0;
 
-                for( jj = 1; jj <= HorRadius; jj++ )
+                for (jj = 1; jj <= HorRadius; jj++)
                 {
                     float Ker = KerX[jj];
 
-                    WII[address].xx += (II[address - jj].xx + II[address + jj].xx) * Ker;
-                    WII[address].xy += (II[address - jj].xy + II[address + jj].xy) * Ker;
-                    WII[address].yy += (II[address - jj].yy + II[address + jj].yy) * Ker;
-                    WII[address].xt += (II[address - jj].xt + II[address + jj].xt) * Ker;
-                    WII[address].yt += (II[address - jj].yt + II[address + jj].yt) * Ker;
+                    WII[address].xx +=
+                        (II[address - jj].xx + II[address + jj].xx) * Ker;
+                    WII[address].xy +=
+                        (II[address - jj].xy + II[address + jj].xy) * Ker;
+                    WII[address].yy +=
+                        (II[address - jj].yy + II[address + jj].yy) * Ker;
+                    WII[address].xt +=
+                        (II[address - jj].xt + II[address + jj].xt) * Ker;
+                    WII[address].yt +=
+                        (II[address - jj].yt + II[address + jj].yt) * Ker;
                 }
                 WII[address].xx += II[address].xx * Ker0;
                 WII[address].xy += II[address].xy * Ker0;
@@ -423,7 +433,7 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                 address++;
             }
             /* process right side */
-            for( j = imageWidth - HorRadius; j < imageWidth; j++ )
+            for (j = imageWidth - HorRadius; j < imageWidth; j++)
             {
                 int jj;
 
@@ -433,7 +443,7 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                 WII[address].xt = 0;
                 WII[address].yt = 0;
 
-                for( jj = -HorRadius; jj < imageWidth - j; jj++ )
+                for (jj = -HorRadius; jj < imageWidth - j; jj++)
                 {
                     float Ker = KerX[jj];
 
@@ -448,26 +458,26 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
         }
 
         /****************************************************************************************/
-        /*  Calculating velocity line                                                           */
+        /*  Calculating velocity line */
         /****************************************************************************************/
-        if( PixelLine >= 0 )
+        if (PixelLine >= 0)
         {
             int USpace;
             int BSpace;
             int address;
 
-            if( PixelLine < VerRadius )
+            if (PixelLine < VerRadius)
                 USpace = PixelLine;
             else
                 USpace = VerRadius;
 
-            if( PixelLine >= imageHeight - VerRadius )
+            if (PixelLine >= imageHeight - VerRadius)
                 BSpace = imageHeight - PixelLine - 1;
             else
                 BSpace = VerRadius;
 
             address = ((PixelLine - USpace) % BufferHeight) * BufferWidth;
-            for( j = 0; j < imageWidth; j++ )
+            for (j = 0; j < imageWidth; j++)
             {
                 int addr = address;
 
@@ -477,7 +487,7 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                 C1 = 0;
                 C2 = 0;
 
-                for( i = -USpace; i <= BSpace; i++ )
+                for (i = -USpace; i <= BSpace; i++)
                 {
                     A2 += WII[addr + j].xx * KerY[i];
                     A1B2 += WII[addr + j].xy * KerY[i];
@@ -486,15 +496,16 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                     C1 += WII[addr + j].yt * KerY[i];
 
                     addr += BufferWidth;
-                    addr -= ((addr >= BufferSize) ? 0xffffffff : 0) & BufferSize;
+                    addr -=
+                        ((addr >= BufferSize) ? 0xffffffff : 0) & BufferSize;
                 }
                 /****************************************************************************************\
-                * Solve Linear System                                                                    *
+                * Solve Linear System *
                 \****************************************************************************************/
                 {
                     float delta = (A1B2 * A1B2 - A2 * B1);
 
-                    if( delta )
+                    if (delta)
                     {
                         /* system is not singular - solving by Kramer method */
                         float deltaX;
@@ -509,17 +520,18 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                     }
                     else
                     {
-                        /* singular system - find optical flow in gradient direction */
-                        float Norm = (A1B2 + A2) * (A1B2 + A2) + (B1 + A1B2) * (B1 + A1B2);
+                        /* singular system - find optical flow in gradient
+                         * direction */
+                        float Norm = (A1B2 + A2) * (A1B2 + A2)
+                                     + (B1 + A1B2) * (B1 + A1B2);
 
-                        if( Norm )
+                        if (Norm)
                         {
                             float IGradNorm = 8 / Norm;
                             float temp = -(C1 + C2) * IGradNorm;
 
                             velocityX[j] = (A1B2 + A2) * temp;
                             velocityY[j] = (B1 + A1B2) * temp;
-
                         }
                         else
                         {
@@ -529,33 +541,32 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
                     }
                 }
                 /****************************************************************************************\
-                * End of Solving Linear System                                                           *
+                * End of Solving Linear System *
                 \****************************************************************************************/
-            }                   /*for */
+            } /*for */
             velocityX += velStep;
             velocityY += velStep;
-        }                       /*for */
+        } /*for */
         PixelLine++;
         ConvLine++;
     }
 
     /* Free memory */
-    for( k = 0; k < 2; k++ )
+    for (k = 0; k < 2; k++)
     {
-        cvFree( &MemX[k] );
-        cvFree( &MemY[k] );
+        cvFree(&MemX[k]);
+        cvFree(&MemY[k]);
     }
-    cvFree( &II );
-    cvFree( &WII );
+    cvFree(&II);
+    cvFree(&WII);
 
     return CV_OK;
 } /*icvCalcOpticalFlowLK_8u32fR*/
 
-
 /*F///////////////////////////////////////////////////////////////////////////////////////
 //    Name:    cvCalcOpticalFlowLK
 //    Purpose: Optical flow implementation
-//    Context: 
+//    Context:
 //    Parameters:
 //             srcA, srcB - source image
 //             velx, vely - destination image
@@ -563,11 +574,10 @@ icvCalcOpticalFlowLK_8u32fR( uchar * imgA,
 //
 //    Notes:
 //F*/
-CV_IMPL void
-cvCalcOpticalFlowLK( const void* srcarrA, const void* srcarrB, CvSize winSize,
-                     void* velarrx, void* velarry )
+CV_IMPL void cvCalcOpticalFlowLK(const void* srcarrA, const void* srcarrB,
+                                 CvSize winSize, void* velarrx, void* velarry)
 {
-    CV_FUNCNAME( "cvCalcOpticalFlowLK" );
+    CV_FUNCNAME("cvCalcOpticalFlowLK");
 
     __BEGIN__;
 
@@ -576,34 +586,37 @@ cvCalcOpticalFlowLK( const void* srcarrA, const void* srcarrB, CvSize winSize,
     CvMat stubx, *velx = (CvMat*)velarrx;
     CvMat stuby, *vely = (CvMat*)velarry;
 
-    CV_CALL( srcA = cvGetMat( srcA, &stubA ));
-    CV_CALL( srcB = cvGetMat( srcB, &stubB ));
+    CV_CALL(srcA = cvGetMat(srcA, &stubA));
+    CV_CALL(srcB = cvGetMat(srcB, &stubB));
 
-    CV_CALL( velx = cvGetMat( velx, &stubx ));
-    CV_CALL( vely = cvGetMat( vely, &stuby ));
+    CV_CALL(velx = cvGetMat(velx, &stubx));
+    CV_CALL(vely = cvGetMat(vely, &stuby));
 
-    if( !CV_ARE_TYPES_EQ( srcA, srcB ))
-        CV_ERROR( CV_StsUnmatchedFormats, "Source images have different formats" );
+    if (!CV_ARE_TYPES_EQ(srcA, srcB))
+        CV_ERROR(CV_StsUnmatchedFormats,
+                 "Source images have different formats");
 
-    if( !CV_ARE_TYPES_EQ( velx, vely ))
-        CV_ERROR( CV_StsUnmatchedFormats, "Destination images have different formats" );
+    if (!CV_ARE_TYPES_EQ(velx, vely))
+        CV_ERROR(CV_StsUnmatchedFormats,
+                 "Destination images have different formats");
 
-    if( !CV_ARE_SIZES_EQ( srcA, srcB ) ||
-        !CV_ARE_SIZES_EQ( velx, vely ) ||
-        !CV_ARE_SIZES_EQ( srcA, velx ))
-        CV_ERROR( CV_StsUnmatchedSizes, "" );
+    if (!CV_ARE_SIZES_EQ(srcA, srcB) || !CV_ARE_SIZES_EQ(velx, vely)
+        || !CV_ARE_SIZES_EQ(srcA, velx))
+        CV_ERROR(CV_StsUnmatchedSizes, "");
 
-    if( CV_MAT_TYPE( srcA->type ) != CV_8UC1 ||
-        CV_MAT_TYPE( velx->type ) != CV_32FC1 )
-        CV_ERROR( CV_StsUnsupportedFormat, "Source images must have 8uC1 type and "
-                                           "destination images must have 32fC1 type" );
+    if (CV_MAT_TYPE(srcA->type) != CV_8UC1
+        || CV_MAT_TYPE(velx->type) != CV_32FC1)
+        CV_ERROR(CV_StsUnsupportedFormat,
+                 "Source images must have 8uC1 type and "
+                 "destination images must have 32fC1 type");
 
-    if( srcA->step != srcB->step || velx->step != vely->step )
-        CV_ERROR( CV_BadStep, "source and destination images have different step" );
+    if (srcA->step != srcB->step || velx->step != vely->step)
+        CV_ERROR(CV_BadStep,
+                 "source and destination images have different step");
 
-    IPPI_CALL( icvCalcOpticalFlowLK_8u32fR( (uchar*)srcA->data.ptr, (uchar*)srcB->data.ptr,
-                                            srcA->step, cvGetMatSize( srcA ), winSize,
-                                            velx->data.fl, vely->data.fl, velx->step ));
+    IPPI_CALL(icvCalcOpticalFlowLK_8u32fR(
+        (uchar*)srcA->data.ptr, (uchar*)srcB->data.ptr, srcA->step,
+        cvGetMatSize(srcA), winSize, velx->data.fl, vely->data.fl, velx->step));
 
     __END__;
 }

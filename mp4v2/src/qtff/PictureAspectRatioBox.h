@@ -9,9 +9,9 @@
 //  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 //  License for the specific language governing rights and limitations
 //  under the License.
-// 
+//
 //  The Original Code is MP4v2.
-// 
+//
 //  The Initial Developer of the Original Code is Kona Blend.
 //  Portions created by Kona Blend are Copyright (C) 2008.
 //  All Rights Reserved.
@@ -24,165 +24,185 @@
 #ifndef MP4V2_IMPL_QTFF_PICTUREAPSECTRATIOBOX_H
 #define MP4V2_IMPL_QTFF_PICTUREAPSECTRATIOBOX_H
 
-namespace mp4v2 { namespace impl { namespace qtff {
-    using namespace std;
-
-///////////////////////////////////////////////////////////////////////////////
-
-/// Functional class for pasp-box (Picture Aspect Ratio Box) support.
-///
-/// A pasp-box is expected to be contained in a video track which is one of
-/// the following coding types:
-///     @li avc1
-///     @li mp4v
-///
-/// This implementation assumes a maximum count of <b>1</b> for
-/// VideoSampleEntry of the supported codings.
-///
-class MP4V2_EXPORT PictureAspectRatioBox
+namespace mp4v2
 {
-public:
-    /// Data object for pasp-box item.
-    /// This object correlates to one pasp-box (Picture Aspect Ratio Box).
-    class MP4V2_EXPORT Item
+    namespace impl
     {
-    public:
-        Item ();
+        namespace qtff
+        {
+            using namespace std;
 
-        /// reset to state of newly constructed object.
-        void reset();
+            ///////////////////////////////////////////////////////////////////////////////
 
-        // convert from string CSV format.
-        void convertFromCSV( const string& csv );
+            /// Functional class for pasp-box (Picture Aspect Ratio Box)
+            /// support.
+            ///
+            /// A pasp-box is expected to be contained in a video track which is
+            /// one of the following coding types:
+            ///     @li avc1
+            ///     @li mp4v
+            ///
+            /// This implementation assumes a maximum count of <b>1</b> for
+            /// VideoSampleEntry of the supported codings.
+            ///
+            class MP4V2_EXPORT PictureAspectRatioBox
+            {
+            public:
+                /// Data object for pasp-box item.
+                /// This object correlates to one pasp-box (Picture Aspect Ratio
+                /// Box).
+                class MP4V2_EXPORT Item
+                {
+                public:
+                    Item();
 
-        // convert to string CSV format.
-        string convertToCSV() const;
+                    /// reset to state of newly constructed object.
+                    void reset();
 
-        // convert to string CSV format with buffer.
-        string& convertToCSV( string& buffer ) const;
+                    // convert from string CSV format.
+                    void convertFromCSV(const string& csv);
 
-    public:
-        /// an unsigned 32-bit integer specifying the vertical spacing of pixels.
-        uint32_t hSpacing;
+                    // convert to string CSV format.
+                    string convertToCSV() const;
 
-        /// an unsigned 32-bit integer specifying the horizontal spacing of pixels.
-        uint32_t vSpacing;
-    };
+                    // convert to string CSV format with buffer.
+                    string& convertToCSV(string& buffer) const;
 
-    class MP4V2_EXPORT IndexedItem {
-    public:
-        IndexedItem();
+                public:
+                    /// an unsigned 32-bit integer specifying the vertical
+                    /// spacing of pixels.
+                    uint32_t hSpacing;
 
-        uint16_t trackIndex;
-        uint16_t trackId;
-        Item     item;
-    };
+                    /// an unsigned 32-bit integer specifying the horizontal
+                    /// spacing of pixels.
+                    uint32_t vSpacing;
+                };
 
-    typedef vector<IndexedItem> ItemList;
+                class MP4V2_EXPORT IndexedItem
+                {
+                public:
+                    IndexedItem();
 
-    static bool list( MP4FileHandle file, ItemList& itemList );
+                    uint16_t trackIndex;
+                    uint16_t trackId;
+                    Item item;
+                };
 
-    /// Add pasp-box by track-index.
-    ///
-    /// This function adds a pasp-box to <b>trackId</b> of <b>file</b>.
-    /// The track must be a video-track and match one of the supporting
-    /// codings.
-    ///
-    /// @param file on which to operate.
-    /// @param trackIndex on which to operate.
-    /// @param item pasp-box properties to set.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool add( MP4FileHandle file, uint16_t trackIndex, const Item& item );
+                typedef vector<IndexedItem> ItemList;
 
-    /// Add pasp-box by track-id.
-    ///
-    /// This function adds a pasp-box to <b>trackId</b> of <b>file</b>.
-    /// The track must be a video-track and match one of the supporting
-    /// codings.
-    ///
-    /// @param file on which to operate.
-    /// @param trackId on which to operate.
-    /// @param item pasp-box properties to set.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool add( MP4FileHandle file, MP4TrackId trackId, const Item& item );
+                static bool list(MP4FileHandle file, ItemList& itemList);
 
-    /// Store pasp-box (Color Parameter Box) properties by track-index.
-    ///
-    /// This function sets the properties of a <b>pasp-box</b>
-    /// (Color Parameter Box).
-    ///
-    /// @param file on which to operate.
-    /// @param trackIndex on which to operate.
-    /// @param item pasp-box properties to set.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool set( MP4FileHandle file, uint16_t trackIndex, const Item& item );
+                /// Add pasp-box by track-index.
+                ///
+                /// This function adds a pasp-box to <b>trackId</b> of
+                /// <b>file</b>. The track must be a video-track and match one
+                /// of the supporting codings.
+                ///
+                /// @param file on which to operate.
+                /// @param trackIndex on which to operate.
+                /// @param item pasp-box properties to set.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool add(MP4FileHandle file, uint16_t trackIndex,
+                                const Item& item);
 
-    /// Store pasp-box (Color Parameter Box) properties by track-id.
-    ///
-    /// This function sets the properties of a <b>pasp-box</b>
-    /// (Color Parameter Box).
-    ///
-    /// @param file on which to operate.
-    /// @param trackId on which to operate.
-    /// @param item pasp-box properties to set.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool set( MP4FileHandle file, MP4TrackId trackId, const Item& item );
+                /// Add pasp-box by track-id.
+                ///
+                /// This function adds a pasp-box to <b>trackId</b> of
+                /// <b>file</b>. The track must be a video-track and match one
+                /// of the supporting codings.
+                ///
+                /// @param file on which to operate.
+                /// @param trackId on which to operate.
+                /// @param item pasp-box properties to set.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool add(MP4FileHandle file, MP4TrackId trackId,
+                                const Item& item);
 
-    /// Fetch pasp-box (Color Parameter Box) properties by track-index.
-    ///
-    /// This function gets the properties of a <b>pasp-box</b>
-    /// (Color Parameter Box).
-    ///
-    /// @param file on which to operate.
-    /// @param trackIndex on which to operate.
-    /// @param item pasp-box properties to set.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool get( MP4FileHandle file, uint16_t trackIndex, Item& item );
+                /// Store pasp-box (Color Parameter Box) properties by
+                /// track-index.
+                ///
+                /// This function sets the properties of a <b>pasp-box</b>
+                /// (Color Parameter Box).
+                ///
+                /// @param file on which to operate.
+                /// @param trackIndex on which to operate.
+                /// @param item pasp-box properties to set.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool set(MP4FileHandle file, uint16_t trackIndex,
+                                const Item& item);
 
-    /// Fetch pasp-box (Color Parameter Box) properties by track-id.
-    ///
-    /// This function gets the properties of a <b>pasp-box</b>
-    /// (Color Parameter Box).
-    ///
-    /// @param file on which to operate.
-    /// @param trackId on which to operate.
-    /// @param item pasp-box properties to set.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool get( MP4FileHandle file, MP4TrackId trackId, Item& item );
+                /// Store pasp-box (Color Parameter Box) properties by track-id.
+                ///
+                /// This function sets the properties of a <b>pasp-box</b>
+                /// (Color Parameter Box).
+                ///
+                /// @param file on which to operate.
+                /// @param trackId on which to operate.
+                /// @param item pasp-box properties to set.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool set(MP4FileHandle file, MP4TrackId trackId,
+                                const Item& item);
 
-    /// Remove pasp-box (Color Parameter Box) by track-index.
-    ///
-    /// @param file on which to operate.
-    /// @param trackIndex on which to operate.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool remove( MP4FileHandle file, uint16_t trackIndex );
+                /// Fetch pasp-box (Color Parameter Box) properties by
+                /// track-index.
+                ///
+                /// This function gets the properties of a <b>pasp-box</b>
+                /// (Color Parameter Box).
+                ///
+                /// @param file on which to operate.
+                /// @param trackIndex on which to operate.
+                /// @param item pasp-box properties to set.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool get(MP4FileHandle file, uint16_t trackIndex,
+                                Item& item);
 
-    /// Remove pasp-box (Color Parameter Box) by track-id.
-    ///
-    /// @param file on which to operate.
-    /// @param trackId on which to operate.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool remove( MP4FileHandle file, MP4TrackId trackId );
-};
+                /// Fetch pasp-box (Color Parameter Box) properties by track-id.
+                ///
+                /// This function gets the properties of a <b>pasp-box</b>
+                /// (Color Parameter Box).
+                ///
+                /// @param file on which to operate.
+                /// @param trackId on which to operate.
+                /// @param item pasp-box properties to set.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool get(MP4FileHandle file, MP4TrackId trackId,
+                                Item& item);
 
-///////////////////////////////////////////////////////////////////////////////
+                /// Remove pasp-box (Color Parameter Box) by track-index.
+                ///
+                /// @param file on which to operate.
+                /// @param trackIndex on which to operate.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool remove(MP4FileHandle file, uint16_t trackIndex);
 
-}}} // namespace mp4v2::impl::qtff
+                /// Remove pasp-box (Color Parameter Box) by track-id.
+                ///
+                /// @param file on which to operate.
+                /// @param trackId on which to operate.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool remove(MP4FileHandle file, MP4TrackId trackId);
+            };
+
+            ///////////////////////////////////////////////////////////////////////////////
+
+        } // namespace qtff
+    } // namespace impl
+} // namespace mp4v2
 
 #endif // MP4V2_IMPL_QTTF_PICTUREAPSECTRATIOBOX_H

@@ -24,7 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-
 #ifndef __PCFDRIVR_H__
 #define __PCFDRIVR_H__
 
@@ -33,12 +32,10 @@ THE SOFTWARE.
 
 FT_BEGIN_HEADER
 
-  FT_EXPORT_VAR( const FT_Driver_ClassRec )  pcf_driver_class;
+FT_EXPORT_VAR(const FT_Driver_ClassRec) pcf_driver_class;
 
 FT_END_HEADER
 
-
 #endif /* __PCFDRIVR_H__ */
-
 
 /* END */

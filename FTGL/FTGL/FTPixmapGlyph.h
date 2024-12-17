@@ -26,8 +26,8 @@
  */
 
 #ifndef __ftgl__
-#   warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
-#   include <FTGL/ftgl.h>
+#warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
+#include <FTGL/ftgl.h>
 #endif
 
 #ifndef __FTPixmapGlyph__
@@ -35,33 +35,32 @@
 
 #ifdef __cplusplus
 
-
 /**
  * FTPixmapGlyph is a specialisation of FTGlyph for creating pixmaps.
  */
-class  FTGL_EXPORT FTPixmapGlyph : public FTGlyph
+class FTGL_EXPORT FTPixmapGlyph : public FTGlyph
 {
-    public:
-        /**
-         * Constructor
-         *
-         * @param glyph The Freetype glyph to be processed
-         */
-        FTPixmapGlyph(FT_GlyphSlot glyph);
+public:
+    /**
+     * Constructor
+     *
+     * @param glyph The Freetype glyph to be processed
+     */
+    FTPixmapGlyph(FT_GlyphSlot glyph);
 
-        /**
-         * Destructor
-         */
-        virtual ~FTPixmapGlyph();
+    /**
+     * Destructor
+     */
+    virtual ~FTPixmapGlyph();
 
-        /**
-         * Render this glyph at the current pen position.
-         *
-         * @param pen  The current pen position.
-         * @param renderMode  Render mode to display
-         * @return  The advance distance for this glyph.
-         */
-        virtual const FTPoint& Render(const FTPoint& pen, int renderMode);
+    /**
+     * Render this glyph at the current pen position.
+     *
+     * @param pen  The current pen position.
+     * @param renderMode  Render mode to display
+     * @return  The advance distance for this glyph.
+     */
+    virtual const FTPoint& Render(const FTPoint& pen, int renderMode);
 };
 
 #endif //__cplusplus
@@ -74,9 +73,8 @@ FTGL_BEGIN_C_DECLS
  * @param glyph The Freetype glyph to be processed
  * @return  An FTGLglyph* object.
  */
-FTGL_EXPORT FTGLglyph *ftglCreatePixmapGlyph(FT_GlyphSlot glyph);
+FTGL_EXPORT FTGLglyph* ftglCreatePixmapGlyph(FT_GlyphSlot glyph);
 
 FTGL_END_C_DECLS
 
-#endif  //  __FTPixmapGlyph__
-
+#endif //  __FTPixmapGlyph__

@@ -35,28 +35,25 @@ class FTBitmapFontImpl : public FTFontImpl
 {
     friend class FTBitmapFont;
 
-    protected:
-        FTBitmapFontImpl(FTFont *ftFont, const char* fontFilePath) :
-            FTFontImpl(ftFont, fontFilePath) {};
+protected:
+    FTBitmapFontImpl(FTFont* ftFont, const char* fontFilePath)
+        : FTFontImpl(ftFont, fontFilePath) {};
 
-        FTBitmapFontImpl(FTFont *ftFont, const unsigned char *pBufferBytes,
-                         size_t bufferSizeInBytes) :
-            FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes) {};
+    FTBitmapFontImpl(FTFont* ftFont, const unsigned char* pBufferBytes,
+                     size_t bufferSizeInBytes)
+        : FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes) {};
 
-        virtual FTPoint Render(const char *s, const int len,
-                               FTPoint position, FTPoint spacing,
-                               int renderMode);
+    virtual FTPoint Render(const char* s, const int len, FTPoint position,
+                           FTPoint spacing, int renderMode);
 
-        virtual FTPoint Render(const wchar_t *s, const int len,
-                               FTPoint position, FTPoint spacing,
-                               int renderMode);
+    virtual FTPoint Render(const wchar_t* s, const int len, FTPoint position,
+                           FTPoint spacing, int renderMode);
 
-    private:
-        /* Internal generic Render() implementation */
-        template <typename T>
-        inline FTPoint RenderI(const T *s, const int len,
-                               FTPoint position, FTPoint spacing, int mode);
+private:
+    /* Internal generic Render() implementation */
+    template <typename T>
+    inline FTPoint RenderI(const T* s, const int len, FTPoint position,
+                           FTPoint spacing, int mode);
 };
 
-#endif  //  __FTBitmapFontImpl__
-
+#endif //  __FTBitmapFontImpl__

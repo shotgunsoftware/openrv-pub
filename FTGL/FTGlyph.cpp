@@ -31,82 +31,40 @@
 #include "FTInternals.h"
 #include "FTGlyphImpl.h"
 
-
 //
 //  FTGlyph
 //
 
+FTGlyph::FTGlyph(FT_GlyphSlot glyph) { impl = new FTGlyphImpl(glyph); }
 
-FTGlyph::FTGlyph(FT_GlyphSlot glyph)
-{
-    impl = new FTGlyphImpl(glyph);
-}
+FTGlyph::FTGlyph(FTGlyphImpl* pImpl) { impl = pImpl; }
 
+FTGlyph::~FTGlyph() { delete impl; }
 
-FTGlyph::FTGlyph(FTGlyphImpl *pImpl)
-{
-    impl = pImpl;
-}
+float FTGlyph::Advance() const { return impl->Advance(); }
 
+const FTBBox& FTGlyph::BBox() const { return impl->BBox(); }
 
-FTGlyph::~FTGlyph()
-{
-    delete impl;
-}
-
-
-float FTGlyph::Advance() const
-{
-    return impl->Advance();
-}
-
-
-const FTBBox& FTGlyph::BBox() const
-{
-    return impl->BBox();
-}
-
-
-FT_Error FTGlyph::Error() const
-{
-    return impl->Error();
-}
-
+FT_Error FTGlyph::Error() const { return impl->Error(); }
 
 //
 //  FTGlyphImpl
 //
 
-
-FTGlyphImpl::FTGlyphImpl(FT_GlyphSlot glyph, bool useList) : err(0)
+FTGlyphImpl::FTGlyphImpl(FT_GlyphSlot glyph, bool useList)
+    : err(0)
 {
-    if(glyph)
+    if (glyph)
     {
         bBox = FTBBox(glyph);
-        advance = FTPoint(glyph->advance.x / 64.0f,
-                          glyph->advance.y / 64.0f);
+        advance = FTPoint(glyph->advance.x / 64.0f, glyph->advance.y / 64.0f);
     }
 }
 
+FTGlyphImpl::~FTGlyphImpl() {}
 
-FTGlyphImpl::~FTGlyphImpl()
-{}
+float FTGlyphImpl::Advance() const { return advance.Xf(); }
 
+const FTBBox& FTGlyphImpl::BBox() const { return bBox; }
 
-float FTGlyphImpl::Advance() const
-{
-    return advance.Xf();
-}
-
-
-const FTBBox& FTGlyphImpl::BBox() const
-{
-    return bBox;
-}
-
-
-FT_Error FTGlyphImpl::Error() const
-{
-    return err;
-}
-
+FT_Error FTGlyphImpl::Error() const { return err; }

@@ -27,43 +27,55 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 { namespace impl {
+namespace mp4v2
+{
+    namespace impl
+    {
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
 #define _3GP_MAJOR_BRAND "3gp5"
 #define _3GP_MINOR_VERSION 0x0001
 
-void MP4File::Make3GPCompliant(const char* fileName,  char* majorBrand, uint32_t minorVersion, char** supportedBrands, uint32_t supportedBrandsCount, bool deleteIodsAtom)
-{
-    char brand[5] = "3gp5";
-    char* _3gpSupportedBrands[1] = { (char*)&brand };
+        void MP4File::Make3GPCompliant(const char* fileName, char* majorBrand,
+                                       uint32_t minorVersion,
+                                       char** supportedBrands,
+                                       uint32_t supportedBrandsCount,
+                                       bool deleteIodsAtom)
+        {
+            char brand[5] = "3gp5";
+            char* _3gpSupportedBrands[1] = {(char*)&brand};
 
-    if (majorBrand) {
-        if (!supportedBrands || !supportedBrandsCount) {
-            throw new Exception("Invalid parameters",  __FILE__, __LINE__, __FUNCTION__);
+            if (majorBrand)
+            {
+                if (!supportedBrands || !supportedBrandsCount)
+                {
+                    throw new Exception("Invalid parameters", __FILE__,
+                                        __LINE__, __FUNCTION__);
+                }
+            }
+
+            MakeFtypAtom(majorBrand ? majorBrand : (char*)brand,
+                         majorBrand ? minorVersion : _3GP_MINOR_VERSION,
+                         majorBrand ? supportedBrands
+                                    : (char**)_3gpSupportedBrands,
+                         majorBrand ? supportedBrandsCount : 1);
+
+            if (deleteIodsAtom)
+            {
+                // Delete the iods atom, if it exists....
+                MP4Atom* iodsAtom = m_pRootAtom->FindAtom("moov.iods");
+                if (iodsAtom)
+                {
+                    MP4Atom* moovAtom = m_pRootAtom->FindAtom("moov");
+                    ASSERT(moovAtom);
+
+                    moovAtom->DeleteChildAtom(iodsAtom);
+                }
+            }
         }
-    }
 
-    MakeFtypAtom(
-        majorBrand ? majorBrand : (char*)brand,
-        majorBrand ? minorVersion  : _3GP_MINOR_VERSION,
-        majorBrand ? supportedBrands : (char**)_3gpSupportedBrands,
-        majorBrand ? supportedBrandsCount : 1);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    if (deleteIodsAtom) {
-        // Delete the iods atom, if it exists....
-        MP4Atom* iodsAtom = m_pRootAtom->FindAtom("moov.iods");
-        if (iodsAtom) {
-            MP4Atom* moovAtom = m_pRootAtom->FindAtom("moov");
-            ASSERT(moovAtom);
-
-            moovAtom->DeleteChildAtom(iodsAtom);
-        }
-    }
-
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-}} // namespace mp4v2::impl
+    } // namespace impl
+} // namespace mp4v2

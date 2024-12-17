@@ -2,7 +2,8 @@
 //
 //  IMPORTANT: READ BEFORE DOWNLOADING, COPYING, INSTALLING OR USING.
 //
-//  By downloading, copying, installing or using the software you agree to this license.
+//  By downloading, copying, installing or using the software you agree to this
+license.
 //  If you do not agree to this license, do not download, install,
 //  copy or use the software.
 //
@@ -13,23 +14,29 @@
 // Copyright (C) 2000, Intel Corporation, all rights reserved.
 // Third party copyrights are property of their respective owners.
 //
-// Redistribution and use in source and binary forms, with or without modification,
+// Redistribution and use in source and binary forms, with or without
+modification,
 // are permitted provided that the following conditions are met:
 //
 //   * Redistribution's of source code must retain the above copyright notice,
 //     this list of conditions and the following disclaimer.
 //
-//   * Redistribution's in binary form must reproduce the above copyright notice,
+//   * Redistribution's in binary form must reproduce the above copyright
+notice,
 //     this list of conditions and the following disclaimer in the documentation
 //     and/or other materials provided with the distribution.
 //
-//   * The name of Intel Corporation may not be used to endorse or promote products
+//   * The name of Intel Corporation may not be used to endorse or promote
+products
 //     derived from this software without specific prior written permission.
 //
-// This software is provided by the copyright holders and contributors "as is" and
+// This software is provided by the copyright holders and contributors "as is"
+and
 // any express or implied warranties, including, but not limited to, the implied
-// warranties of merchantability and fitness for a particular purpose are disclaimed.
-// In no event shall the Intel Corporation or contributors be liable for any direct,
+// warranties of merchantability and fitness for a particular purpose are
+disclaimed.
+// In no event shall the Intel Corporation or contributors be liable for any
+direct,
 // indirect, incidental, special, exemplary, or consequential damages
 // (including, but not limited to, procurement of substitute goods or services;
 // loss of use, data, or profits; or business interruption) however caused
@@ -39,7 +46,6 @@
 //
 //M*/
 #include "_cv.h"
-
 
 /*F///////////////////////////////////////////////////////////////////////////////////////
 //    Name:    cvMeanShift
@@ -57,68 +63,67 @@
 //      The function itself returns the area found
 //    Notes:
 //F*/
-CV_IMPL int
-cvMeanShift( const void* imgProb, CvRect windowIn,
-             CvTermCriteria criteria, CvConnectedComp* comp )
+CV_IMPL int cvMeanShift(const void* imgProb, CvRect windowIn,
+                        CvTermCriteria criteria, CvConnectedComp* comp)
 {
     CvMoments moments;
-    int    i = 0, eps;
-    CvMat  stub, *mat = (CvMat*)imgProb;
-    CvMat  cur_win;
+    int i = 0, eps;
+    CvMat stub, *mat = (CvMat*)imgProb;
+    CvMat cur_win;
     CvRect cur_rect = windowIn;
 
-    CV_FUNCNAME( "cvMeanShift" );
+    CV_FUNCNAME("cvMeanShift");
 
-    if( comp )
+    if (comp)
         comp->rect = windowIn;
 
     moments.m00 = moments.m10 = moments.m01 = 0;
 
     __BEGIN__;
 
-    CV_CALL( mat = cvGetMat( mat, &stub ));
+    CV_CALL(mat = cvGetMat(mat, &stub));
 
-    if( CV_MAT_CN( mat->type ) > 1 )
-        CV_ERROR( CV_BadNumChannels, cvUnsupportedFormat );
+    if (CV_MAT_CN(mat->type) > 1)
+        CV_ERROR(CV_BadNumChannels, cvUnsupportedFormat);
 
-    if( windowIn.height <= 0 || windowIn.width <= 0 )
-        CV_ERROR( CV_StsBadArg, "Input window has non-positive sizes" );
+    if (windowIn.height <= 0 || windowIn.width <= 0)
+        CV_ERROR(CV_StsBadArg, "Input window has non-positive sizes");
 
-    if( windowIn.x < 0 || windowIn.x + windowIn.width > mat->cols ||
-        windowIn.y < 0 || windowIn.y + windowIn.height > mat->rows )
-        CV_ERROR( CV_StsBadArg, "Initial window is not inside the image ROI" );
+    if (windowIn.x < 0 || windowIn.x + windowIn.width > mat->cols
+        || windowIn.y < 0 || windowIn.y + windowIn.height > mat->rows)
+        CV_ERROR(CV_StsBadArg, "Initial window is not inside the image ROI");
 
-    CV_CALL( criteria = cvCheckTermCriteria( criteria, 1., 100 ));
+    CV_CALL(criteria = cvCheckTermCriteria(criteria, 1., 100));
 
-    eps = cvRound( criteria.epsilon * criteria.epsilon );
+    eps = cvRound(criteria.epsilon * criteria.epsilon);
 
-    for( i = 0; i < criteria.max_iter; i++ )
+    for (i = 0; i < criteria.max_iter; i++)
     {
         int dx, dy, nx, ny;
         double inv_m00;
 
-        CV_CALL( cvGetSubRect( mat, &cur_win, cur_rect )); 
-        CV_CALL( cvMoments( &cur_win, &moments ));
+        CV_CALL(cvGetSubRect(mat, &cur_win, cur_rect));
+        CV_CALL(cvMoments(&cur_win, &moments));
 
         /* Calculating center of mass */
-        if( fabs(moments.m00) < DBL_EPSILON )
+        if (fabs(moments.m00) < DBL_EPSILON)
             break;
 
-        inv_m00 = moments.inv_sqrt_m00*moments.inv_sqrt_m00;
-        dx = cvRound( moments.m10 * inv_m00 - windowIn.width*0.5 );
-        dy = cvRound( moments.m01 * inv_m00 - windowIn.height*0.5 );
+        inv_m00 = moments.inv_sqrt_m00 * moments.inv_sqrt_m00;
+        dx = cvRound(moments.m10 * inv_m00 - windowIn.width * 0.5);
+        dy = cvRound(moments.m01 * inv_m00 - windowIn.height * 0.5);
 
         nx = cur_rect.x + dx;
         ny = cur_rect.y + dy;
 
-        if( nx < 0 )
+        if (nx < 0)
             nx = 0;
-        else if( nx + cur_rect.width > mat->cols )
+        else if (nx + cur_rect.width > mat->cols)
             nx = mat->cols - cur_rect.width;
 
-        if( ny < 0 )
+        if (ny < 0)
             ny = 0;
-        else if( ny + cur_rect.height > mat->rows )
+        else if (ny + cur_rect.height > mat->rows)
             ny = mat->rows - cur_rect.height;
 
         dx = nx - cur_rect.x;
@@ -127,13 +132,13 @@ cvMeanShift( const void* imgProb, CvRect windowIn,
         cur_rect.y = ny;
 
         /* Check for coverage centers mass & window */
-        if( dx*dx + dy*dy < eps )
+        if (dx * dx + dy * dy < eps)
             break;
     }
 
     __END__;
 
-    if( comp )
+    if (comp)
     {
         comp->rect = cur_rect;
         comp->area = (float)moments.m00;
@@ -141,7 +146,6 @@ cvMeanShift( const void* imgProb, CvRect windowIn,
 
     return i;
 }
-
 
 /*F///////////////////////////////////////////////////////////////////////////////////////
 //    Name:    cvCamShift
@@ -161,11 +165,9 @@ cvMeanShift( const void* imgProb, CvRect windowIn,
 //      The function itself returns the area found
 //    Notes:
 //F*/
-CV_IMPL int
-cvCamShift( const void* imgProb, CvRect windowIn,
-            CvTermCriteria criteria,
-            CvConnectedComp* _comp,
-            CvBox2D* box )
+CV_IMPL int cvCamShift(const void* imgProb, CvRect windowIn,
+                       CvTermCriteria criteria, CvConnectedComp* _comp,
+                       CvBox2D* box)
 {
     const int TOLERANCE = 10;
     CvMoments moments;
@@ -177,39 +179,39 @@ cvCamShift( const void* imgProb, CvRect windowIn,
     double length = 0, width = 0;
     int itersUsed = 0;
     CvConnectedComp comp;
-    CvMat  cur_win, stub, *mat = (CvMat*)imgProb;
+    CvMat cur_win, stub, *mat = (CvMat*)imgProb;
 
-    CV_FUNCNAME( "cvCamShift" );
+    CV_FUNCNAME("cvCamShift");
 
     comp.rect = windowIn;
 
     __BEGIN__;
 
-    CV_CALL( mat = cvGetMat( mat, &stub ));
+    CV_CALL(mat = cvGetMat(mat, &stub));
 
-    CV_CALL( itersUsed = cvMeanShift( mat, windowIn, criteria, &comp ));
+    CV_CALL(itersUsed = cvMeanShift(mat, windowIn, criteria, &comp));
     windowIn = comp.rect;
 
     windowIn.x -= TOLERANCE;
-    if( windowIn.x < 0 )
+    if (windowIn.x < 0)
         windowIn.x = 0;
 
     windowIn.y -= TOLERANCE;
-    if( windowIn.y < 0 )
+    if (windowIn.y < 0)
         windowIn.y = 0;
 
     windowIn.width += 2 * TOLERANCE;
-    if( windowIn.x + windowIn.width > mat->width )
+    if (windowIn.x + windowIn.width > mat->width)
         windowIn.width = mat->width - windowIn.x;
 
     windowIn.height += 2 * TOLERANCE;
-    if( windowIn.y + windowIn.height > mat->height )
+    if (windowIn.y + windowIn.height > mat->height)
         windowIn.height = mat->height - windowIn.y;
 
-    CV_CALL( cvGetSubRect( mat, &cur_win, windowIn ));
+    CV_CALL(cvGetSubRect(mat, &cur_win, windowIn));
 
     /* Calculating moments in new center mass */
-    CV_CALL( cvMoments( &cur_win, &moments ));
+    CV_CALL(cvMoments(&cur_win, &moments));
 
     m00 = moments.m00;
     m10 = moments.m10;
@@ -218,80 +220,81 @@ cvCamShift( const void* imgProb, CvRect windowIn,
     mu20 = moments.mu20;
     mu02 = moments.mu02;
 
-    if( fabs(m00) < DBL_EPSILON )
+    if (fabs(m00) < DBL_EPSILON)
         EXIT;
 
     inv_m00 = 1. / m00;
-    xc = cvRound( m10 * inv_m00 + windowIn.x );
-    yc = cvRound( m01 * inv_m00 + windowIn.y );
+    xc = cvRound(m10 * inv_m00 + windowIn.x);
+    yc = cvRound(m01 * inv_m00 + windowIn.y);
     a = mu20 * inv_m00;
     b = mu11 * inv_m00;
     c = mu02 * inv_m00;
 
     /* Calculating width & height */
-    square = sqrt( 4 * b * b + (a - c) * (a - c) );
+    square = sqrt(4 * b * b + (a - c) * (a - c));
 
     /* Calculating orientation */
-    theta = atan2( 2 * b, a - c + square );
+    theta = atan2(2 * b, a - c + square);
 
     /* Calculating width & length of figure */
-    cs = cos( theta );
-    sn = sin( theta );
+    cs = cos(theta);
+    sn = sin(theta);
 
     rotate_a = cs * cs * mu20 + 2 * cs * sn * mu11 + sn * sn * mu02;
     rotate_c = sn * sn * mu20 - 2 * cs * sn * mu11 + cs * cs * mu02;
-    length = sqrt( rotate_a * inv_m00 ) * 4;
-    width = sqrt( rotate_c * inv_m00 ) * 4;
+    length = sqrt(rotate_a * inv_m00) * 4;
+    width = sqrt(rotate_c * inv_m00) * 4;
 
-    /* In case, when tetta is 0 or 1.57... the Length & Width may be exchanged */
-    if( length < width )
+    /* In case, when tetta is 0 or 1.57... the Length & Width may be exchanged
+     */
+    if (length < width)
     {
         double t;
-        
-        CV_SWAP( length, width, t );
-        CV_SWAP( cs, sn, t );
-        theta = CV_PI*0.5 - theta;
+
+        CV_SWAP(length, width, t);
+        CV_SWAP(cs, sn, t);
+        theta = CV_PI * 0.5 - theta;
     }
 
     /* Saving results */
-    if( _comp || box )
+    if (_comp || box)
     {
         int t0, t1;
-        int _xc = cvRound( xc );
-        int _yc = cvRound( yc );
+        int _xc = cvRound(xc);
+        int _yc = cvRound(yc);
 
-        t0 = cvRound( fabs( length * cs ));
-        t1 = cvRound( fabs( width * sn ));
+        t0 = cvRound(fabs(length * cs));
+        t1 = cvRound(fabs(width * sn));
 
-        t0 = MAX( t0, t1 ) + 2;
-        comp.rect.width = MIN( t0, (mat->width - _xc) * 2 );
+        t0 = MAX(t0, t1) + 2;
+        comp.rect.width = MIN(t0, (mat->width - _xc) * 2);
 
-        t0 = cvRound( fabs( length * sn ));
-        t1 = cvRound( fabs( width * cs ));
+        t0 = cvRound(fabs(length * sn));
+        t1 = cvRound(fabs(width * cs));
 
-        t0 = MAX( t0, t1 ) + 2;
-        comp.rect.height = MIN( t0, (mat->height - _yc) * 2 );
+        t0 = MAX(t0, t1) + 2;
+        comp.rect.height = MIN(t0, (mat->height - _yc) * 2);
 
-        comp.rect.x = MAX( 0, _xc - comp.rect.width / 2 );
-        comp.rect.y = MAX( 0, _yc - comp.rect.height / 2 );
+        comp.rect.x = MAX(0, _xc - comp.rect.width / 2);
+        comp.rect.y = MAX(0, _yc - comp.rect.height / 2);
 
-        comp.rect.width = MIN( mat->width - comp.rect.x, comp.rect.width );
-        comp.rect.height = MIN( mat->height - comp.rect.y, comp.rect.height );
-        comp.area = (float) m00;
+        comp.rect.width = MIN(mat->width - comp.rect.x, comp.rect.width);
+        comp.rect.height = MIN(mat->height - comp.rect.y, comp.rect.height);
+        comp.area = (float)m00;
     }
 
     __END__;
 
-    if( _comp )
+    if (_comp)
         *_comp = comp;
-    
-    if( box )
+
+    if (box)
     {
         box->size.height = (float)length;
         box->size.width = (float)width;
-        box->angle = (float)(theta*180./CV_PI);
-        box->center = cvPoint2D32f( comp.rect.x + comp.rect.width*0.5f,
-                                    comp.rect.y + comp.rect.height*0.5f);
+        box->angle = (float)(theta * 180. / CV_PI);
+        box->center = cvPoint2D32f(comp.rect.x + comp.rect.width * 0.5f,
+                                   comp.rect.y + comp.rect.height * 0.5f);
     }
 
     return itersUsed;

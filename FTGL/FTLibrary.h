@@ -23,15 +23,14 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef     __FTLibrary__
-#define     __FTLibrary__
+#ifndef __FTLibrary__
+#define __FTLibrary__
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
-//#include FT_CACHE_H
+// #include FT_CACHE_H
 
 #include "FTGL/ftgl.h"
-
 
 /**
  * FTLibrary class is the global accessor for the Freetype library.
@@ -53,70 +52,71 @@
  */
 class FTLibrary
 {
-    public:
-        /**
-         * Global acces point to the single FTLibrary object.
-         *
-         * @return  The global <code>FTLibrary</code> object.
-         */
-        static const FTLibrary& Instance();
+public:
+    /**
+     * Global acces point to the single FTLibrary object.
+     *
+     * @return  The global <code>FTLibrary</code> object.
+     */
+    static const FTLibrary& Instance();
 
-        /**
-         * Gets a pointer to the native Freetype library.
-         *
-         * @return A handle to a FreeType library instance.
-         */
-        const FT_Library* const GetLibrary() const { return library; }
+    /**
+     * Gets a pointer to the native Freetype library.
+     *
+     * @return A handle to a FreeType library instance.
+     */
+    const FT_Library* const GetLibrary() const { return library; }
 
-        /**
-         * Queries the library for errors.
-         *
-         * @return  The current error code.
-         */
-        FT_Error Error() const { return err; }
+    /**
+     * Queries the library for errors.
+     *
+     * @return  The current error code.
+     */
+    FT_Error Error() const { return err; }
 
-        /**
-         * Destructor
-         *
-         * Disposes of the Freetype library
-         */
-        ~FTLibrary();
+    /**
+     * Destructor
+     *
+     * Disposes of the Freetype library
+     */
+    ~FTLibrary();
 
-    private:
-        /**
-         * Default constructors.
-         *
-         * Made private to stop clients creating there own FTLibrary
-         * objects.
-         */
-        FTLibrary();
-        FTLibrary(const FT_Library&){}
-        FTLibrary& operator=(const FT_Library&) { return *this; }
+private:
+    /**
+     * Default constructors.
+     *
+     * Made private to stop clients creating there own FTLibrary
+     * objects.
+     */
+    FTLibrary();
 
-        /**
-         * Initialises the Freetype library
-         *
-         * Even though this function indicates success via the return value,
-         * clients can't see this so must check the error codes. This function
-         * is only ever called by the default c_stor
-         *
-         * @return  <code>true</code> if the Freetype library was
-         *          successfully initialised, <code>false</code>
-         *          otherwise.
-         */
-        bool Initialise();
+    FTLibrary(const FT_Library&) {}
 
-        /**
-         * Freetype library handle.
-         */
-        FT_Library* library;
-//      FTC_Manager* manager;
+    FTLibrary& operator=(const FT_Library&) { return *this; }
 
-        /**
-         * Current error code. Zero means no error.
-         */
-        FT_Error err;
+    /**
+     * Initialises the Freetype library
+     *
+     * Even though this function indicates success via the return value,
+     * clients can't see this so must check the error codes. This function
+     * is only ever called by the default c_stor
+     *
+     * @return  <code>true</code> if the Freetype library was
+     *          successfully initialised, <code>false</code>
+     *          otherwise.
+     */
+    bool Initialise();
 
+    /**
+     * Freetype library handle.
+     */
+    FT_Library* library;
+    //      FTC_Manager* manager;
+
+    /**
+     * Current error code. Zero means no error.
+     */
+    FT_Error err;
 };
 
-#endif  //  __FTLibrary__
+#endif //  __FTLibrary__

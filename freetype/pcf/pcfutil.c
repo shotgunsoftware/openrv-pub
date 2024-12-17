@@ -23,7 +23,8 @@ used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization from The Open Group.
 
 */
-/* $XFree86: xc/lib/font/util/utilbitmap.c,v 1.3 1999/08/22 08:58:58 dawes Exp $ */
+/* $XFree86: xc/lib/font/util/utilbitmap.c,v 1.3 1999/08/22 08:58:58 dawes Exp $
+ */
 
 /*
  * Author:  Keith Packard, MIT X Consortium
@@ -31,74 +32,67 @@ in this Software without prior written authorization from The Open Group.
 
 /* Modified for use with FreeType */
 
-
 #include <ft2build.h>
 #include "pcfutil.h"
 
+/*
+ *  Invert bit order within each BYTE of an array.
+ */
 
-  /*
-   *  Invert bit order within each BYTE of an array.
-   */
+FT_LOCAL_DEF(void)
 
-  FT_LOCAL_DEF( void )
-  BitOrderInvert( unsigned char*  buf,
-                  int             nbytes )
-  {
-    for ( ; --nbytes >= 0; buf++ )
+BitOrderInvert(unsigned char* buf, int nbytes)
+{
+    for (; --nbytes >= 0; buf++)
     {
-      unsigned int  val = *buf;
+        unsigned int val = *buf;
 
+        val = ((val >> 1) & 0x55) | ((val << 1) & 0xAA);
+        val = ((val >> 2) & 0x33) | ((val << 2) & 0xCC);
+        val = ((val >> 4) & 0x0F) | ((val << 4) & 0xF0);
 
-      val = ( ( val >> 1 ) & 0x55 ) | ( ( val << 1 ) & 0xAA );
-      val = ( ( val >> 2 ) & 0x33 ) | ( ( val << 2 ) & 0xCC );
-      val = ( ( val >> 4 ) & 0x0F ) | ( ( val << 4 ) & 0xF0 );
-
-      *buf = (unsigned char)val;
+        *buf = (unsigned char)val;
     }
-  }
+}
 
+/*
+ *  Invert byte order within each 16-bits of an array.
+ */
 
-  /*
-   *  Invert byte order within each 16-bits of an array.
-   */
+FT_LOCAL_DEF(void)
 
-  FT_LOCAL_DEF( void )
-  TwoByteSwap( unsigned char*  buf,
-               int             nbytes )
-  {
-    unsigned char  c;
+TwoByteSwap(unsigned char* buf, int nbytes)
+{
+    unsigned char c;
 
-
-    for ( ; nbytes >= 2; nbytes -= 2, buf += 2 )
+    for (; nbytes >= 2; nbytes -= 2, buf += 2)
     {
-      c      = buf[0];
-      buf[0] = buf[1];
-      buf[1] = c;
+        c = buf[0];
+        buf[0] = buf[1];
+        buf[1] = c;
     }
-  }
+}
 
-  /*
-   *  Invert byte order within each 32-bits of an array.
-   */
+/*
+ *  Invert byte order within each 32-bits of an array.
+ */
 
-  FT_LOCAL_DEF( void )
-  FourByteSwap( unsigned char*  buf,
-                int             nbytes )
-  {
-    unsigned char  c;
+FT_LOCAL_DEF(void)
 
+FourByteSwap(unsigned char* buf, int nbytes)
+{
+    unsigned char c;
 
-    for ( ; nbytes >= 4; nbytes -= 4, buf += 4 )
+    for (; nbytes >= 4; nbytes -= 4, buf += 4)
     {
-      c      = buf[0];
-      buf[0] = buf[3];
-      buf[3] = c;
+        c = buf[0];
+        buf[0] = buf[3];
+        buf[3] = c;
 
-      c      = buf[1];
-      buf[1] = buf[2];
-      buf[2] = c;
+        c = buf[1];
+        buf[1] = buf[2];
+        buf[2] = c;
     }
-  }
-
+}
 
 /* END */

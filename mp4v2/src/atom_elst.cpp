@@ -21,69 +21,75 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4ElstAtom::MP4ElstAtom(MP4File &file)
-        : MP4Atom(file, "elst")
+namespace mp4v2
 {
-    AddVersionAndFlags();
+    namespace impl
+    {
 
-    MP4Integer32Property* pCount =
-        new MP4Integer32Property(*this, "entryCount");
-    AddProperty(pCount);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    MP4TableProperty* pTable = new MP4TableProperty(*this, "entries", pCount);
-    AddProperty(pTable);
-}
+        MP4ElstAtom::MP4ElstAtom(MP4File& file)
+            : MP4Atom(file, "elst")
+        {
+            AddVersionAndFlags();
 
-void MP4ElstAtom::AddProperties(uint8_t version)
-{
-    MP4TableProperty* pTable = (MP4TableProperty*)m_pProperties[3];
+            MP4Integer32Property* pCount =
+                new MP4Integer32Property(*this, "entryCount");
+            AddProperty(pCount);
 
-    if (version == 1) {
-        pTable->AddProperty(
-            new MP4Integer64Property(pTable->GetParentAtom(), "segmentDuration"));
-        pTable->AddProperty(
-            new MP4Integer64Property(pTable->GetParentAtom(), "mediaTime"));
-    } else {
-        pTable->AddProperty(
-            new MP4Integer32Property(pTable->GetParentAtom(), "segmentDuration"));
-        pTable->AddProperty(
-            new MP4Integer32Property(pTable->GetParentAtom(), "mediaTime"));
-    }
+            MP4TableProperty* pTable =
+                new MP4TableProperty(*this, "entries", pCount);
+            AddProperty(pTable);
+        }
 
-    pTable->AddProperty(
-        new MP4Integer16Property(pTable->GetParentAtom(), "mediaRate"));
-    pTable->AddProperty(
-        new MP4Integer16Property(pTable->GetParentAtom(), "reserved"));
-}
+        void MP4ElstAtom::AddProperties(uint8_t version)
+        {
+            MP4TableProperty* pTable = (MP4TableProperty*)m_pProperties[3];
 
-void MP4ElstAtom::Generate()
-{
-    SetVersion(0);
-    AddProperties(GetVersion());
+            if (version == 1)
+            {
+                pTable->AddProperty(new MP4Integer64Property(
+                    pTable->GetParentAtom(), "segmentDuration"));
+                pTable->AddProperty(new MP4Integer64Property(
+                    pTable->GetParentAtom(), "mediaTime"));
+            }
+            else
+            {
+                pTable->AddProperty(new MP4Integer32Property(
+                    pTable->GetParentAtom(), "segmentDuration"));
+                pTable->AddProperty(new MP4Integer32Property(
+                    pTable->GetParentAtom(), "mediaTime"));
+            }
 
-    MP4Atom::Generate();
-}
+            pTable->AddProperty(
+                new MP4Integer16Property(pTable->GetParentAtom(), "mediaRate"));
+            pTable->AddProperty(
+                new MP4Integer16Property(pTable->GetParentAtom(), "reserved"));
+        }
 
-void MP4ElstAtom::Read()
-{
-    /* read atom version */
-    ReadProperties(0, 1);
+        void MP4ElstAtom::Generate()
+        {
+            SetVersion(0);
+            AddProperties(GetVersion());
 
-    /* need to create the properties based on the atom version */
-    AddProperties(GetVersion());
+            MP4Atom::Generate();
+        }
 
-    /* now we can read the remaining properties */
-    ReadProperties(1);
+        void MP4ElstAtom::Read()
+        {
+            /* read atom version */
+            ReadProperties(0, 1);
 
-    Skip(); // to end of atom
-}
+            /* need to create the properties based on the atom version */
+            AddProperties(GetVersion());
 
-///////////////////////////////////////////////////////////////////////////////
+            /* now we can read the remaining properties */
+            ReadProperties(1);
 
-}
-} // namespace mp4v2::impl
+            Skip(); // to end of atom
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

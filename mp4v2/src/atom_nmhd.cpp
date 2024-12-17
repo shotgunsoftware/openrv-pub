@@ -18,18 +18,20 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4NmhdAtom::MP4NmhdAtom(MP4File &file)
-        : MP4Atom(file, "nmhd")
+namespace mp4v2
 {
-    AddVersionAndFlags();
-}
+    namespace impl
+    {
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-}
-} // namespace mp4v2::impl
+        MP4NmhdAtom::MP4NmhdAtom(MP4File& file)
+            : MP4Atom(file, "nmhd")
+        {
+            AddVersionAndFlags();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

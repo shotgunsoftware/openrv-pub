@@ -2,95 +2,87 @@
 
 #include <stdlib.h>
 
-struct _ExifMem {
-	unsigned int ref_count;
-	ExifMemAllocFunc alloc_func;
-	ExifMemReallocFunc realloc_func;
-	ExifMemFreeFunc free_func;
+struct _ExifMem
+{
+    unsigned int ref_count;
+    ExifMemAllocFunc alloc_func;
+    ExifMemReallocFunc realloc_func;
+    ExifMemFreeFunc free_func;
 };
 
-static void *
-exif_mem_alloc_func (ExifLong ds)
+static void* exif_mem_alloc_func(ExifLong ds) { return calloc((size_t)ds, 1); }
+
+static void* exif_mem_realloc_func(void* d, ExifLong ds)
 {
-	return calloc ((size_t) ds, 1);
+    return realloc(d, (size_t)ds);
 }
 
-static void *
-exif_mem_realloc_func (void *d, ExifLong ds)
+static void exif_mem_free_func(void* d) { free(d); }
+
+ExifMem* exif_mem_new(ExifMemAllocFunc alloc_func,
+                      ExifMemReallocFunc realloc_func,
+                      ExifMemFreeFunc free_func)
 {
-	return realloc (d, (size_t) ds);
+    ExifMem* mem;
+
+    if (!alloc_func && !realloc_func)
+        return NULL;
+    mem = alloc_func ? alloc_func(sizeof(ExifMem))
+                     : realloc_func(NULL, sizeof(ExifMem));
+    if (!mem)
+        return NULL;
+    mem->ref_count = 1;
+
+    mem->alloc_func = alloc_func;
+    mem->realloc_func = realloc_func;
+    mem->free_func = free_func;
+
+    return mem;
 }
 
-static void
-exif_mem_free_func (void *d)
+void exif_mem_ref(ExifMem* mem)
 {
-	free (d);
+    if (!mem)
+        return;
+    mem->ref_count++;
 }
 
-ExifMem *
-exif_mem_new (ExifMemAllocFunc alloc_func, ExifMemReallocFunc realloc_func,
-	      ExifMemFreeFunc free_func)
+void exif_mem_unref(ExifMem* mem)
 {
-	ExifMem *mem;
-
-	if (!alloc_func && !realloc_func) 
-		return NULL;
-	mem = alloc_func ? alloc_func (sizeof (ExifMem)) :
-		           realloc_func (NULL, sizeof (ExifMem));
-	if (!mem) return NULL;
-	mem->ref_count = 1;
-
-	mem->alloc_func   = alloc_func;
-	mem->realloc_func = realloc_func;
-	mem->free_func    = free_func;
-
-	return mem;
+    if (!mem)
+        return;
+    if (!--mem->ref_count)
+        exif_mem_free(mem, mem);
 }
 
-void
-exif_mem_ref (ExifMem *mem)
+void exif_mem_free(ExifMem* mem, void* d)
 {
-	if (!mem) return;
-	mem->ref_count++;
+    if (!mem)
+        return;
+    if (mem->free_func)
+    {
+        mem->free_func(d);
+        return;
+    }
 }
 
-void
-exif_mem_unref (ExifMem *mem)
+void* exif_mem_alloc(ExifMem* mem, ExifLong ds)
 {
-	if (!mem) return;
-	if (!--mem->ref_count)
-		exif_mem_free (mem, mem);
+    if (!mem)
+        return NULL;
+    if (mem->alloc_func || mem->realloc_func)
+        return mem->alloc_func ? mem->alloc_func(ds)
+                               : mem->realloc_func(NULL, ds);
+    return NULL;
 }
 
-void
-exif_mem_free (ExifMem *mem, void *d)
+void* exif_mem_realloc(ExifMem* mem, void* d, ExifLong ds)
 {
-	if (!mem) return;
-	if (mem->free_func) {
-		mem->free_func (d);
-		return;
-	}
+    return (mem && mem->realloc_func) ? mem->realloc_func(d, ds) : NULL;
 }
 
-void *
-exif_mem_alloc (ExifMem *mem, ExifLong ds)
+ExifMem* exif_mem_new_default(void)
 {
-	if (!mem) return NULL;
-	if (mem->alloc_func || mem->realloc_func)
-		return mem->alloc_func ? mem->alloc_func (ds) :
-					 mem->realloc_func (NULL, ds);
-	return NULL;
-}
-
-void *
-exif_mem_realloc (ExifMem *mem, void *d, ExifLong ds)
-{
-	return (mem && mem->realloc_func) ? mem->realloc_func (d, ds) : NULL;
-}
-
-ExifMem *
-exif_mem_new_default (void)
-{
-	return exif_mem_new (exif_mem_alloc_func, exif_mem_realloc_func,
-			     exif_mem_free_func);
+    return exif_mem_new(exif_mem_alloc_func, exif_mem_realloc_func,
+                        exif_mem_free_func);
 }

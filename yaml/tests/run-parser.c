@@ -8,19 +8,19 @@
 #endif
 #include <assert.h>
 
-int
-main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     int number;
 
-    if (argc < 2) {
+    if (argc < 2)
+    {
         printf("Usage: %s file1.yaml ...\n", argv[0]);
         return 0;
     }
 
-    for (number = 1; number < argc; number ++)
+    for (number = 1; number < argc; number++)
     {
-        FILE *file;
+        FILE* file;
         yaml_parser_t parser;
         yaml_event_t event;
         int done = 0;
@@ -39,7 +39,8 @@ main(int argc, char *argv[])
 
         while (!done)
         {
-            if (!yaml_parser_parse(&parser, &event)) {
+            if (!yaml_parser_parse(&parser, &event))
+            {
                 error = 1;
                 break;
             }
@@ -48,7 +49,7 @@ main(int argc, char *argv[])
 
             yaml_event_delete(&event);
 
-            count ++;
+            count++;
         }
 
         yaml_parser_delete(&parser);
@@ -60,4 +61,3 @@ main(int argc, char *argv[])
 
     return 0;
 }
-

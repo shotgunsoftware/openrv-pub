@@ -34,55 +34,54 @@ class FTTextureGlyphImpl : public FTGlyphImpl
     friend class FTTextureGlyph;
     friend class FTTextureFontImpl;
 
-    protected:
-        FTTextureGlyphImpl(FT_GlyphSlot glyph, int id, int xOffset,
-                           int yOffset, int width, int height);
+protected:
+    FTTextureGlyphImpl(FT_GlyphSlot glyph, int id, int xOffset, int yOffset,
+                       int width, int height);
 
-        virtual ~FTTextureGlyphImpl();
+    virtual ~FTTextureGlyphImpl();
 
-        virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
+    virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
 
-    private:
-        /**
-         * Reset the currently active texture to zero to get into a known
-         * state before drawing a string. This is to get round possible
-         * threading issues.
-         */
-        static void ResetActiveTexture() { activeTextureID = 0; }
+private:
+    /**
+     * Reset the currently active texture to zero to get into a known
+     * state before drawing a string. This is to get round possible
+     * threading issues.
+     */
+    static void ResetActiveTexture() { activeTextureID = 0; }
 
-        /**
-         * The width of the glyph 'image'
-         */
-        int destWidth;
+    /**
+     * The width of the glyph 'image'
+     */
+    int destWidth;
 
-        /**
-         * The height of the glyph 'image'
-         */
-        int destHeight;
+    /**
+     * The height of the glyph 'image'
+     */
+    int destHeight;
 
-        /**
-         * Vector from the pen position to the topleft corner of the pixmap
-         */
-        FTPoint corner;
+    /**
+     * Vector from the pen position to the topleft corner of the pixmap
+     */
+    FTPoint corner;
 
-        /**
-         * The texture co-ords of this glyph within the texture.
-         */
-        FTPoint uv[2];
+    /**
+     * The texture co-ords of this glyph within the texture.
+     */
+    FTPoint uv[2];
 
-        /**
-         * The texture index that this glyph is contained in.
-         */
-        int glTextureID;
+    /**
+     * The texture index that this glyph is contained in.
+     */
+    int glTextureID;
 
-        /**
-         * The texture index of the currently active texture
-         *
-         * We keep track of the currently active texture to try to reduce the
-         * number of texture bind operations.
-         */
-        static GLint activeTextureID;
+    /**
+     * The texture index of the currently active texture
+     *
+     * We keep track of the currently active texture to try to reduce the
+     * number of texture bind operations.
+     */
+    static GLint activeTextureID;
 };
 
-#endif  //  __FTTextureGlyphImpl__
-
+#endif //  __FTTextureGlyphImpl__

@@ -22,83 +22,88 @@
 #ifndef MP4V2_IMPL_MP4DESCRIPTOR_H
 #define MP4V2_IMPL_MP4DESCRIPTOR_H
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-class MP4Descriptor {
-public:
-    MP4Descriptor(MP4Atom& parentAtom, uint8_t tag = 0);
-
-    virtual ~MP4Descriptor();
-
-    uint8_t GetTag() {
-        return m_tag;
-    }
-    void SetTag(uint8_t tag) {
-        m_tag = tag;
-    }
-
-    void AddProperty(MP4Property* pProperty);
-
-    virtual void Generate();
-    virtual void Read(MP4File& file);
-    virtual void Write(MP4File& file);
-    virtual void Dump(uint8_t indent, bool dumpImplicits);
-
-    MP4Property* GetProperty(uint32_t index) {
-        return m_pProperties[index];
-    }
-
-    // use with extreme caution
-    void SetProperty(uint32_t index, MP4Property* pProperty) {
-        m_pProperties[index] = pProperty;
-    }
-
-    bool FindProperty( const char* name, MP4Property** ppProperty,
-                       uint32_t* pIndex = NULL)
+namespace mp4v2
+{
+    namespace impl
     {
-        return FindContainedProperty(name, ppProperty, pIndex);
-    }
 
-    void WriteToMemory(MP4File& file,
-                       uint8_t** ppBytes, uint64_t* pNumBytes);
+        ///////////////////////////////////////////////////////////////////////////////
 
-protected:
-    void SetReadMutate(uint32_t propIndex) {
-        m_readMutatePoint = propIndex;
-    }
+        class MP4Descriptor
+        {
+        public:
+            MP4Descriptor(MP4Atom& parentAtom, uint8_t tag = 0);
 
-    void ReadHeader(MP4File& file);
-    void ReadProperties(MP4File& file,
-                        uint32_t startIndex = 0, uint32_t count = 0xFFFFFFFF);
+            virtual ~MP4Descriptor();
 
-    virtual void Mutate() {
-        // default is a no-op
-    };
+            uint8_t GetTag() { return m_tag; }
 
-    bool FindContainedProperty(const char* name,
-                               MP4Property** ppProperty, uint32_t* pIndex);
+            void SetTag(uint8_t tag) { m_tag = tag; }
 
-    uint8_t GetDepth();
+            void AddProperty(MP4Property* pProperty);
 
-protected:
-    MP4Atom&            m_parentAtom;
-    uint8_t             m_tag;
-    uint64_t            m_start;
-    uint32_t            m_size;
-    MP4PropertyArray    m_pProperties;
-    uint32_t            m_readMutatePoint;
-private:
-    MP4Descriptor();
-    MP4Descriptor ( const MP4Descriptor &src );
-    MP4Descriptor &operator= ( const MP4Descriptor &src );
-};
+            virtual void Generate();
+            virtual void Read(MP4File& file);
+            virtual void Write(MP4File& file);
+            virtual void Dump(uint8_t indent, bool dumpImplicits);
 
-///////////////////////////////////////////////////////////////////////////////
+            MP4Property* GetProperty(uint32_t index)
+            {
+                return m_pProperties[index];
+            }
 
-}
-} // namespace mp4v2::impl
+            // use with extreme caution
+            void SetProperty(uint32_t index, MP4Property* pProperty)
+            {
+                m_pProperties[index] = pProperty;
+            }
+
+            bool FindProperty(const char* name, MP4Property** ppProperty,
+                              uint32_t* pIndex = NULL)
+            {
+                return FindContainedProperty(name, ppProperty, pIndex);
+            }
+
+            void WriteToMemory(MP4File& file, uint8_t** ppBytes,
+                               uint64_t* pNumBytes);
+
+        protected:
+            void SetReadMutate(uint32_t propIndex)
+            {
+                m_readMutatePoint = propIndex;
+            }
+
+            void ReadHeader(MP4File& file);
+            void ReadProperties(MP4File& file, uint32_t startIndex = 0,
+                                uint32_t count = 0xFFFFFFFF);
+
+            virtual void Mutate() {
+                // default is a no-op
+            };
+
+            bool FindContainedProperty(const char* name,
+                                       MP4Property** ppProperty,
+                                       uint32_t* pIndex);
+
+            uint8_t GetDepth();
+
+        protected:
+            MP4Atom& m_parentAtom;
+            uint8_t m_tag;
+            uint64_t m_start;
+            uint32_t m_size;
+            MP4PropertyArray m_pProperties;
+            uint32_t m_readMutatePoint;
+
+        private:
+            MP4Descriptor();
+            MP4Descriptor(const MP4Descriptor& src);
+            MP4Descriptor& operator=(const MP4Descriptor& src);
+        };
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2
 
 #endif // MP4V2_IMPL_MP4DESCRIPTOR_H

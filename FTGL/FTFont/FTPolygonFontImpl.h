@@ -35,26 +35,25 @@ class FTPolygonFontImpl : public FTFontImpl
 {
     friend class FTPolygonFont;
 
-    protected:
-        FTPolygonFontImpl(FTFont *ftFont, const char* fontFilePath);
+protected:
+    FTPolygonFontImpl(FTFont* ftFont, const char* fontFilePath);
 
-        FTPolygonFontImpl(FTFont *ftFont, const unsigned char *pBufferBytes,
-                          size_t bufferSizeInBytes);
+    FTPolygonFontImpl(FTFont* ftFont, const unsigned char* pBufferBytes,
+                      size_t bufferSizeInBytes);
 
-        /**
-         * Set the outset distance for the font. Only implemented by
-         * FTOutlineFont, FTPolygonFont and FTExtrudeFont
-         *
-         * @param depth  The outset distance.
-         */
-        virtual void Outset(float o) { outset = o; }
+    /**
+     * Set the outset distance for the font. Only implemented by
+     * FTOutlineFont, FTPolygonFont and FTExtrudeFont
+     *
+     * @param depth  The outset distance.
+     */
+    virtual void Outset(float o) { outset = o; }
 
-    private:
-        /**
-         * The outset distance (front and back) for the font.
-         */
-        float outset;
+private:
+    /**
+     * The outset distance (front and back) for the font.
+     */
+    float outset;
 };
 
-#endif  //  __FTPolygonFontImpl__
-
+#endif //  __FTPolygonFontImpl__

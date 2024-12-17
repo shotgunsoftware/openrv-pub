@@ -19,10 +19,13 @@
  * FilterUD() - Applies a filter to a given sample when up- or down-
  */
 
-LIBRESAMPLE_EXPORT float lrsFilterUp(float Imp[], float ImpD[], UWORD Nwing, BOOL Interp,
-                  float *Xp, double Ph, int Inc);
+LIBRESAMPLE_EXPORT float lrsFilterUp(float Imp[], float ImpD[], UWORD Nwing,
+                                     BOOL Interp, float* Xp, double Ph,
+                                     int Inc);
 
-LIBRESAMPLE_EXPORT float lrsFilterUD(float Imp[], float ImpD[], UWORD Nwing, BOOL Interp,
-                  float *Xp, double Ph, int Inc, double dhb);
+LIBRESAMPLE_EXPORT float lrsFilterUD(float Imp[], float ImpD[], UWORD Nwing,
+                                     BOOL Interp, float* Xp, double Ph, int Inc,
+                                     double dhb);
 
-LIBRESAMPLE_EXPORT void lrsLpFilter(double c[], int N, double frq, double Beta, int Num);
+LIBRESAMPLE_EXPORT void lrsLpFilter(double c[], int N, double frq, double Beta,
+                                    int Num);

@@ -15,13 +15,12 @@
 /*                                                                         */
 /***************************************************************************/
 
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* This file is used to define the Autofitter error enumeration          */
-  /* constants.                                                            */
-  /*                                                                       */
-  /*************************************************************************/
+/*************************************************************************/
+/*                                                                       */
+/* This file is used to define the Autofitter error enumeration          */
+/* constants.                                                            */
+/*                                                                       */
+/*************************************************************************/
 
 #ifndef __AFERRORS_H__
 #define __AFERRORS_H__
@@ -30,8 +29,8 @@
 
 #undef __FTERRORS_H__
 
-#define FT_ERR_PREFIX  AF_Err_
-#define FT_ERR_BASE    FT_Mod_Err_Autofit
+#define FT_ERR_PREFIX AF_Err_
+#define FT_ERR_BASE FT_Mod_Err_Autofit
 
 #include FT_ERRORS_H
 

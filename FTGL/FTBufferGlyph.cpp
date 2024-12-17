@@ -32,40 +32,34 @@
 #include "FTInternals.h"
 #include "FTBufferGlyphImpl.h"
 
-
 //
 //  FTGLBufferGlyph
 //
 
+FTBufferGlyph::FTBufferGlyph(FT_GlyphSlot glyph, FTBuffer* buffer)
+    : FTGlyph(new FTBufferGlyphImpl(glyph, buffer))
+{
+}
 
-FTBufferGlyph::FTBufferGlyph(FT_GlyphSlot glyph, FTBuffer *buffer) :
-    FTGlyph(new FTBufferGlyphImpl(glyph, buffer))
-{}
-
-
-FTBufferGlyph::~FTBufferGlyph()
-{}
-
+FTBufferGlyph::~FTBufferGlyph() {}
 
 const FTPoint& FTBufferGlyph::Render(const FTPoint& pen, int renderMode)
 {
-    FTBufferGlyphImpl *myimpl = dynamic_cast<FTBufferGlyphImpl *>(impl);
+    FTBufferGlyphImpl* myimpl = dynamic_cast<FTBufferGlyphImpl*>(impl);
     return myimpl->RenderImpl(pen, renderMode);
 }
-
 
 //
 //  FTGLBufferGlyphImpl
 //
 
-
-FTBufferGlyphImpl::FTBufferGlyphImpl(FT_GlyphSlot glyph, FTBuffer *p)
-:   FTGlyphImpl(glyph),
-    has_bitmap(false),
-    buffer(p)
+FTBufferGlyphImpl::FTBufferGlyphImpl(FT_GlyphSlot glyph, FTBuffer* p)
+    : FTGlyphImpl(glyph)
+    , has_bitmap(false)
+    , buffer(p)
 {
     err = FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL);
-    if(err || glyph->format != ft_glyph_format_bitmap)
+    if (err || glyph->format != ft_glyph_format_bitmap)
     {
         return;
     }
@@ -74,41 +68,38 @@ FTBufferGlyphImpl::FTBufferGlyphImpl(FT_GlyphSlot glyph, FTBuffer *p)
     pixels = new unsigned char[bitmap.pitch * bitmap.rows];
     memcpy(pixels, bitmap.buffer, bitmap.pitch * bitmap.rows);
 
-    if(bitmap.width && bitmap.rows)
+    if (bitmap.width && bitmap.rows)
     {
         has_bitmap = true;
         corner = FTPoint(glyph->bitmap_left, glyph->bitmap_top);
     }
 }
 
-
-FTBufferGlyphImpl::~FTBufferGlyphImpl()
-{
-    delete[] pixels;
-}
-
+FTBufferGlyphImpl::~FTBufferGlyphImpl() { delete[] pixels; }
 
 const FTPoint& FTBufferGlyphImpl::RenderImpl(const FTPoint& pen, int renderMode)
 {
-    if(has_bitmap)
+    if (has_bitmap)
     {
         FTPoint pos(buffer->Pos() + pen + corner);
         int dx = (int)(pos.Xf() + 0.5f);
         int dy = buffer->Height() - (int)(pos.Yf() + 0.5f);
-        unsigned char * dest = buffer->Pixels() + dx + dy * buffer->Width();
+        unsigned char* dest = buffer->Pixels() + dx + dy * buffer->Width();
 
-        for(int y = 0; y < bitmap.rows; y++)
+        for (int y = 0; y < bitmap.rows; y++)
         {
             // FIXME: change the loop bounds instead of doing this test
-            if(y + dy < 0 || y + dy >= buffer->Height()) continue;
+            if (y + dy < 0 || y + dy >= buffer->Height())
+                continue;
 
-            for(int x = 0; x < bitmap.width; x++)
+            for (int x = 0; x < bitmap.width; x++)
             {
-                if(x + dx < 0 || x + dx >= buffer->Width()) continue;
+                if (x + dx < 0 || x + dx >= buffer->Width())
+                    continue;
 
                 unsigned char p = pixels[y * bitmap.pitch + x];
 
-                if(p)
+                if (p)
                 {
                     dest[y * buffer->Width() + x] = p;
                 }
@@ -118,4 +109,3 @@ const FTPoint& FTBufferGlyphImpl::RenderImpl(const FTPoint& pen, int renderMode)
 
     return advance;
 }
-

@@ -7,10 +7,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -25,19 +25,21 @@
 #include <libexif/exif-byte-order.h>
 #include <libexif/pentax/mnote-pentax-tag.h>
 
-typedef struct _MnotePentaxEntry        MnotePentaxEntry;
+typedef struct _MnotePentaxEntry MnotePentaxEntry;
 
-struct _MnotePentaxEntry {
-	MnotePentaxTag tag;
-	ExifFormat format;
-	unsigned long components;
+struct _MnotePentaxEntry
+{
+    MnotePentaxTag tag;
+    ExifFormat format;
+    unsigned long components;
 
-	unsigned char *data;
-	unsigned int size;
+    unsigned char* data;
+    unsigned int size;
 
-	ExifByteOrder order;
+    ExifByteOrder order;
 };
 
-char *mnote_pentax_entry_get_value (MnotePentaxEntry *entry, char *val, unsigned int maxlen);
+char* mnote_pentax_entry_get_value(MnotePentaxEntry* entry, char* val,
+                                   unsigned int maxlen);
 
 #endif /* __MNOTE_PENTAX_ENTRY_H__ */

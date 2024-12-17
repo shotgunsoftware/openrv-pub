@@ -23,9 +23,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef     __FTCharmap__
-#define     __FTCharmap__
-
+#ifndef __FTCharmap__
+#define __FTCharmap__
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -33,7 +32,6 @@
 
 #include "FTGL/ftgl.h"
 #include "FTCharToGlyphIndexMap.h"
-
 
 /**
  * FTCharmap takes care of specifying the encoding for a font and mapping
@@ -52,114 +50,112 @@ class FTFace;
 
 class FTCharmap
 {
-    public:
-        /**
-         * Constructor
-         */
-        FTCharmap(FTFace* face);
+public:
+    /**
+     * Constructor
+     */
+    FTCharmap(FTFace* face);
 
-        /**
-         * Destructor
-         */
-        virtual ~FTCharmap();
+    /**
+     * Destructor
+     */
+    virtual ~FTCharmap();
 
-        /**
-         * Queries for the current character map code.
-         *
-         * @return  The current character map code.
-         */
-        FT_Encoding Encoding() const { return ftEncoding; }
+    /**
+     * Queries for the current character map code.
+     *
+     * @return  The current character map code.
+     */
+    FT_Encoding Encoding() const { return ftEncoding; }
 
-        /**
-         * Sets the character map for the face. If an error occurs the object is not modified.
-         * Valid encodings as at Freetype 2.0.4
-         *      ft_encoding_none
-         *      ft_encoding_symbol
-         *      ft_encoding_unicode
-         *      ft_encoding_latin_2
-         *      ft_encoding_sjis
-         *      ft_encoding_gb2312
-         *      ft_encoding_big5
-         *      ft_encoding_wansung
-         *      ft_encoding_johab
-         *      ft_encoding_adobe_standard
-         *      ft_encoding_adobe_expert
-         *      ft_encoding_adobe_custom
-         *      ft_encoding_apple_roman
-         *
-         * @param encoding  the Freetype encoding symbol. See above.
-         * @return          <code>true</code> if charmap was valid and set
-         *                  correctly.
-         */
-        bool CharMap(FT_Encoding encoding);
+    /**
+     * Sets the character map for the face. If an error occurs the object is not
+     * modified. Valid encodings as at Freetype 2.0.4 ft_encoding_none
+     *      ft_encoding_symbol
+     *      ft_encoding_unicode
+     *      ft_encoding_latin_2
+     *      ft_encoding_sjis
+     *      ft_encoding_gb2312
+     *      ft_encoding_big5
+     *      ft_encoding_wansung
+     *      ft_encoding_johab
+     *      ft_encoding_adobe_standard
+     *      ft_encoding_adobe_expert
+     *      ft_encoding_adobe_custom
+     *      ft_encoding_apple_roman
+     *
+     * @param encoding  the Freetype encoding symbol. See above.
+     * @return          <code>true</code> if charmap was valid and set
+     *                  correctly.
+     */
+    bool CharMap(FT_Encoding encoding);
 
-        /**
-         * Get the FTGlyphContainer index of the input character.
-         *
-         * @param characterCode The character code of the requested glyph in
-         *                      the current encoding eg apple roman.
-         * @return      The FTGlyphContainer index for the character or zero
-         *              if it wasn't found
-         */
-        unsigned int GlyphListIndex(const unsigned int characterCode);
+    /**
+     * Get the FTGlyphContainer index of the input character.
+     *
+     * @param characterCode The character code of the requested glyph in
+     *                      the current encoding eg apple roman.
+     * @return      The FTGlyphContainer index for the character or zero
+     *              if it wasn't found
+     */
+    unsigned int GlyphListIndex(const unsigned int characterCode);
 
-        /**
-         * Get the font glyph index of the input character.
-         *
-         * @param characterCode The character code of the requested glyph in
-         *                      the current encoding eg apple roman.
-         * @return      The glyph index for the character.
-         */
-        unsigned int FontIndex(const unsigned int characterCode);
+    /**
+     * Get the font glyph index of the input character.
+     *
+     * @param characterCode The character code of the requested glyph in
+     *                      the current encoding eg apple roman.
+     * @return      The glyph index for the character.
+     */
+    unsigned int FontIndex(const unsigned int characterCode);
 
-        /**
-         * Set the FTGlyphContainer index of the character code.
-         *
-         * @param characterCode  The character code of the requested glyph in
-         *                       the current encoding eg apple roman.
-         * @param containerIndex The index into the FTGlyphContainer of the
-         *                       character code.
-         */
-        void InsertIndex(const unsigned int characterCode,
-                         const size_t containerIndex);
+    /**
+     * Set the FTGlyphContainer index of the character code.
+     *
+     * @param characterCode  The character code of the requested glyph in
+     *                       the current encoding eg apple roman.
+     * @param containerIndex The index into the FTGlyphContainer of the
+     *                       character code.
+     */
+    void InsertIndex(const unsigned int characterCode,
+                     const size_t containerIndex);
 
-        /**
-         * Queries for errors.
-         *
-         * @return  The current error code. Zero means no error.
-         */
-        FT_Error Error() const { return err; }
+    /**
+     * Queries for errors.
+     *
+     * @return  The current error code. Zero means no error.
+     */
+    FT_Error Error() const { return err; }
 
-    private:
-        /**
-         * Current character map code.
-         */
-        FT_Encoding ftEncoding;
+private:
+    /**
+     * Current character map code.
+     */
+    FT_Encoding ftEncoding;
 
-        /**
-         * The current Freetype face.
-         */
-        const FT_Face ftFace;
+    /**
+     * The current Freetype face.
+     */
+    const FT_Face ftFace;
 
-        /**
-         * A structure that maps glyph indices to character codes
-         *
-         * < character code, face glyph index>
-         */
-        typedef FTCharToGlyphIndexMap CharacterMap;
-        CharacterMap charMap;
+    /**
+     * A structure that maps glyph indices to character codes
+     *
+     * < character code, face glyph index>
+     */
+    typedef FTCharToGlyphIndexMap CharacterMap;
+    CharacterMap charMap;
 
-        /**
-         * Precomputed font indices.
-         */
-        static const unsigned int MAX_PRECOMPUTED = 128;
-        unsigned int charIndexCache[MAX_PRECOMPUTED];
+    /**
+     * Precomputed font indices.
+     */
+    static const unsigned int MAX_PRECOMPUTED = 128;
+    unsigned int charIndexCache[MAX_PRECOMPUTED];
 
-        /**
-         * Current error code.
-         */
-        FT_Error err;
+    /**
+     * Current error code.
+     */
+    FT_Error err;
 };
 
-
-#endif  //  __FTCharmap__
+#endif //  __FTCharmap__

@@ -62,154 +62,163 @@
  *               10.056  6.4     0.000087  -100
  */
 
-#define IzeroEPSILON 1E-21               /* Max error acceptable in Izero */
+#define IzeroEPSILON 1E-21 /* Max error acceptable in Izero */
 
 static double Izero(double x)
 {
-   double sum, u, halfx, temp;
-   int n;
+    double sum, u, halfx, temp;
+    int n;
 
-   sum = u = n = 1;
-   halfx = x/2.0;
-   do {
-      temp = halfx/(double)n;
-      n += 1;
-      temp *= temp;
-      u *= temp;
-      sum += u;
-   } while (u >= IzeroEPSILON*sum);
-   return(sum);
+    sum = u = n = 1;
+    halfx = x / 2.0;
+    do
+    {
+        temp = halfx / (double)n;
+        n += 1;
+        temp *= temp;
+        u *= temp;
+        sum += u;
+    } while (u >= IzeroEPSILON * sum);
+    return (sum);
 }
 
 void lrsLpFilter(double c[], int N, double frq, double Beta, int Num)
 {
-   double IBeta, temp, temp1, inm1;
-   int i;
+    double IBeta, temp, temp1, inm1;
+    int i;
 
-   /* Calculate ideal lowpass filter impulse response coefficients: */
-   c[0] = 2.0*frq;
-   for (i=1; i<N; i++) {
-      temp = PI*(double)i/(double)Num;
-      c[i] = sin(2.0*temp*frq)/temp; /* Analog sinc function, cutoff = frq */
-   }
+    /* Calculate ideal lowpass filter impulse response coefficients: */
+    c[0] = 2.0 * frq;
+    for (i = 1; i < N; i++)
+    {
+        temp = PI * (double)i / (double)Num;
+        c[i] = sin(2.0 * temp * frq)
+               / temp; /* Analog sinc function, cutoff = frq */
+    }
 
-   /* 
-    * Calculate and Apply Kaiser window to ideal lowpass filter.
-    * Note: last window value is IBeta which is NOT zero.
-    * You're supposed to really truncate the window here, not ramp
-    * it to zero. This helps reduce the first sidelobe. 
-    */
-   IBeta = 1.0/Izero(Beta);
-   inm1 = 1.0/((double)(N-1));
-   for (i=1; i<N; i++) {
-      temp = (double)i * inm1;
-      temp1 = 1.0 - temp*temp;
-      temp1 = (temp1<0? 0: temp1); /* make sure it's not negative since
-                                      we're taking the square root - this
-                                      happens on Pentium 4's due to tiny
-                                      roundoff errors */
-      c[i] *= Izero(Beta*sqrt(temp1)) * IBeta;
-   }
+    /*
+     * Calculate and Apply Kaiser window to ideal lowpass filter.
+     * Note: last window value is IBeta which is NOT zero.
+     * You're supposed to really truncate the window here, not ramp
+     * it to zero. This helps reduce the first sidelobe.
+     */
+    IBeta = 1.0 / Izero(Beta);
+    inm1 = 1.0 / ((double)(N - 1));
+    for (i = 1; i < N; i++)
+    {
+        temp = (double)i * inm1;
+        temp1 = 1.0 - temp * temp;
+        temp1 = (temp1 < 0 ? 0 : temp1); /* make sure it's not negative since
+                                            we're taking the square root - this
+                                            happens on Pentium 4's due to tiny
+                                            roundoff errors */
+        c[i] *= Izero(Beta * sqrt(temp1)) * IBeta;
+    }
 }
 
 float lrsFilterUp(float Imp[],  /* impulse response */
                   float ImpD[], /* impulse response deltas */
                   UWORD Nwing,  /* len of one wing of filter */
                   BOOL Interp,  /* Interpolate coefs using deltas? */
-                  float *Xp,    /* Current sample */
+                  float* Xp,    /* Current sample */
                   double Ph,    /* Phase */
-                  int Inc)    /* increment (1 for right wing or -1 for left) */
+                  int Inc) /* increment (1 for right wing or -1 for left) */
 {
-   float *Hp, *Hdp = NULL, *End;
-   double a = 0;
-   float v, t;
+    float *Hp, *Hdp = NULL, *End;
+    double a = 0;
+    float v, t;
 
-   Ph *= Npc; /* Npc is number of values per 1/delta in impulse response */
-   
-   v = 0.0; /* The output value */
-   Hp = &Imp[(int)Ph];
-   End = &Imp[Nwing];
-   if (Interp) {
-      Hdp = &ImpD[(int)Ph];
-      a = Ph - floor(Ph); /* fractional part of Phase */
-   }
+    Ph *= Npc; /* Npc is number of values per 1/delta in impulse response */
 
-   if (Inc == 1)		/* If doing right wing...              */
-   {				      /* ...drop extra coeff, so when Ph is  */
-      End--;			/*    0.5, we don't do too many mult's */
-      if (Ph == 0)		/* If the phase is zero...           */
-      {			         /* ...then we've already skipped the */
-         Hp += Npc;		/*    first sample, so we must also  */
-         Hdp += Npc;		/*    skip ahead in Imp[] and ImpD[] */
-      }
-   }
+    v = 0.0; /* The output value */
+    Hp = &Imp[(int)Ph];
+    End = &Imp[Nwing];
+    if (Interp)
+    {
+        Hdp = &ImpD[(int)Ph];
+        a = Ph - floor(Ph); /* fractional part of Phase */
+    }
 
-   if (Interp)
-      while (Hp < End) {
-         t = *Hp;		/* Get filter coeff */
-         t += (*Hdp)*a; /* t is now interp'd filter coeff */
-         Hdp += Npc;		/* Filter coeff differences step */
-         t *= *Xp;		/* Mult coeff by input sample */
-         v += t;			/* The filter output */
-         Hp += Npc;		/* Filter coeff step */
-         Xp += Inc;		/* Input signal step. NO CHECK ON BOUNDS */
-      } 
-   else 
-      while (Hp < End) {
-         t = *Hp;		/* Get filter coeff */
-         t *= *Xp;		/* Mult coeff by input sample */
-         v += t;			/* The filter output */
-         Hp += Npc;		/* Filter coeff step */
-         Xp += Inc;		/* Input signal step. NO CHECK ON BOUNDS */
-      }
-   
-   return v;
+    if (Inc == 1)       /* If doing right wing...              */
+    {                   /* ...drop extra coeff, so when Ph is  */
+        End--;          /*    0.5, we don't do too many mult's */
+        if (Ph == 0)    /* If the phase is zero...           */
+        {               /* ...then we've already skipped the */
+            Hp += Npc;  /*    first sample, so we must also  */
+            Hdp += Npc; /*    skip ahead in Imp[] and ImpD[] */
+        }
+    }
+
+    if (Interp)
+        while (Hp < End)
+        {
+            t = *Hp;         /* Get filter coeff */
+            t += (*Hdp) * a; /* t is now interp'd filter coeff */
+            Hdp += Npc;      /* Filter coeff differences step */
+            t *= *Xp;        /* Mult coeff by input sample */
+            v += t;          /* The filter output */
+            Hp += Npc;       /* Filter coeff step */
+            Xp += Inc;       /* Input signal step. NO CHECK ON BOUNDS */
+        }
+    else
+        while (Hp < End)
+        {
+            t = *Hp;   /* Get filter coeff */
+            t *= *Xp;  /* Mult coeff by input sample */
+            v += t;    /* The filter output */
+            Hp += Npc; /* Filter coeff step */
+            Xp += Inc; /* Input signal step. NO CHECK ON BOUNDS */
+        }
+
+    return v;
 }
 
 float lrsFilterUD(float Imp[],  /* impulse response */
                   float ImpD[], /* impulse response deltas */
                   UWORD Nwing,  /* len of one wing of filter */
                   BOOL Interp,  /* Interpolate coefs using deltas? */
-                  float *Xp,    /* Current sample */
+                  float* Xp,    /* Current sample */
                   double Ph,    /* Phase */
                   int Inc,    /* increment (1 for right wing or -1 for left) */
                   double dhb) /* filter sampling period */
 {
-   float a;
-   float *Hp, *Hdp, *End;
-   float v, t;
-   double Ho;
-    
-   v = 0.0; /* The output value */
-   Ho = Ph*dhb;
-   End = &Imp[Nwing];
-   if (Inc == 1)		/* If doing right wing...              */
-   {				      /* ...drop extra coeff, so when Ph is  */
-      End--;			/*    0.5, we don't do too many mult's */
-      if (Ph == 0)		/* If the phase is zero...           */
-         Ho += dhb;		/* ...then we've already skipped the */
-   }				         /*    first sample, so we must also  */
-                        /*    skip ahead in Imp[] and ImpD[] */
+    float a;
+    float *Hp, *Hdp, *End;
+    float v, t;
+    double Ho;
 
-   if (Interp)
-      while ((Hp = &Imp[(int)Ho]) < End) {
-         t = *Hp;		/* Get IR sample */
-         Hdp = &ImpD[(int)Ho];  /* get interp bits from diff table*/
-         a = Ho - floor(Ho);	  /* a is logically between 0 and 1 */
-         t += (*Hdp)*a; /* t is now interp'd filter coeff */
-         t *= *Xp;		/* Mult coeff by input sample */
-         v += t;			/* The filter output */
-         Ho += dhb;		/* IR step */
-         Xp += Inc;		/* Input signal step. NO CHECK ON BOUNDS */
-      }
-   else 
-      while ((Hp = &Imp[(int)Ho]) < End) {
-         t = *Hp;		/* Get IR sample */
-         t *= *Xp;		/* Mult coeff by input sample */
-         v += t;			/* The filter output */
-         Ho += dhb;		/* IR step */
-         Xp += Inc;		/* Input signal step. NO CHECK ON BOUNDS */
-      }
+    v = 0.0; /* The output value */
+    Ho = Ph * dhb;
+    End = &Imp[Nwing];
+    if (Inc == 1)      /* If doing right wing...              */
+    {                  /* ...drop extra coeff, so when Ph is  */
+        End--;         /*    0.5, we don't do too many mult's */
+        if (Ph == 0)   /* If the phase is zero...           */
+            Ho += dhb; /* ...then we've already skipped the */
+    } /*    first sample, so we must also  */
+    /*    skip ahead in Imp[] and ImpD[] */
 
-   return v;
+    if (Interp)
+        while ((Hp = &Imp[(int)Ho]) < End)
+        {
+            t = *Hp;              /* Get IR sample */
+            Hdp = &ImpD[(int)Ho]; /* get interp bits from diff table*/
+            a = Ho - floor(Ho);   /* a is logically between 0 and 1 */
+            t += (*Hdp) * a;      /* t is now interp'd filter coeff */
+            t *= *Xp;             /* Mult coeff by input sample */
+            v += t;               /* The filter output */
+            Ho += dhb;            /* IR step */
+            Xp += Inc;            /* Input signal step. NO CHECK ON BOUNDS */
+        }
+    else
+        while ((Hp = &Imp[(int)Ho]) < End)
+        {
+            t = *Hp;   /* Get IR sample */
+            t *= *Xp;  /* Mult coeff by input sample */
+            v += t;    /* The filter output */
+            Ho += dhb; /* IR step */
+            Xp += Inc; /* Input signal step. NO CHECK ON BOUNDS */
+        }
+
+    return v;
 }

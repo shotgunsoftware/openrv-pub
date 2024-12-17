@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2011, Intel Corporation. All rights reserved.
 
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
 
  * Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
@@ -33,57 +33,74 @@
 #ifndef EIGEN_SAEIGENSOLVER_LAPACKE_H
 #define EIGEN_SAEIGENSOLVER_LAPACKE_H
 
-namespace Eigen { 
+namespace Eigen
+{
 
-/** \internal Specialization for the data types supported by LAPACKe */
+    /** \internal Specialization for the data types supported by LAPACKe */
 
-#define EIGEN_LAPACKE_EIG_SELFADJ(EIGTYPE, LAPACKE_TYPE, LAPACKE_RTYPE, LAPACKE_NAME, EIGCOLROW, LAPACKE_COLROW ) \
-template<> template<typename InputType> inline \
-SelfAdjointEigenSolver<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW> >& \
-SelfAdjointEigenSolver<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW> >::compute(const EigenBase<InputType>& matrix, int options) \
-{ \
-  eigen_assert(matrix.cols() == matrix.rows()); \
-  eigen_assert((options&~(EigVecMask|GenEigMask))==0 \
-          && (options&EigVecMask)!=EigVecMask \
-          && "invalid option parameter"); \
-  bool computeEigenvectors = (options&ComputeEigenvectors)==ComputeEigenvectors; \
-  lapack_int n = internal::convert_index<lapack_int>(matrix.cols()), lda, matrix_order, info; \
-  m_eivalues.resize(n,1); \
-  m_subdiag.resize(n-1); \
-  m_eivec = matrix; \
-\
-  if(n==1) \
-  { \
-    m_eivalues.coeffRef(0,0) = numext::real(m_eivec.coeff(0,0)); \
-    if(computeEigenvectors) m_eivec.setOnes(n,n); \
-    m_info = Success; \
-    m_isInitialized = true; \
-    m_eigenvectorsOk = computeEigenvectors; \
-    return *this; \
-  } \
-\
-  lda = internal::convert_index<lapack_int>(m_eivec.outerStride()); \
-  matrix_order=LAPACKE_COLROW; \
-  char jobz, uplo='L'/*, range='A'*/; \
-  jobz = computeEigenvectors ? 'V' : 'N'; \
-\
-  info = LAPACKE_##LAPACKE_NAME( matrix_order, jobz, uplo, n, (LAPACKE_TYPE*)m_eivec.data(), lda, (LAPACKE_RTYPE*)m_eivalues.data() ); \
-  m_info = (info==0) ? Success : NoConvergence; \
-  m_isInitialized = true; \
-  m_eigenvectorsOk = computeEigenvectors; \
-  return *this; \
-}
+#define EIGEN_LAPACKE_EIG_SELFADJ(EIGTYPE, LAPACKE_TYPE, LAPACKE_RTYPE,    \
+                                  LAPACKE_NAME, EIGCOLROW, LAPACKE_COLROW) \
+    template <>                                                            \
+    template <typename InputType>                                          \
+    inline SelfAdjointEigenSolver<                                         \
+        Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW>>&                     \
+    SelfAdjointEigenSolver<Matrix<EIGTYPE, Dynamic, Dynamic, EIGCOLROW>>:: \
+        compute(const EigenBase<InputType>& matrix, int options)           \
+    {                                                                      \
+        eigen_assert(matrix.cols() == matrix.rows());                      \
+        eigen_assert((options & ~(EigVecMask | GenEigMask)) == 0           \
+                     && (options & EigVecMask) != EigVecMask               \
+                     && "invalid option parameter");                       \
+        bool computeEigenvectors =                                         \
+            (options & ComputeEigenvectors) == ComputeEigenvectors;        \
+        lapack_int n = internal::convert_index<lapack_int>(matrix.cols()), \
+                   lda, matrix_order, info;                                \
+        m_eivalues.resize(n, 1);                                           \
+        m_subdiag.resize(n - 1);                                           \
+        m_eivec = matrix;                                                  \
+                                                                           \
+        if (n == 1)                                                        \
+        {                                                                  \
+            m_eivalues.coeffRef(0, 0) = numext::real(m_eivec.coeff(0, 0)); \
+            if (computeEigenvectors)                                       \
+                m_eivec.setOnes(n, n);                                     \
+            m_info = Success;                                              \
+            m_isInitialized = true;                                        \
+            m_eigenvectorsOk = computeEigenvectors;                        \
+            return *this;                                                  \
+        }                                                                  \
+                                                                           \
+        lda = internal::convert_index<lapack_int>(m_eivec.outerStride());  \
+        matrix_order = LAPACKE_COLROW;                                     \
+        char jobz, uplo = 'L' /*, range='A'*/;                             \
+        jobz = computeEigenvectors ? 'V' : 'N';                            \
+                                                                           \
+        info = LAPACKE_##LAPACKE_NAME(matrix_order, jobz, uplo, n,         \
+                                      (LAPACKE_TYPE*)m_eivec.data(), lda,  \
+                                      (LAPACKE_RTYPE*)m_eivalues.data());  \
+        m_info = (info == 0) ? Success : NoConvergence;                    \
+        m_isInitialized = true;                                            \
+        m_eigenvectorsOk = computeEigenvectors;                            \
+        return *this;                                                      \
+    }
 
+    EIGEN_LAPACKE_EIG_SELFADJ(double, double, double, dsyev, ColMajor,
+                              LAPACK_COL_MAJOR)
+    EIGEN_LAPACKE_EIG_SELFADJ(float, float, float, ssyev, ColMajor,
+                              LAPACK_COL_MAJOR)
+    EIGEN_LAPACKE_EIG_SELFADJ(dcomplex, lapack_complex_double, double, zheev,
+                              ColMajor, LAPACK_COL_MAJOR)
+    EIGEN_LAPACKE_EIG_SELFADJ(scomplex, lapack_complex_float, float, cheev,
+                              ColMajor, LAPACK_COL_MAJOR)
 
-EIGEN_LAPACKE_EIG_SELFADJ(double,   double,                double, dsyev, ColMajor, LAPACK_COL_MAJOR)
-EIGEN_LAPACKE_EIG_SELFADJ(float,    float,                 float,  ssyev, ColMajor, LAPACK_COL_MAJOR)
-EIGEN_LAPACKE_EIG_SELFADJ(dcomplex, lapack_complex_double, double, zheev, ColMajor, LAPACK_COL_MAJOR)
-EIGEN_LAPACKE_EIG_SELFADJ(scomplex, lapack_complex_float,  float,  cheev, ColMajor, LAPACK_COL_MAJOR)
-
-EIGEN_LAPACKE_EIG_SELFADJ(double,   double,                double, dsyev, RowMajor, LAPACK_ROW_MAJOR)
-EIGEN_LAPACKE_EIG_SELFADJ(float,    float,                 float,  ssyev, RowMajor, LAPACK_ROW_MAJOR)
-EIGEN_LAPACKE_EIG_SELFADJ(dcomplex, lapack_complex_double, double, zheev, RowMajor, LAPACK_ROW_MAJOR)
-EIGEN_LAPACKE_EIG_SELFADJ(scomplex, lapack_complex_float,  float,  cheev, RowMajor, LAPACK_ROW_MAJOR)
+    EIGEN_LAPACKE_EIG_SELFADJ(double, double, double, dsyev, RowMajor,
+                              LAPACK_ROW_MAJOR)
+    EIGEN_LAPACKE_EIG_SELFADJ(float, float, float, ssyev, RowMajor,
+                              LAPACK_ROW_MAJOR)
+    EIGEN_LAPACKE_EIG_SELFADJ(dcomplex, lapack_complex_double, double, zheev,
+                              RowMajor, LAPACK_ROW_MAJOR)
+    EIGEN_LAPACKE_EIG_SELFADJ(scomplex, lapack_complex_float, float, cheev,
+                              RowMajor, LAPACK_ROW_MAJOR)
 
 } // end namespace Eigen
 

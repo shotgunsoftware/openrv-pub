@@ -24,7 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-
 #ifndef __BDFDRIVR_H__
 #define __BDFDRIVR_H__
 
@@ -33,44 +32,37 @@ THE SOFTWARE.
 
 #include "bdf.h"
 
-
 FT_BEGIN_HEADER
 
+typedef struct BDF_encoding_el_
+{
+    FT_ULong enc;
+    FT_UShort glyph;
 
-  typedef struct  BDF_encoding_el_
-  {
-    FT_ULong   enc;
-    FT_UShort  glyph;
+} BDF_encoding_el;
 
-  } BDF_encoding_el;
+typedef struct BDF_FaceRec_
+{
+    FT_FaceRec root;
 
+    char* charset_encoding;
+    char* charset_registry;
 
-  typedef struct  BDF_FaceRec_
-  {
-    FT_FaceRec        root;
+    bdf_font_t* bdffont;
 
-    char*             charset_encoding;
-    char*             charset_registry;
+    BDF_encoding_el* en_table;
 
-    bdf_font_t*       bdffont;
+    FT_CharMap charmap_handle;
+    FT_CharMapRec charmap; /* a single charmap per face */
 
-    BDF_encoding_el*  en_table;
+    FT_UInt default_glyph;
 
-    FT_CharMap        charmap_handle;
-    FT_CharMapRec     charmap;  /* a single charmap per face */
+} BDF_FaceRec, *BDF_Face;
 
-    FT_UInt           default_glyph;
-
-  } BDF_FaceRec, *BDF_Face;
-
-
-  FT_EXPORT_VAR( const FT_Driver_ClassRec )  bdf_driver_class;
-
+FT_EXPORT_VAR(const FT_Driver_ClassRec) bdf_driver_class;
 
 FT_END_HEADER
 
-
 #endif /* __BDFDRIVR_H__ */
-
 
 /* END */

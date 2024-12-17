@@ -21,93 +21,104 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4ODUpdateDescriptor::MP4ODUpdateDescriptor(MP4Atom& parentAtom)
-        : MP4Descriptor(parentAtom, MP4ODUpdateODCommandTag)
+namespace mp4v2
 {
-    // just a container for ObjectDescriptors
-    AddProperty( /* 0 */
-        new MP4DescriptorProperty(parentAtom, NULL,
-                                  MP4FileODescrTag, 0, Required, Many));
-}
+    namespace impl
+    {
 
-MP4ODRemoveDescriptor::MP4ODRemoveDescriptor(MP4Atom& parentAtom)
-        : MP4Descriptor(parentAtom, MP4ODRemoveODCommandTag)
-{
-    MP4Integer32Property* pCount =
-        new MP4Integer32Property(parentAtom, "entryCount");
-    pCount->SetImplicit();
-    AddProperty(pCount); /* 0 */
+        ///////////////////////////////////////////////////////////////////////////////
 
-    MP4TableProperty* pTable =
-        new MP4TableProperty(parentAtom, "entries", pCount);
-    AddProperty(pTable); /* 1 */
+        MP4ODUpdateDescriptor::MP4ODUpdateDescriptor(MP4Atom& parentAtom)
+            : MP4Descriptor(parentAtom, MP4ODUpdateODCommandTag)
+        {
+            // just a container for ObjectDescriptors
+            AddProperty(/* 0 */
+                        new MP4DescriptorProperty(parentAtom, NULL,
+                                                  MP4FileODescrTag, 0, Required,
+                                                  Many));
+        }
 
-    pTable->AddProperty( /* 1, 0 */
-        new MP4BitfieldProperty(pTable->GetParentAtom(), "objectDescriptorId", 10));
-}
+        MP4ODRemoveDescriptor::MP4ODRemoveDescriptor(MP4Atom& parentAtom)
+            : MP4Descriptor(parentAtom, MP4ODRemoveODCommandTag)
+        {
+            MP4Integer32Property* pCount =
+                new MP4Integer32Property(parentAtom, "entryCount");
+            pCount->SetImplicit();
+            AddProperty(pCount); /* 0 */
 
-void MP4ODRemoveDescriptor::Read(MP4File& file)
-{
-    // table entry count computed from descriptor size
-    ((MP4Integer32Property*)m_pProperties[0])->SetReadOnly(false);
-    ((MP4Integer32Property*)m_pProperties[0])->SetValue((m_size * 8) / 10);
-    ((MP4Integer32Property*)m_pProperties[0])->SetReadOnly(true);
+            MP4TableProperty* pTable =
+                new MP4TableProperty(parentAtom, "entries", pCount);
+            AddProperty(pTable); /* 1 */
 
-    MP4Descriptor::Read(file);
-}
+            pTable->AddProperty(/* 1, 0 */
+                                new MP4BitfieldProperty(pTable->GetParentAtom(),
+                                                        "objectDescriptorId",
+                                                        10));
+        }
 
-MP4ESUpdateDescriptor::MP4ESUpdateDescriptor(MP4Atom& parentAtom)
-        : MP4Descriptor(parentAtom, MP4ESUpdateODCommandTag)
-{
-    AddProperty( /* 0 */
-        new MP4BitfieldProperty(parentAtom, "objectDescriptorId", 10));
-    AddProperty( /* 1 */
-        new MP4BitfieldProperty(parentAtom, "pad", 6));
-    AddProperty( /* 2 */
-        new MP4DescriptorProperty(parentAtom, "esIdRefs",
-                                  MP4ESIDRefDescrTag, 0, Required, Many));
-}
+        void MP4ODRemoveDescriptor::Read(MP4File& file)
+        {
+            // table entry count computed from descriptor size
+            ((MP4Integer32Property*)m_pProperties[0])->SetReadOnly(false);
+            ((MP4Integer32Property*)m_pProperties[0])
+                ->SetValue((m_size * 8) / 10);
+            ((MP4Integer32Property*)m_pProperties[0])->SetReadOnly(true);
 
-// LATER might be able to combine with ESUpdateDescriptor
-MP4ESRemoveDescriptor::MP4ESRemoveDescriptor(MP4Atom& parentAtom)
-        : MP4Descriptor(parentAtom, MP4ESRemoveODCommandTag)
-{
-    AddProperty( /* 0 */
-        new MP4BitfieldProperty(parentAtom, "objectDescriptorId", 10));
-    AddProperty( /* 1 */
-        new MP4BitfieldProperty(parentAtom, "pad", 6));
-    AddProperty( /* 2 */
-        new MP4DescriptorProperty(parentAtom, "esIdRefs",
-                                  MP4ESIDRefDescrTag, 0, Required, Many));
-}
+            MP4Descriptor::Read(file);
+        }
 
-MP4Descriptor* CreateODCommand(MP4Atom& parentAtom, uint8_t tag)
-{
-    MP4Descriptor* pDescriptor = NULL;
+        MP4ESUpdateDescriptor::MP4ESUpdateDescriptor(MP4Atom& parentAtom)
+            : MP4Descriptor(parentAtom, MP4ESUpdateODCommandTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4BitfieldProperty(parentAtom,
+                                                "objectDescriptorId", 10));
+            AddProperty(/* 1 */
+                        new MP4BitfieldProperty(parentAtom, "pad", 6));
+            AddProperty(/* 2 */
+                        new MP4DescriptorProperty(parentAtom, "esIdRefs",
+                                                  MP4ESIDRefDescrTag, 0,
+                                                  Required, Many));
+        }
 
-    switch (tag) {
-    case MP4ODUpdateODCommandTag:
-        pDescriptor = new MP4ODUpdateDescriptor(parentAtom);
-        break;
-    case MP4ODRemoveODCommandTag:
-        pDescriptor = new MP4ODRemoveDescriptor(parentAtom);
-        break;
-    case MP4ESUpdateODCommandTag:
-        pDescriptor = new MP4ESUpdateDescriptor(parentAtom);
-        break;
-    case MP4ESRemoveODCommandTag:
-        pDescriptor = new MP4ESRemoveDescriptor(parentAtom);
-        break;
-    }
-    return pDescriptor;
-}
+        // LATER might be able to combine with ESUpdateDescriptor
+        MP4ESRemoveDescriptor::MP4ESRemoveDescriptor(MP4Atom& parentAtom)
+            : MP4Descriptor(parentAtom, MP4ESRemoveODCommandTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4BitfieldProperty(parentAtom,
+                                                "objectDescriptorId", 10));
+            AddProperty(/* 1 */
+                        new MP4BitfieldProperty(parentAtom, "pad", 6));
+            AddProperty(/* 2 */
+                        new MP4DescriptorProperty(parentAtom, "esIdRefs",
+                                                  MP4ESIDRefDescrTag, 0,
+                                                  Required, Many));
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        MP4Descriptor* CreateODCommand(MP4Atom& parentAtom, uint8_t tag)
+        {
+            MP4Descriptor* pDescriptor = NULL;
 
-}
-} // namespace mp4v2::impl
+            switch (tag)
+            {
+            case MP4ODUpdateODCommandTag:
+                pDescriptor = new MP4ODUpdateDescriptor(parentAtom);
+                break;
+            case MP4ODRemoveODCommandTag:
+                pDescriptor = new MP4ODRemoveDescriptor(parentAtom);
+                break;
+            case MP4ESUpdateODCommandTag:
+                pDescriptor = new MP4ESUpdateDescriptor(parentAtom);
+                break;
+            case MP4ESRemoveODCommandTag:
+                pDescriptor = new MP4ESRemoveDescriptor(parentAtom);
+                break;
+            }
+            return pDescriptor;
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

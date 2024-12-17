@@ -26,15 +26,14 @@
  */
 
 #ifndef __ftgl__
-#   warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
-#   include <FTGL/ftgl.h>
+#warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
+#include <FTGL/ftgl.h>
 #endif
 
 #ifndef __FTOutlineFont__
 #define __FTOutlineFont__
 
 #ifdef __cplusplus
-
 
 /**
  * FTOutlineFont is a specialisation of the FTFont class for handling
@@ -44,41 +43,40 @@
  */
 class FTGL_EXPORT FTOutlineFont : public FTFont
 {
-    public:
-        /**
-         * Open and read a font file. Sets Error flag.
-         *
-         * @param fontFilePath  font file path.
-         */
-        FTOutlineFont(const char* fontFilePath);
+public:
+    /**
+     * Open and read a font file. Sets Error flag.
+     *
+     * @param fontFilePath  font file path.
+     */
+    FTOutlineFont(const char* fontFilePath);
 
-        /**
-         * Open and read a font from a buffer in memory. Sets Error flag.
-         * The buffer is owned by the client and is NOT copied by FTGL. The
-         * pointer must be valid while using FTGL.
-         *
-         * @param pBufferBytes  the in-memory buffer
-         * @param bufferSizeInBytes  the length of the buffer in bytes
-         */
-        FTOutlineFont(const unsigned char *pBufferBytes,
-                      size_t bufferSizeInBytes);
+    /**
+     * Open and read a font from a buffer in memory. Sets Error flag.
+     * The buffer is owned by the client and is NOT copied by FTGL. The
+     * pointer must be valid while using FTGL.
+     *
+     * @param pBufferBytes  the in-memory buffer
+     * @param bufferSizeInBytes  the length of the buffer in bytes
+     */
+    FTOutlineFont(const unsigned char* pBufferBytes, size_t bufferSizeInBytes);
 
-        /**
-         * Destructor
-         */
-        ~FTOutlineFont();
+    /**
+     * Destructor
+     */
+    ~FTOutlineFont();
 
-    protected:
-        /**
-         * Construct a glyph of the correct type.
-         *
-         * Clients must override the function and return their specialised
-         * FTGlyph.
-         *
-         * @param slot  A FreeType glyph slot.
-         * @return  An FT****Glyph or <code>null</code> on failure.
-         */
-        virtual FTGlyph* MakeGlyph(FT_GlyphSlot slot);
+protected:
+    /**
+     * Construct a glyph of the correct type.
+     *
+     * Clients must override the function and return their specialised
+     * FTGlyph.
+     *
+     * @param slot  A FreeType glyph slot.
+     * @return  An FT****Glyph or <code>null</code> on failure.
+     */
+    virtual FTGlyph* MakeGlyph(FT_GlyphSlot slot);
 };
 
 #define FTGLOutlineFont FTOutlineFont
@@ -95,9 +93,8 @@ FTGL_BEGIN_C_DECLS
  *
  * @see  FTGLfont
  */
-FTGL_EXPORT FTGLfont *ftglCreateOutlineFont(const char *file);
+FTGL_EXPORT FTGLfont* ftglCreateOutlineFont(const char* file);
 
 FTGL_END_C_DECLS
 
 #endif // __FTOutlineFont__
-

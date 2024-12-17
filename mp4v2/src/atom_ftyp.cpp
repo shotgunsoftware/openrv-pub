@@ -21,42 +21,48 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 { namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4FtypAtom::MP4FtypAtom(MP4File &file)
-    : MP4Atom( file, "ftyp" )
-    , majorBrand       ( *new MP4StringProperty( *this, "majorBrand" ))
-    , minorVersion     ( *new MP4Integer32Property( *this, "minorVersion" ))
-    , compatibleBrands ( *new MP4StringProperty( *this, "compatibleBrands", false, false, true ))
+namespace mp4v2
 {
-    majorBrand.SetFixedLength( 4 );
-    compatibleBrands.SetFixedLength( 4 );
+    namespace impl
+    {
 
-    AddProperty( &majorBrand );
-    AddProperty( &minorVersion );
-    AddProperty( &compatibleBrands );
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-void MP4FtypAtom::Generate()
-{
-    MP4Atom::Generate();
+        MP4FtypAtom::MP4FtypAtom(MP4File& file)
+            : MP4Atom(file, "ftyp")
+            , majorBrand(*new MP4StringProperty(*this, "majorBrand"))
+            , minorVersion(*new MP4Integer32Property(*this, "minorVersion"))
+            , compatibleBrands(*new MP4StringProperty(*this, "compatibleBrands",
+                                                      false, false, true))
+        {
+            majorBrand.SetFixedLength(4);
+            compatibleBrands.SetFixedLength(4);
 
-    majorBrand.SetValue( "mp42" );
-    minorVersion.SetValue( 0 );
+            AddProperty(&majorBrand);
+            AddProperty(&minorVersion);
+            AddProperty(&compatibleBrands);
+        }
 
-    compatibleBrands.SetCount( 2 );
-    compatibleBrands.SetValue( "mp42", 0 );
-    compatibleBrands.SetValue( "isom", 1 );
-}
+        void MP4FtypAtom::Generate()
+        {
+            MP4Atom::Generate();
 
-void MP4FtypAtom::Read()
-{
-    compatibleBrands.SetCount( (m_size - 8) / 4 ); // brands array fills rest of atom
-    MP4Atom::Read();
-}
+            majorBrand.SetValue("mp42");
+            minorVersion.SetValue(0);
 
-///////////////////////////////////////////////////////////////////////////////
+            compatibleBrands.SetCount(2);
+            compatibleBrands.SetValue("mp42", 0);
+            compatibleBrands.SetValue("isom", 1);
+        }
 
-}} // namespace mp4v2::impl
+        void MP4FtypAtom::Read()
+        {
+            compatibleBrands.SetCount((m_size - 8)
+                                      / 4); // brands array fills rest of atom
+            MP4Atom::Read();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

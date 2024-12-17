@@ -24,8 +24,8 @@
  */
 
 #ifndef __ftgl__
-#   warning Please use <FTGL/ftgl.h> instead of <FTBufferGlyph.h>.
-#   include <FTGL/ftgl.h>
+#warning Please use <FTGL/ftgl.h> instead of <FTBufferGlyph.h>.
+#include <FTGL/ftgl.h>
 #endif
 
 #ifndef __FTBufferGlyph__
@@ -33,37 +33,35 @@
 
 #ifdef __cplusplus
 
-
 /**
  * FTBufferGlyph is a specialisation of FTGlyph for memory buffer rendering.
  */
 class FTGL_EXPORT FTBufferGlyph : public FTGlyph
 {
-    public:
-        /**
-         * Constructor
-         *
-         * @param glyph The Freetype glyph to be processed
-         * @param buffer  An FTBuffer object in which to render the glyph.
-         */
-        FTBufferGlyph(FT_GlyphSlot glyph, FTBuffer *buffer);
+public:
+    /**
+     * Constructor
+     *
+     * @param glyph The Freetype glyph to be processed
+     * @param buffer  An FTBuffer object in which to render the glyph.
+     */
+    FTBufferGlyph(FT_GlyphSlot glyph, FTBuffer* buffer);
 
-        /**
-         * Destructor
-         */
-        virtual ~FTBufferGlyph();
+    /**
+     * Destructor
+     */
+    virtual ~FTBufferGlyph();
 
-        /**
-         * Render this glyph at the current pen position.
-         *
-         * @param pen  The current pen position.
-         * @param renderMode  Render mode to display
-         * @return  The advance distance for this glyph.
-         */
-        virtual const FTPoint& Render(const FTPoint& pen, int renderMode);
+    /**
+     * Render this glyph at the current pen position.
+     *
+     * @param pen  The current pen position.
+     * @param renderMode  Render mode to display
+     * @return  The advance distance for this glyph.
+     */
+    virtual const FTPoint& Render(const FTPoint& pen, int renderMode);
 };
 
 #endif //__cplusplus
 
-#endif  //  __FTBufferGlyph__
-
+#endif //  __FTBufferGlyph__

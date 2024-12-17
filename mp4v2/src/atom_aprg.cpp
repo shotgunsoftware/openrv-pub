@@ -21,31 +21,30 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4APRGAtom::MP4APRGAtom (MP4File &file)
-        : MP4Atom(file, "APRG")
+namespace mp4v2
 {
-    MP4StringProperty* tagProp =
-        new MP4StringProperty(*this, "tag");
-    tagProp->SetFixedLength(4);
-    AddProperty(tagProp);
+    namespace impl
+    {
 
-    MP4StringProperty* versionProp =
-        new MP4StringProperty(*this, "version");
-    versionProp->SetFixedLength(4);
-    AddProperty(versionProp);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    AddProperty(new MP4Integer32Property(*this, "unknown1"));
-    AddProperty(new MP4Integer32Property(*this, "unknown2"));
-}
+        MP4APRGAtom::MP4APRGAtom(MP4File& file)
+            : MP4Atom(file, "APRG")
+        {
+            MP4StringProperty* tagProp = new MP4StringProperty(*this, "tag");
+            tagProp->SetFixedLength(4);
+            AddProperty(tagProp);
 
-///////////////////////////////////////////////////////////////////////////////
+            MP4StringProperty* versionProp =
+                new MP4StringProperty(*this, "version");
+            versionProp->SetFixedLength(4);
+            AddProperty(versionProp);
 
-}
-} // namespace mp4v2::impl
+            AddProperty(new MP4Integer32Property(*this, "unknown1"));
+            AddProperty(new MP4Integer32Property(*this, "unknown2"));
+        }
 
+        ///////////////////////////////////////////////////////////////////////////////
 
+    } // namespace impl
+} // namespace mp4v2

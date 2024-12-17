@@ -31,62 +31,53 @@
 #include "FTInternals.h"
 #include "FTOutlineFontImpl.h"
 
-
 //
 //  FTOutlineFont
 //
 
+FTOutlineFont::FTOutlineFont(char const* fontFilePath)
+    : FTFont(new FTOutlineFontImpl(this, fontFilePath))
+{
+}
 
-FTOutlineFont::FTOutlineFont(char const *fontFilePath) :
-    FTFont(new FTOutlineFontImpl(this, fontFilePath))
-{}
+FTOutlineFont::FTOutlineFont(const unsigned char* pBufferBytes,
+                             size_t bufferSizeInBytes)
+    : FTFont(new FTOutlineFontImpl(this, pBufferBytes, bufferSizeInBytes))
+{
+}
 
-
-FTOutlineFont::FTOutlineFont(const unsigned char *pBufferBytes,
-                             size_t bufferSizeInBytes) :
-    FTFont(new FTOutlineFontImpl(this, pBufferBytes, bufferSizeInBytes))
-{}
-
-
-FTOutlineFont::~FTOutlineFont()
-{}
-
+FTOutlineFont::~FTOutlineFont() {}
 
 FTGlyph* FTOutlineFont::MakeGlyph(FT_GlyphSlot ftGlyph)
 {
-    FTOutlineFontImpl *myimpl = dynamic_cast<FTOutlineFontImpl *>(impl);
-    if(!myimpl)
+    FTOutlineFontImpl* myimpl = dynamic_cast<FTOutlineFontImpl*>(impl);
+    if (!myimpl)
     {
         return NULL;
     }
 
-    return new FTOutlineGlyph(ftGlyph, myimpl->outset,
-                              myimpl->useDisplayLists);
+    return new FTOutlineGlyph(ftGlyph, myimpl->outset, myimpl->useDisplayLists);
 }
-
 
 //
 //  FTOutlineFontImpl
 //
 
-
-FTOutlineFontImpl::FTOutlineFontImpl(FTFont *ftFont, const char* fontFilePath)
-: FTFontImpl(ftFont, fontFilePath),
-  outset(0.0f)
+FTOutlineFontImpl::FTOutlineFontImpl(FTFont* ftFont, const char* fontFilePath)
+    : FTFontImpl(ftFont, fontFilePath)
+    , outset(0.0f)
 {
     load_flags = FT_LOAD_NO_HINTING;
 }
 
-
-FTOutlineFontImpl::FTOutlineFontImpl(FTFont *ftFont,
-                                     const unsigned char *pBufferBytes,
+FTOutlineFontImpl::FTOutlineFontImpl(FTFont* ftFont,
+                                     const unsigned char* pBufferBytes,
                                      size_t bufferSizeInBytes)
-: FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes),
-  outset(0.0f)
+    : FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes)
+    , outset(0.0f)
 {
     load_flags = FT_LOAD_NO_HINTING;
 }
-
 
 template <typename T>
 inline FTPoint FTOutlineFontImpl::RenderI(const T* string, const int len,
@@ -95,7 +86,7 @@ inline FTPoint FTOutlineFontImpl::RenderI(const T* string, const int len,
 {
     // Protect GL_TEXTURE_2D, glHint(), GL_LINE_SMOOTH and blending functions
     glPushAttrib(GL_ENABLE_BIT | GL_HINT_BIT | GL_LINE_BIT
-                  | GL_COLOR_BUFFER_BIT);
+                 | GL_COLOR_BUFFER_BIT);
 
     glDisable(GL_TEXTURE_2D);
     glEnable(GL_LINE_SMOOTH);
@@ -103,27 +94,24 @@ inline FTPoint FTOutlineFontImpl::RenderI(const T* string, const int len,
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // GL_ONE
 
-    FTPoint tmp = FTFontImpl::Render(string, len,
-                                     position, spacing, renderMode);
+    FTPoint tmp =
+        FTFontImpl::Render(string, len, position, spacing, renderMode);
 
     glPopAttrib();
 
     return tmp;
 }
 
-
-FTPoint FTOutlineFontImpl::Render(const char * string, const int len,
+FTPoint FTOutlineFontImpl::Render(const char* string, const int len,
                                   FTPoint position, FTPoint spacing,
                                   int renderMode)
 {
     return RenderI(string, len, position, spacing, renderMode);
 }
 
-
-FTPoint FTOutlineFontImpl::Render(const wchar_t * string, const int len,
+FTPoint FTOutlineFontImpl::Render(const wchar_t* string, const int len,
                                   FTPoint position, FTPoint spacing,
                                   int renderMode)
 {
     return RenderI(string, len, position, spacing, renderMode);
 }
-

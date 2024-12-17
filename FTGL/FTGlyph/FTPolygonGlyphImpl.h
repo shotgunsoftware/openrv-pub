@@ -35,32 +35,30 @@ class FTPolygonGlyphImpl : public FTGlyphImpl
 {
     friend class FTPolygonGlyph;
 
-    public:
-        FTPolygonGlyphImpl(FT_GlyphSlot glyph, float outset,
-                           bool useDisplayList);
+public:
+    FTPolygonGlyphImpl(FT_GlyphSlot glyph, float outset, bool useDisplayList);
 
-        virtual ~FTPolygonGlyphImpl();
+    virtual ~FTPolygonGlyphImpl();
 
-        virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
+    virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
 
-    private:
-        /**
-         * Private rendering method.
-         */
-        void DoRender();
+private:
+    /**
+     * Private rendering method.
+     */
+    void DoRender();
 
-        /**
-         * Private rendering variables.
-         */
-        unsigned int hscale, vscale;
-        FTVectoriser *vectoriser;
-        float outset;
+    /**
+     * Private rendering variables.
+     */
+    unsigned int hscale, vscale;
+    FTVectoriser* vectoriser;
+    float outset;
 
-        /**
-         * OpenGL display list
-         */
-        GLuint glList;
+    /**
+     * OpenGL display list
+     */
+    GLuint glList;
 };
 
-#endif  //  __FTPolygonGlyphImpl__
-
+#endif //  __FTPolygonGlyphImpl__

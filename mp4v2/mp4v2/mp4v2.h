@@ -38,21 +38,22 @@
 /*****************************************************************************/
 
 /* exploit C++ ability of default values for function parameters */
-#if defined( DEFAULT )
-#   define __MP4V2_SAVE_DEFAULT DEFAULT
+#if defined(DEFAULT)
+#define __MP4V2_SAVE_DEFAULT DEFAULT
 #endif
 #undef DEFAULT
-#if defined( __cplusplus )
-#   define DEFAULT(x) =x
+#if defined(__cplusplus)
+#define DEFAULT(x) = x
 #else
-#   define DEFAULT(x)
+#define DEFAULT(x)
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/*****************************************************************************/
+    /*****************************************************************************/
 
 #include <mp4v2/general.h>
 #include <mp4v2/file.h>
@@ -70,8 +71,8 @@ extern "C" {
 
 /* restore macro DEFAULT to state prior to mp4v2 headers */
 #undef DEFAULT
-#if defined( __MP4V2_SAVE_DEFAULT )
-#   define DEFAULT __MP4V2_SAVE_DEFAULT
+#if defined(__MP4V2_SAVE_DEFAULT)
+#define DEFAULT __MP4V2_SAVE_DEFAULT
 #endif
 
 #ifdef __cplusplus

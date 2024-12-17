@@ -21,30 +21,33 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-IPodUUIDAtom::IPodUUIDAtom(MP4File &file)
-        : MP4Atom(file, "uuid")
+namespace mp4v2
 {
-    //
-    // This is a hack, the contents of this atom need to be well defined.
-    //
-    static uint8_t ipod_magic[] = {
-        0x6b, 0x68, 0x40, 0xf2, 0x5f, 0x24, 0x4f, 0xc5,
-        0xba, 0x39, 0xa5, 0x1b, 0xcf, 0x03, 0x23, 0xf3
-    };
+    namespace impl
+    {
 
-    SetExtendedType(ipod_magic);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    MP4Integer32Property* value = new MP4Integer32Property(*this, "value");
-    value->SetValue(1);
-    AddProperty(value);
-}
+        IPodUUIDAtom::IPodUUIDAtom(MP4File& file)
+            : MP4Atom(file, "uuid")
+        {
+            //
+            // This is a hack, the contents of this atom need to be well
+            // defined.
+            //
+            static uint8_t ipod_magic[] = {0x6b, 0x68, 0x40, 0xf2, 0x5f, 0x24,
+                                           0x4f, 0xc5, 0xba, 0x39, 0xa5, 0x1b,
+                                           0xcf, 0x03, 0x23, 0xf3};
 
-///////////////////////////////////////////////////////////////////////////////
+            SetExtendedType(ipod_magic);
 
-}
-} // namespace mp4v2::impl
+            MP4Integer32Property* value =
+                new MP4Integer32Property(*this, "value");
+            value->SetValue(1);
+            AddProperty(value);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

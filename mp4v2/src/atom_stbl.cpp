@@ -21,46 +21,53 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 { namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4StblAtom::MP4StblAtom(MP4File &file)
-        : MP4Atom(file, "stbl")
+namespace mp4v2
 {
-    ExpectChildAtom("stsd", Required, OnlyOne);
-    ExpectChildAtom("stts", Required, OnlyOne);
-    ExpectChildAtom("ctts", Optional, OnlyOne);
-    ExpectChildAtom("stsz", Required, OnlyOne);
-    ExpectChildAtom("stz2", Optional, OnlyOne);
-    ExpectChildAtom("stsc", Required, OnlyOne);
-    ExpectChildAtom("stco", Optional, OnlyOne);
-    ExpectChildAtom("co64", Optional, OnlyOne);
-    ExpectChildAtom("stss", Optional, OnlyOne);
-    ExpectChildAtom("stsh", Optional, OnlyOne);
-    ExpectChildAtom("stdp", Optional, OnlyOne);
-    ExpectChildAtom("sdtp", Optional, OnlyOne);
-}
+    namespace impl
+    {
 
-void MP4StblAtom::Generate()
-{
-    // as usual
-    MP4Atom::Generate();
+        ///////////////////////////////////////////////////////////////////////////////
 
-    // but we also need one of the chunk offset atoms
-    MP4Atom* pChunkOffsetAtom;
-    if (m_File.Use64Bits(GetType())) {
-        pChunkOffsetAtom = CreateAtom(m_File, this, "co64");
-    } else {
-        pChunkOffsetAtom = CreateAtom(m_File, this, "stco");
-    }
+        MP4StblAtom::MP4StblAtom(MP4File& file)
+            : MP4Atom(file, "stbl")
+        {
+            ExpectChildAtom("stsd", Required, OnlyOne);
+            ExpectChildAtom("stts", Required, OnlyOne);
+            ExpectChildAtom("ctts", Optional, OnlyOne);
+            ExpectChildAtom("stsz", Required, OnlyOne);
+            ExpectChildAtom("stz2", Optional, OnlyOne);
+            ExpectChildAtom("stsc", Required, OnlyOne);
+            ExpectChildAtom("stco", Optional, OnlyOne);
+            ExpectChildAtom("co64", Optional, OnlyOne);
+            ExpectChildAtom("stss", Optional, OnlyOne);
+            ExpectChildAtom("stsh", Optional, OnlyOne);
+            ExpectChildAtom("stdp", Optional, OnlyOne);
+            ExpectChildAtom("sdtp", Optional, OnlyOne);
+        }
 
-    AddChildAtom(pChunkOffsetAtom);
+        void MP4StblAtom::Generate()
+        {
+            // as usual
+            MP4Atom::Generate();
 
-    // and ask it to self generate
-    pChunkOffsetAtom->Generate();
-}
+            // but we also need one of the chunk offset atoms
+            MP4Atom* pChunkOffsetAtom;
+            if (m_File.Use64Bits(GetType()))
+            {
+                pChunkOffsetAtom = CreateAtom(m_File, this, "co64");
+            }
+            else
+            {
+                pChunkOffsetAtom = CreateAtom(m_File, this, "stco");
+            }
 
-///////////////////////////////////////////////////////////////////////////////
+            AddChildAtom(pChunkOffsetAtom);
 
-}} // namespace mp4v2::impl
+            // and ask it to self generate
+            pChunkOffsetAtom->Generate();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

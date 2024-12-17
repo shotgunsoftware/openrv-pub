@@ -32,130 +32,126 @@
 #ifndef RC_INVOKED
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #ifdef _UNICODE
-#define _tdirent	_wdirent
-#define _TDIR 		_WDIR
-#define _topendir	_wopendir
-#define _tclosedir	_wclosedir
-#define _treaddir	_wreaddir
-#define _trewinddir	_wrewinddir
-#define _ttelldir	_wtelldir
-#define _tseekdir	_wseekdir
+#define _tdirent _wdirent
+#define _TDIR _WDIR
+#define _topendir _wopendir
+#define _tclosedir _wclosedir
+#define _treaddir _wreaddir
+#define _trewinddir _wrewinddir
+#define _ttelldir _wtelldir
+#define _tseekdir _wseekdir
 #else
-#define _tdirent	dirent
-#define _TDIR 		DIR
-#define _topendir	opendir
-#define _tclosedir	closedir
-#define _treaddir	readdir
-#define _trewinddir	rewinddir
-#define _ttelldir	telldir
-#define _tseekdir	seekdir
+#define _tdirent dirent
+#define _TDIR DIR
+#define _topendir opendir
+#define _tclosedir closedir
+#define _treaddir readdir
+#define _trewinddir rewinddir
+#define _ttelldir telldir
+#define _tseekdir seekdir
 #endif
 
+    struct _tdirent
+    {
+        long d_ino;              /* Always zero. */
+        unsigned short d_reclen; /* Always zero. */
+        unsigned short d_namlen; /* Length of name in d_name. */
+        char d_name[MAX_PATH];   /* File name. */
+    };
 
-struct _tdirent
-{
-	long		d_ino;		/* Always zero. */
-	unsigned short	d_reclen;	/* Always zero. */
-	unsigned short	d_namlen;	/* Length of name in d_name. */
-	char		d_name[MAX_PATH]; /* File name. */
-};
+    /*
+     * This is an internal data structure. Good programmers will not use it
+     * except as an argument to one of the functions below.
+     * dd_stat field is now int (was short in older versions).
+     */
+    typedef struct
+    {
+        /* disk transfer area for this dir */
+        struct __finddata64_t dd_dta;
 
-/*
- * This is an internal data structure. Good programmers will not use it
- * except as an argument to one of the functions below.
- * dd_stat field is now int (was short in older versions).
- */
-typedef struct
-{
-	/* disk transfer area for this dir */
-	struct __finddata64_t	dd_dta;
+        /* dirent struct to return from dir (NOTE: this makes this thread
+         * safe as long as only one thread uses a particular DIR struct at
+         * a time) */
+        struct _tdirent dd_dir;
 
-	/* dirent struct to return from dir (NOTE: this makes this thread
-	 * safe as long as only one thread uses a particular DIR struct at
-	 * a time) */
-	struct _tdirent		dd_dir;
+        /* _findnext handle */
+        intptr_t dd_handle;
 
-	/* _findnext handle */
-	intptr_t		dd_handle;
-
-	/*
+        /*
          * Status of search:
-	 *   0 = not started yet (next entry to read is first entry)
-	 *  -1 = off the end
-	 *   positive = 0 based index of next entry
-	 */
-	int			dd_stat;
+         *   0 = not started yet (next entry to read is first entry)
+         *  -1 = off the end
+         *   positive = 0 based index of next entry
+         */
+        int dd_stat;
 
-	/* given path for dir with search pattern (struct is extended) */
-	char			dd_name[1];
-} _TDIR;
+        /* given path for dir with search pattern (struct is extended) */
+        char dd_name[1];
+    } _TDIR;
 
-WIN_POSIX_EXPORT _TDIR* __cdecl _topendir (const char*);
-WIN_POSIX_EXPORT struct _tdirent* __cdecl _treaddir (_TDIR*);
-WIN_POSIX_EXPORT int __cdecl _tclosedir (_TDIR*);
-WIN_POSIX_EXPORT void __cdecl _trewinddir (_TDIR*);
-WIN_POSIX_EXPORT long __cdecl _ttelldir (_TDIR*);
-WIN_POSIX_EXPORT void __cdecl _tseekdir (_TDIR*, long);
+    WIN_POSIX_EXPORT _TDIR* __cdecl _topendir(const char*);
+    WIN_POSIX_EXPORT struct _tdirent* __cdecl _treaddir(_TDIR*);
+    WIN_POSIX_EXPORT int __cdecl _tclosedir(_TDIR*);
+    WIN_POSIX_EXPORT void __cdecl _trewinddir(_TDIR*);
+    WIN_POSIX_EXPORT long __cdecl _ttelldir(_TDIR*);
+    WIN_POSIX_EXPORT void __cdecl _tseekdir(_TDIR*, long);
 
+    /* wide char versions */
 
-/* wide char versions */
+    struct _wdirent
+    {
+        long d_ino;               /* Always zero. */
+        unsigned short d_reclen;  /* Always zero. */
+        unsigned short d_namlen;  /* Length of name in d_name. */
+        wchar_t d_name[MAX_PATH]; /* File name. */
+    };
 
-struct _wdirent
-{
-	long		d_ino;		/* Always zero. */
-	unsigned short	d_reclen;	/* Always zero. */
-	unsigned short	d_namlen;	/* Length of name in d_name. */
-	wchar_t		d_name[MAX_PATH]; /* File name. */
-};
+    /*
+     * This is an internal data structure. Good programmers will not use it
+     * except as an argument to one of the functions below.
+     */
+    typedef struct
+    {
+        /* disk transfer area for this dir */
+        struct _wfinddata64_t dd_dta;
 
-/*
- * This is an internal data structure. Good programmers will not use it
- * except as an argument to one of the functions below.
- */
-typedef struct
-{
-	/* disk transfer area for this dir */
-	struct _wfinddata64_t	dd_dta;
+        /* dirent struct to return from dir (NOTE: this makes this thread
+         * safe as long as only one thread uses a particular DIR struct at
+         * a time) */
+        struct _wdirent dd_dir;
 
-	/* dirent struct to return from dir (NOTE: this makes this thread
-	 * safe as long as only one thread uses a particular DIR struct at
-	 * a time) */
-	struct _wdirent		dd_dir;
+        /* _findnext handle */
+        intptr_t dd_handle;
 
-	/* _findnext handle */
-	intptr_t		dd_handle;
-
-	/*
+        /*
          * Status of search:
-	 *   0 = not started yet (next entry to read is first entry)
-	 *  -1 = off the end
-	 *   positive = 0 based index of next entry
-	 */
-	int			dd_stat;
+         *   0 = not started yet (next entry to read is first entry)
+         *  -1 = off the end
+         *   positive = 0 based index of next entry
+         */
+        int dd_stat;
 
-	/* given path for dir with search pattern (struct is extended) */
-	wchar_t			dd_name[1];
-} _WDIR;
+        /* given path for dir with search pattern (struct is extended) */
+        wchar_t dd_name[1];
+    } _WDIR;
 
+    WIN_POSIX_EXPORT _WDIR* __cdecl _wopendir(const wchar_t*);
+    WIN_POSIX_EXPORT struct _wdirent* __cdecl _wreaddir(_WDIR*);
+    WIN_POSIX_EXPORT int __cdecl _wclosedir(_WDIR*);
+    WIN_POSIX_EXPORT void __cdecl _wrewinddir(_WDIR*);
+    WIN_POSIX_EXPORT long __cdecl _wtelldir(_WDIR*);
+    WIN_POSIX_EXPORT void __cdecl _wseekdir(_WDIR*, long);
 
-
-WIN_POSIX_EXPORT _WDIR* __cdecl _wopendir (const wchar_t*);
-WIN_POSIX_EXPORT struct _wdirent*  __cdecl _wreaddir (_WDIR*);
-WIN_POSIX_EXPORT int __cdecl _wclosedir (_WDIR*);
-WIN_POSIX_EXPORT void __cdecl _wrewinddir (_WDIR*);
-WIN_POSIX_EXPORT long __cdecl _wtelldir (_WDIR*);
-WIN_POSIX_EXPORT void __cdecl _wseekdir (_WDIR*, long);
-
-
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* Not RC_INVOKED */
+#endif /* Not RC_INVOKED */
 
 #ifdef REDEF_POSIX
 #define _POSIX_
@@ -169,5 +165,4 @@ WIN_POSIX_EXPORT void __cdecl _wseekdir (_WDIR*, long);
 #define UNICODE
 #endif
 
-#endif	/* Not _DIRENT_H_ */
-
+#endif /* Not _DIRENT_H_ */

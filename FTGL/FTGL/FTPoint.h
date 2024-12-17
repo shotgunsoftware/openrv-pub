@@ -26,8 +26,8 @@
  */
 
 #ifndef __ftgl__
-#   warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
-#   include <FTGL/ftgl.h>
+#warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
+#include <FTGL/ftgl.h>
 #endif
 
 #ifndef __FTPoint__
@@ -35,240 +35,232 @@
 
 #ifdef __cplusplus
 
-
 /**
  * FTPoint class is a basic 3-dimensional point or vector.
  */
 class FTGL_EXPORT FTPoint
 {
-    public:
-        /**
-         * Default constructor. Point is set to zero.
-         */
-        inline FTPoint()
-        {
-            values[0] = 0;
-            values[1] = 0;
-            values[2] = 0;
-        }
+public:
+    /**
+     * Default constructor. Point is set to zero.
+     */
+    inline FTPoint()
+    {
+        values[0] = 0;
+        values[1] = 0;
+        values[2] = 0;
+    }
 
-        /**
-         * Constructor. Z coordinate is set to zero if unspecified.
-         *
-         * @param x First component
-         * @param y Second component
-         * @param z Third component
-         */
-        inline FTPoint(const FTGL_DOUBLE x, const FTGL_DOUBLE y,
-                       const FTGL_DOUBLE z = 0)
-        {
-            values[0] = x;
-            values[1] = y;
-            values[2] = z;
-        }
+    /**
+     * Constructor. Z coordinate is set to zero if unspecified.
+     *
+     * @param x First component
+     * @param y Second component
+     * @param z Third component
+     */
+    inline FTPoint(const FTGL_DOUBLE x, const FTGL_DOUBLE y,
+                   const FTGL_DOUBLE z = 0)
+    {
+        values[0] = x;
+        values[1] = y;
+        values[2] = z;
+    }
 
-        /**
-         * Constructor. This converts an FT_Vector to an FTPoint
-         *
-         * @param ft_vector A freetype vector
-         */
-        inline FTPoint(const FT_Vector& ft_vector)
-        {
-            values[0] = ft_vector.x;
-            values[1] = ft_vector.y;
-            values[2] = 0;
-        }
+    /**
+     * Constructor. This converts an FT_Vector to an FTPoint
+     *
+     * @param ft_vector A freetype vector
+     */
+    inline FTPoint(const FT_Vector& ft_vector)
+    {
+        values[0] = ft_vector.x;
+        values[1] = ft_vector.y;
+        values[2] = 0;
+    }
 
-        /**
-         * Normalise a point's coordinates. If the coordinates are zero,
-         * the point is left untouched.
-         *
-         * @return A vector of norm one.
-         */
-        FTPoint Normalise();
+    /**
+     * Normalise a point's coordinates. If the coordinates are zero,
+     * the point is left untouched.
+     *
+     * @return A vector of norm one.
+     */
+    FTPoint Normalise();
 
+    /**
+     * Operator += In Place Addition.
+     *
+     * @param point
+     * @return this plus point.
+     */
+    inline FTPoint& operator+=(const FTPoint& point)
+    {
+        values[0] += point.values[0];
+        values[1] += point.values[1];
+        values[2] += point.values[2];
 
-        /**
-         * Operator += In Place Addition.
-         *
-         * @param point
-         * @return this plus point.
-         */
-        inline FTPoint& operator += (const FTPoint& point)
-        {
-            values[0] += point.values[0];
-            values[1] += point.values[1];
-            values[2] += point.values[2];
+        return *this;
+    }
 
-            return *this;
-        }
+    /**
+     * Operator +
+     *
+     * @param point
+     * @return this plus point.
+     */
+    inline FTPoint operator+(const FTPoint& point) const
+    {
+        FTPoint temp;
+        temp.values[0] = values[0] + point.values[0];
+        temp.values[1] = values[1] + point.values[1];
+        temp.values[2] = values[2] + point.values[2];
 
-        /**
-         * Operator +
-         *
-         * @param point
-         * @return this plus point.
-         */
-        inline FTPoint operator + (const FTPoint& point) const
-        {
-            FTPoint temp;
-            temp.values[0] = values[0] + point.values[0];
-            temp.values[1] = values[1] + point.values[1];
-            temp.values[2] = values[2] + point.values[2];
+        return temp;
+    }
 
-            return temp;
-        }
+    /**
+     * Operator -= In Place Substraction.
+     *
+     * @param point
+     * @return this minus point.
+     */
+    inline FTPoint& operator-=(const FTPoint& point)
+    {
+        values[0] -= point.values[0];
+        values[1] -= point.values[1];
+        values[2] -= point.values[2];
 
-         /**
-         * Operator -= In Place Substraction.
-         *
-         * @param point
-         * @return this minus point.
-         */
-        inline FTPoint& operator -= (const FTPoint& point)
-        {
-            values[0] -= point.values[0];
-            values[1] -= point.values[1];
-            values[2] -= point.values[2];
+        return *this;
+    }
 
-            return *this;
-        }
+    /**
+     * Operator -
+     *
+     * @param point
+     * @return this minus point.
+     */
+    inline FTPoint operator-(const FTPoint& point) const
+    {
+        FTPoint temp;
+        temp.values[0] = values[0] - point.values[0];
+        temp.values[1] = values[1] - point.values[1];
+        temp.values[2] = values[2] - point.values[2];
 
-        /**
-         * Operator -
-         *
-         * @param point
-         * @return this minus point.
-         */
-        inline FTPoint operator - (const FTPoint& point) const
-        {
-            FTPoint temp;
-            temp.values[0] = values[0] - point.values[0];
-            temp.values[1] = values[1] - point.values[1];
-            temp.values[2] = values[2] - point.values[2];
+        return temp;
+    }
 
-            return temp;
-        }
+    /**
+     * Operator *  Scalar multiplication
+     *
+     * @param multiplier
+     * @return <code>this</code> multiplied by <code>multiplier</code>.
+     */
+    inline FTPoint operator*(double multiplier) const
+    {
+        FTPoint temp;
+        temp.values[0] = values[0] * multiplier;
+        temp.values[1] = values[1] * multiplier;
+        temp.values[2] = values[2] * multiplier;
 
-        /**
-         * Operator *  Scalar multiplication
-         *
-         * @param multiplier
-         * @return <code>this</code> multiplied by <code>multiplier</code>.
-         */
-        inline FTPoint operator * (double multiplier) const
-        {
-            FTPoint temp;
-            temp.values[0] = values[0] * multiplier;
-            temp.values[1] = values[1] * multiplier;
-            temp.values[2] = values[2] * multiplier;
+        return temp;
+    }
 
-            return temp;
-        }
+    /**
+     * Operator *  Scalar multiplication
+     *
+     * @param point
+     * @param multiplier
+     * @return <code>multiplier</code> multiplied by <code>point</code>.
+     */
+    inline friend FTPoint operator*(double multiplier, FTPoint& point)
+    {
+        return point * multiplier;
+    }
 
+    /**
+     * Operator *  Scalar product
+     *
+     * @param a  First vector.
+     * @param b  Second vector.
+     * @return  <code>a.b</code> scalar product.
+     */
+    inline friend double operator*(FTPoint& a, FTPoint& b)
+    {
+        return a.values[0] * b.values[0] + a.values[1] * b.values[1]
+               + a.values[2] * b.values[2];
+    }
 
-        /**
-         * Operator *  Scalar multiplication
-         *
-         * @param point
-         * @param multiplier
-         * @return <code>multiplier</code> multiplied by <code>point</code>.
-         */
-        inline friend FTPoint operator * (double multiplier, FTPoint& point)
-        {
-            return point * multiplier;
-        }
+    /**
+     * Operator ^  Vector product
+     *
+     * @param point Second point
+     * @return this vector point.
+     */
+    inline FTPoint operator^(const FTPoint& point)
+    {
+        FTPoint temp;
+        temp.values[0] =
+            values[1] * point.values[2] - values[2] * point.values[1];
+        temp.values[1] =
+            values[2] * point.values[0] - values[0] * point.values[2];
+        temp.values[2] =
+            values[0] * point.values[1] - values[1] * point.values[0];
+        return temp;
+    }
 
+    /**
+     * Operator == Tests for equality
+     *
+     * @param a
+     * @param b
+     * @return true if a & b are equal
+     */
+    friend bool operator==(const FTPoint& a, const FTPoint& b);
 
-        /**
-         * Operator *  Scalar product
-         *
-         * @param a  First vector.
-         * @param b  Second vector.
-         * @return  <code>a.b</code> scalar product.
-         */
-        inline friend double operator * (FTPoint &a, FTPoint& b)
-        {
-            return a.values[0] * b.values[0]
-                 + a.values[1] * b.values[1]
-                 + a.values[2] * b.values[2];
-        }
+    /**
+     * Operator != Tests for non equality
+     *
+     * @param a
+     * @param b
+     * @return true if a & b are not equal
+     */
+    friend bool operator!=(const FTPoint& a, const FTPoint& b);
 
+    /**
+     * Cast to FTGL_DOUBLE*
+     */
+    inline operator const FTGL_DOUBLE*() const { return values; }
 
-        /**
-         * Operator ^  Vector product
-         *
-         * @param point Second point
-         * @return this vector point.
-         */
-        inline FTPoint operator ^ (const FTPoint& point)
-        {
-            FTPoint temp;
-            temp.values[0] = values[1] * point.values[2]
-                              - values[2] * point.values[1];
-            temp.values[1] = values[2] * point.values[0]
-                              - values[0] * point.values[2];
-            temp.values[2] = values[0] * point.values[1]
-                              - values[1] * point.values[0];
-            return temp;
-        }
+    /**
+     * Setters
+     */
+    inline void X(FTGL_DOUBLE x) { values[0] = x; };
 
+    inline void Y(FTGL_DOUBLE y) { values[1] = y; };
 
-        /**
-         * Operator == Tests for equality
-         *
-         * @param a
-         * @param b
-         * @return true if a & b are equal
-         */
-        friend bool operator == (const FTPoint &a, const FTPoint &b);
+    inline void Z(FTGL_DOUBLE z) { values[2] = z; };
 
+    /**
+     * Getters
+     */
+    inline FTGL_DOUBLE X() const { return values[0]; };
 
-        /**
-         * Operator != Tests for non equality
-         *
-         * @param a
-         * @param b
-         * @return true if a & b are not equal
-         */
-        friend bool operator != (const FTPoint &a, const FTPoint &b);
+    inline FTGL_DOUBLE Y() const { return values[1]; };
 
+    inline FTGL_DOUBLE Z() const { return values[2]; };
 
-        /**
-         * Cast to FTGL_DOUBLE*
-         */
-        inline operator const FTGL_DOUBLE*() const
-        {
-            return values;
-        }
+    inline FTGL_FLOAT Xf() const { return static_cast<FTGL_FLOAT>(values[0]); };
 
+    inline FTGL_FLOAT Yf() const { return static_cast<FTGL_FLOAT>(values[1]); };
 
-        /**
-         * Setters
-         */
-        inline void X(FTGL_DOUBLE x) { values[0] = x; };
-        inline void Y(FTGL_DOUBLE y) { values[1] = y; };
-        inline void Z(FTGL_DOUBLE z) { values[2] = z; };
+    inline FTGL_FLOAT Zf() const { return static_cast<FTGL_FLOAT>(values[2]); };
 
-
-        /**
-         * Getters
-         */
-        inline FTGL_DOUBLE X() const { return values[0]; };
-        inline FTGL_DOUBLE Y() const { return values[1]; };
-        inline FTGL_DOUBLE Z() const { return values[2]; };
-        inline FTGL_FLOAT Xf() const { return static_cast<FTGL_FLOAT>(values[0]); };
-        inline FTGL_FLOAT Yf() const { return static_cast<FTGL_FLOAT>(values[1]); };
-        inline FTGL_FLOAT Zf() const { return static_cast<FTGL_FLOAT>(values[2]); };
-
-    private:
-        /**
-         * The point data
-         */
-        FTGL_DOUBLE values[3];
+private:
+    /**
+     * The point data
+     */
+    FTGL_DOUBLE values[3];
 };
 
 #endif //__cplusplus
 
-#endif  //  __FTPoint__
-
+#endif //  __FTPoint__

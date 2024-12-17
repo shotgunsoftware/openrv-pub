@@ -29,56 +29,67 @@
    suspend threads on darwin.
 */
 
-typedef struct {
+typedef struct
+{
     pthread_mutex_t mutex;
     pthread_cond_t cond;
     int value;
 } sem_t;
 
-static int sem_init(sem_t *sem, int pshared, int value) {
+static int sem_init(sem_t* sem, int pshared, int value)
+{
     int ret;
-    if(pshared)
+    if (pshared)
         ABORT("sem_init with pshared set");
     sem->value = value;
 
-    ret = pthread_mutex_init(&sem->mutex,NULL);
-    if(ret < 0) return -1;
-    ret = pthread_cond_init(&sem->cond,NULL);
-    if(ret < 0) return -1;
+    ret = pthread_mutex_init(&sem->mutex, NULL);
+    if (ret < 0)
+        return -1;
+    ret = pthread_cond_init(&sem->cond, NULL);
+    if (ret < 0)
+        return -1;
     return 0;
 }
 
-static int sem_post(sem_t *sem) {
-    if(pthread_mutex_lock(&sem->mutex) < 0)
+static int sem_post(sem_t* sem)
+{
+    if (pthread_mutex_lock(&sem->mutex) < 0)
         return -1;
     sem->value++;
-    if(pthread_cond_signal(&sem->cond) < 0) {
+    if (pthread_cond_signal(&sem->cond) < 0)
+    {
         pthread_mutex_unlock(&sem->mutex);
         return -1;
     }
-    if(pthread_mutex_unlock(&sem->mutex) < 0)
+    if (pthread_mutex_unlock(&sem->mutex) < 0)
         return -1;
     return 0;
 }
 
-static int sem_wait(sem_t *sem) {
-    if(pthread_mutex_lock(&sem->mutex) < 0)
+static int sem_wait(sem_t* sem)
+{
+    if (pthread_mutex_lock(&sem->mutex) < 0)
         return -1;
-    while(sem->value == 0) {
-        pthread_cond_wait(&sem->cond,&sem->mutex);
+    while (sem->value == 0)
+    {
+        pthread_cond_wait(&sem->cond, &sem->mutex);
     }
     sem->value--;
-    if(pthread_mutex_unlock(&sem->mutex) < 0)
+    if (pthread_mutex_unlock(&sem->mutex) < 0)
         return -1;
     return 0;
 }
 
-static int sem_destroy(sem_t *sem) {
+static int sem_destroy(sem_t* sem)
+{
     int ret;
     ret = pthread_cond_destroy(&sem->cond);
-    if(ret < 0) return -1;
+    if (ret < 0)
+        return -1;
     ret = pthread_mutex_destroy(&sem->mutex);
-    if(ret < 0) return -1;
+    if (ret < 0)
+        return -1;
     return 0;
 }
 

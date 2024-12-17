@@ -22,62 +22,72 @@
 #ifndef MP4V2_IMPL_ODCOMMANDS_H
 #define MP4V2_IMPL_ODCOMMANDS_H
 
-namespace mp4v2 {
-namespace impl {
+namespace mp4v2
+{
+    namespace impl
+    {
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-// OD stream command descriptors
-const uint8_t MP4ODUpdateODCommandTag           = 0x01;
-const uint8_t MP4ODRemoveODCommandTag           = 0x02;
-const uint8_t MP4ESUpdateODCommandTag           = 0x03;
-const uint8_t MP4ESRemoveODCommandTag           = 0x04;
-const uint8_t MP4IPMPUpdateODCommandTag     = 0x05;
-const uint8_t MP4IPMPRemoveODCommandTag     = 0x06;
-const uint8_t MP4ESRemoveRefODCommandTag        = 0x07;
+        // OD stream command descriptors
+        const uint8_t MP4ODUpdateODCommandTag = 0x01;
+        const uint8_t MP4ODRemoveODCommandTag = 0x02;
+        const uint8_t MP4ESUpdateODCommandTag = 0x03;
+        const uint8_t MP4ESRemoveODCommandTag = 0x04;
+        const uint8_t MP4IPMPUpdateODCommandTag = 0x05;
+        const uint8_t MP4IPMPRemoveODCommandTag = 0x06;
+        const uint8_t MP4ESRemoveRefODCommandTag = 0x07;
 
-class MP4ODUpdateDescriptor : public MP4Descriptor {
-public:
-    MP4ODUpdateDescriptor(MP4Atom& parentAtom);
-private:
-    MP4ODUpdateDescriptor();
-    MP4ODUpdateDescriptor ( const MP4ODUpdateDescriptor &src );
-    MP4ODUpdateDescriptor &operator= ( const MP4ODUpdateDescriptor &src );
-};
+        class MP4ODUpdateDescriptor : public MP4Descriptor
+        {
+        public:
+            MP4ODUpdateDescriptor(MP4Atom& parentAtom);
 
-class MP4ODRemoveDescriptor : public MP4Descriptor {
-public:
-    MP4ODRemoveDescriptor(MP4Atom& parentAtom);
-    void Read(MP4File& file);
-private:
-    MP4ODRemoveDescriptor();
-    MP4ODRemoveDescriptor ( const MP4ODRemoveDescriptor &src );
-    MP4ODRemoveDescriptor &operator= ( const MP4ODRemoveDescriptor &src );
-};
+        private:
+            MP4ODUpdateDescriptor();
+            MP4ODUpdateDescriptor(const MP4ODUpdateDescriptor& src);
+            MP4ODUpdateDescriptor& operator=(const MP4ODUpdateDescriptor& src);
+        };
 
-class MP4ESUpdateDescriptor : public MP4Descriptor {
-public:
-    MP4ESUpdateDescriptor(MP4Atom& parentAtom);
-private:
-    MP4ESUpdateDescriptor();
-    MP4ESUpdateDescriptor ( const MP4ESUpdateDescriptor &src );
-    MP4ESUpdateDescriptor &operator= ( const MP4ESUpdateDescriptor &src );
-};
+        class MP4ODRemoveDescriptor : public MP4Descriptor
+        {
+        public:
+            MP4ODRemoveDescriptor(MP4Atom& parentAtom);
+            void Read(MP4File& file);
 
-class MP4ESRemoveDescriptor : public MP4Descriptor {
-public:
-    MP4ESRemoveDescriptor(MP4Atom& parentAtom);
-private:
-    MP4ESRemoveDescriptor();
-    MP4ESRemoveDescriptor ( const MP4ESRemoveDescriptor &src );
-    MP4ESRemoveDescriptor &operator= ( const MP4ESRemoveDescriptor &src );
-};
+        private:
+            MP4ODRemoveDescriptor();
+            MP4ODRemoveDescriptor(const MP4ODRemoveDescriptor& src);
+            MP4ODRemoveDescriptor& operator=(const MP4ODRemoveDescriptor& src);
+        };
 
-MP4Descriptor* CreateODCommand(MP4Atom& parentAtom, uint8_t tag);
+        class MP4ESUpdateDescriptor : public MP4Descriptor
+        {
+        public:
+            MP4ESUpdateDescriptor(MP4Atom& parentAtom);
 
-///////////////////////////////////////////////////////////////////////////////
+        private:
+            MP4ESUpdateDescriptor();
+            MP4ESUpdateDescriptor(const MP4ESUpdateDescriptor& src);
+            MP4ESUpdateDescriptor& operator=(const MP4ESUpdateDescriptor& src);
+        };
 
-}
-} // namespace mp4v2::impl
+        class MP4ESRemoveDescriptor : public MP4Descriptor
+        {
+        public:
+            MP4ESRemoveDescriptor(MP4Atom& parentAtom);
+
+        private:
+            MP4ESRemoveDescriptor();
+            MP4ESRemoveDescriptor(const MP4ESRemoveDescriptor& src);
+            MP4ESRemoveDescriptor& operator=(const MP4ESRemoveDescriptor& src);
+        };
+
+        MP4Descriptor* CreateODCommand(MP4Atom& parentAtom, uint8_t tag);
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2
 
 #endif // MP4V2_IMPL_ODCOMMANDS_H

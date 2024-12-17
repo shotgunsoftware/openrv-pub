@@ -9,9 +9,9 @@
 //  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 //  License for the specific language governing rights and limitations
 //  under the License.
-// 
+//
 //  The Original Code is MP4v2.
-// 
+//
 //  The Initial Developer of the Original Code is Kona Blend.
 //  Portions created by Kona Blend are Copyright (C) 2008.
 //  All Rights Reserved.
@@ -24,137 +24,141 @@
 #ifndef MP4V2_UTIL_TRACKMODIFIER_H
 #define MP4V2_UTIL_TRACKMODIFIER_H
 
-namespace mp4v2 { namespace util {
-
-///////////////////////////////////////////////////////////////////////////////
-
-class MP4V2_EXPORT TrackModifier
+namespace mp4v2
 {
-private:
-    class Properties
+    namespace util
     {
-    private:
-        TrackModifier& _trackModifier;
 
-    public:
-        Properties( TrackModifier& );
+        ///////////////////////////////////////////////////////////////////////////////
 
-        void update();
+        class MP4V2_EXPORT TrackModifier
+        {
+        private:
+            class Properties
+            {
+            private:
+                TrackModifier& _trackModifier;
 
-        MP4Integer24Property&    flags;
-        MP4Integer16Property&    layer;
-        MP4Integer16Property&    alternateGroup;
-        MP4Float32Property&      volume;
-        MP4Float32Property&      width;
-        MP4Float32Property&      height;
-        MP4LanguageCodeProperty& language;
-        MP4StringProperty&       handlerType;
-        MP4StringProperty&       handlerName;
-        MP4BytesProperty*        userDataName;
+            public:
+                Properties(TrackModifier&);
 
-    private:
-        MP4Property& refProperty( const char* );
-        MP4Property* findProperty( const char* );
-        void updateProperty( const char*, MP4Property** );
-    };
+                void update();
 
-    friend class Properties;
+                MP4Integer24Property& flags;
+                MP4Integer16Property& layer;
+                MP4Integer16Property& alternateGroup;
+                MP4Float32Property& volume;
+                MP4Float32Property& width;
+                MP4Float32Property& height;
+                MP4LanguageCodeProperty& language;
+                MP4StringProperty& handlerType;
+                MP4StringProperty& handlerName;
+                MP4BytesProperty* userDataName;
 
-private:
-    static MP4Atom& refTrackAtom( MP4File&, uint16_t );
+            private:
+                MP4Property& refProperty(const char*);
+                MP4Property* findProperty(const char*);
+                void updateProperty(const char*, MP4Property**);
+            };
 
-private:
-    MP4Atom&   _track;
-    Properties _props;
+            friend class Properties;
 
-    // Track Header
-    bool     _enabled;
-    bool     _inMovie;
-    bool     _inPreview;
-    uint16_t _layer;
-    uint16_t _alternateGroup;
-    float    _volume;
-    float    _width;
-    float    _height;
+        private:
+            static MP4Atom& refTrackAtom(MP4File&, uint16_t);
 
-    // Media Header
-    bmff::LanguageCode _language;
+        private:
+            MP4Atom& _track;
+            Properties _props;
 
-    // Handler Reference
-    string _handlerType;
-    string _handlerName;
+            // Track Header
+            bool _enabled;
+            bool _inMovie;
+            bool _inPreview;
+            uint16_t _layer;
+            uint16_t _alternateGroup;
+            float _volume;
+            float _width;
+            float _height;
 
-    // User Data name
-    string _userDataName;
+            // Media Header
+            bmff::LanguageCode _language;
 
-public:
-    MP4File&         file;
-    const uint16_t   trackIndex;
-    const MP4TrackId trackId;
+            // Handler Reference
+            string _handlerType;
+            string _handlerName;
 
-    const bool&     enabled;
-    const bool&     inMovie;
-    const bool&     inPreview;
-    const uint16_t& layer;
-    const uint16_t& alternateGroup;
-    const float&    volume;
-    const float&    width;
-    const float&    height;
+            // User Data name
+            string _userDataName;
 
-    const bmff::LanguageCode& language;
+        public:
+            MP4File& file;
+            const uint16_t trackIndex;
+            const MP4TrackId trackId;
 
-    const string& handlerType;
-    const string& handlerName;
+            const bool& enabled;
+            const bool& inMovie;
+            const bool& inPreview;
+            const uint16_t& layer;
+            const uint16_t& alternateGroup;
+            const float& volume;
+            const float& width;
+            const float& height;
 
-    const string& userDataName;
+            const bmff::LanguageCode& language;
 
-public:
-    TrackModifier( MP4FileHandle, uint16_t );
-    ~TrackModifier();
+            const string& handlerType;
+            const string& handlerName;
 
-    void setEnabled        ( bool );
-    void setInMovie        ( bool );
-    void setInPreview      ( bool );
-    void setLayer          ( uint16_t );
-    void setAlternateGroup ( uint16_t );
-    void setVolume         ( float );
-    void setWidth          ( float );
-    void setHeight         ( float );
-    void setLanguage       ( bmff::LanguageCode );
-    void setHandlerName    ( const string& );
-    void setUserDataName   ( const string& );
+            const string& userDataName;
 
-    // set by string
-    void setEnabled        ( const string& );
-    void setInMovie        ( const string& );
-    void setInPreview      ( const string& );
-    void setLayer          ( const string& );
-    void setAlternateGroup ( const string& );
-    void setVolume         ( const string& );
-    void setWidth          ( const string& );
-    void setHeight         ( const string& );
-    void setLanguage       ( const string& );
+        public:
+            TrackModifier(MP4FileHandle, uint16_t);
+            ~TrackModifier();
 
-    bool hasUserDataName() const;
-    void removeUserDataName();
+            void setEnabled(bool);
+            void setInMovie(bool);
+            void setInPreview(bool);
+            void setLayer(uint16_t);
+            void setAlternateGroup(uint16_t);
+            void setVolume(float);
+            void setWidth(float);
+            void setHeight(float);
+            void setLanguage(bmff::LanguageCode);
+            void setHandlerName(const string&);
+            void setUserDataName(const string&);
 
-    void dump( ostream&, const string& );
+            // set by string
+            void setEnabled(const string&);
+            void setInMovie(const string&);
+            void setInPreview(const string&);
+            void setLayer(const string&);
+            void setAlternateGroup(const string&);
+            void setVolume(const string&);
+            void setWidth(const string&);
+            void setHeight(const string&);
+            void setLanguage(const string&);
 
-private:
-    void fetch();
+            bool hasUserDataName() const;
+            void removeUserDataName();
 
-    static string toString( bool );
-    static string toString( float, uint8_t, uint8_t );
+            void dump(ostream&, const string&);
 
-    static bool&     fromString( const string&, bool& );
-    static float&    fromString( const string&, float& );
-    static uint16_t& fromString( const string&, uint16_t& );
+        private:
+            void fetch();
 
-    static string toStringTrackType( const string& );
-};
+            static string toString(bool);
+            static string toString(float, uint8_t, uint8_t);
 
-///////////////////////////////////////////////////////////////////////////////
+            static bool& fromString(const string&, bool&);
+            static float& fromString(const string&, float&);
+            static uint16_t& fromString(const string&, uint16_t&);
 
-}} // namespace mp4v2::util
+            static string toStringTrackType(const string&);
+        };
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace util
+} // namespace mp4v2
 
 #endif // MP4V2_UTIL_TRACKMODIFIER_H

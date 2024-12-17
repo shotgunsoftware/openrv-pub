@@ -33,49 +33,43 @@
 #include "FTInternals.h"
 #include "FTPixmapGlyphImpl.h"
 
-
 //
 //  FTGLPixmapGlyph
 //
 
+FTPixmapGlyph::FTPixmapGlyph(FT_GlyphSlot glyph)
+    : FTGlyph(new FTPixmapGlyphImpl(glyph))
+{
+}
 
-FTPixmapGlyph::FTPixmapGlyph(FT_GlyphSlot glyph) :
-    FTGlyph(new FTPixmapGlyphImpl(glyph))
-{}
-
-
-FTPixmapGlyph::~FTPixmapGlyph()
-{}
-
+FTPixmapGlyph::~FTPixmapGlyph() {}
 
 const FTPoint& FTPixmapGlyph::Render(const FTPoint& pen, int renderMode)
 {
-    FTPixmapGlyphImpl *myimpl = dynamic_cast<FTPixmapGlyphImpl *>(impl);
+    FTPixmapGlyphImpl* myimpl = dynamic_cast<FTPixmapGlyphImpl*>(impl);
     return myimpl->RenderImpl(pen, renderMode);
 }
-
 
 //
 //  FTGLPixmapGlyphImpl
 //
 
-
 FTPixmapGlyphImpl::FTPixmapGlyphImpl(FT_GlyphSlot glyph)
-:   FTGlyphImpl(glyph),
-    destWidth(0),
-    destHeight(0),
-    data(0)
+    : FTGlyphImpl(glyph)
+    , destWidth(0)
+    , destHeight(0)
+    , data(0)
 {
     err = FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL);
-    if(err || ft_glyph_format_bitmap != glyph->format)
+    if (err || ft_glyph_format_bitmap != glyph->format)
     {
         return;
     }
 
     FT_Bitmap bitmap = glyph->bitmap;
 
-    //check the pixel mode
-    //ft_pixel_mode_grays
+    // check the pixel mode
+    // ft_pixel_mode_grays
 
     int srcWidth = bitmap.width;
     int srcHeight = bitmap.rows;
@@ -83,7 +77,7 @@ FTPixmapGlyphImpl::FTPixmapGlyphImpl(FT_GlyphSlot glyph)
     destWidth = srcWidth;
     destHeight = srcHeight;
 
-    if(destWidth && destHeight)
+    if (destWidth && destHeight)
     {
         data = new unsigned char[destWidth * destHeight * 2];
         unsigned char* src = bitmap.buffer;
@@ -91,9 +85,9 @@ FTPixmapGlyphImpl::FTPixmapGlyphImpl(FT_GlyphSlot glyph)
         unsigned char* dest = data + ((destHeight - 1) * destWidth * 2);
         size_t destStep = destWidth * 2 * 2;
 
-        for(int y = 0; y < srcHeight; ++y)
+        for (int y = 0; y < srcHeight; ++y)
         {
-            for(int x = 0; x < srcWidth; ++x)
+            for (int x = 0; x < srcWidth; ++x)
             {
                 *dest++ = static_cast<unsigned char>(255);
                 *dest++ = *src++;
@@ -108,17 +102,11 @@ FTPixmapGlyphImpl::FTPixmapGlyphImpl(FT_GlyphSlot glyph)
     pos.Y(srcHeight - glyph->bitmap_top);
 }
 
+FTPixmapGlyphImpl::~FTPixmapGlyphImpl() { delete[] data; }
 
-FTPixmapGlyphImpl::~FTPixmapGlyphImpl()
+const FTPoint& FTPixmapGlyphImpl::RenderImpl(const FTPoint& pen, int renderMode)
 {
-    delete [] data;
-}
-
-
-const FTPoint& FTPixmapGlyphImpl::RenderImpl(const FTPoint& pen,
-                                             int renderMode)
-{
-    if(data)
+    if (data)
     {
         float dx, dy;
 
@@ -136,4 +124,3 @@ const FTPoint& FTPixmapGlyphImpl::RenderImpl(const FTPoint& pen,
 
     return advance;
 }
-

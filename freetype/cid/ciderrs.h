@@ -15,12 +15,11 @@
 /*                                                                         */
 /***************************************************************************/
 
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* This file is used to define the CID error enumeration constants.      */
-  /*                                                                       */
-  /*************************************************************************/
+/*************************************************************************/
+/*                                                                       */
+/* This file is used to define the CID error enumeration constants.      */
+/*                                                                       */
+/*************************************************************************/
 
 #ifndef __CIDERRS_H__
 #define __CIDERRS_H__
@@ -29,12 +28,11 @@
 
 #undef __FTERRORS_H__
 
-#define FT_ERR_PREFIX  CID_Err_
-#define FT_ERR_BASE    FT_Mod_Err_CID
+#define FT_ERR_PREFIX CID_Err_
+#define FT_ERR_BASE FT_Mod_Err_CID
 
 #include FT_ERRORS_H
 
 #endif /* __CIDERRS_H__ */
-
 
 /* END */

@@ -23,115 +23,105 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef    __FTList__
-#define    __FTList__
+#ifndef __FTList__
+#define __FTList__
 
 #include "FTGL/ftgl.h"
 
 /**
-* Provides a non-STL alternative to the STL list
+ * Provides a non-STL alternative to the STL list
  */
-template <typename FT_LIST_ITEM_TYPE>
-class FTList
+template <typename FT_LIST_ITEM_TYPE> class FTList
 {
-    public:
-        typedef FT_LIST_ITEM_TYPE value_type;
-        typedef value_type& reference;
-        typedef const value_type& const_reference;
-        typedef size_t size_type;
+public:
+    typedef FT_LIST_ITEM_TYPE value_type;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
+    typedef size_t size_type;
 
-        /**
-         * Constructor
-         */
-        FTList()
-        :   listSize(0),
-            tail(0)
+    /**
+     * Constructor
+     */
+    FTList()
+        : listSize(0)
+        , tail(0)
+    {
+        tail = NULL;
+        head = new Node;
+    }
+
+    /**
+     * Destructor
+     */
+    ~FTList()
+    {
+        Node* next;
+
+        for (Node* walk = head; walk; walk = next)
         {
-            tail = NULL;
-            head = new Node;
+            next = walk->next;
+            delete walk;
+        }
+    }
+
+    /**
+     * Get the number of items in the list
+     */
+    size_type size() const { return listSize; }
+
+    /**
+     * Add an item to the end of the list
+     */
+    void push_back(const value_type& item)
+    {
+        Node* node = new Node(item);
+
+        if (head->next == NULL)
+        {
+            head->next = node;
         }
 
-        /**
-         * Destructor
-         */
-        ~FTList()
+        if (tail)
         {
-            Node* next;
-
-            for(Node *walk = head; walk; walk = next)
-            {
-                next = walk->next;
-                delete walk;
-            }
+            tail->next = node;
         }
+        tail = node;
+        ++listSize;
+    }
 
-        /**
-         * Get the number of items in the list
-         */
-        size_type size() const
-        {
-            return listSize;
-        }
+    /**
+     * Get the item at the front of the list
+     */
+    reference front() const { return head->next->payload; }
 
-        /**
-         * Add an item to the end of the list
-         */
-        void push_back(const value_type& item)
-        {
-            Node* node = new Node(item);
+    /**
+     * Get the item at the end of the list
+     */
+    reference back() const { return tail->payload; }
 
-            if(head->next == NULL)
-            {
-                head->next = node;
-            }
-
-            if(tail)
-            {
-                tail->next = node;
-            }
-            tail = node;
-            ++listSize;
-        }
-
-        /**
-         * Get the item at the front of the list
-         */
-        reference front() const
-        {
-            return head->next->payload;
-        }
-
-        /**
-         * Get the item at the end of the list
-         */
-        reference back() const
-        {
-            return tail->payload;
-        }
-
-    private:
-        struct Node
-        {
-            Node()
+private:
+    struct Node
+    {
+        Node()
             : next(NULL)
-            {}
+        {
+        }
 
-            Node(const value_type& item)
+        Node(const value_type& item)
             : next(NULL)
-            {
-                payload = item;
-            }
+        {
+            payload = item;
+        }
 
-            Node* next;
+        Node* next;
 
-            value_type payload;
-        };
+        value_type payload;
+    };
 
-        size_type listSize;
+    size_type listSize;
 
-        Node* head;
-        Node* tail;
+    Node* head;
+    Node* tail;
 };
 
 #endif // __FTList__
-

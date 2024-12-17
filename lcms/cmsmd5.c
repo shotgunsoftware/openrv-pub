@@ -7,8 +7,8 @@
 // a copy of this software and associated documentation files (the "Software"),
 // to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the Software
-// is furnished to do so, subject to the following conditions:
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
 //
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
@@ -23,30 +23,28 @@
 //
 //---------------------------------------------------------------------------------
 
-
 #include "lcms2_internal.h"
 
 #ifdef CMS_USE_BIG_ENDIAN
 
-static
-void byteReverse(cmsUInt8Number * buf, cmsUInt32Number longs)
+static void byteReverse(cmsUInt8Number* buf, cmsUInt32Number longs)
 {
-    do {
+    do
+    {
 
-        cmsUInt32Number t = _cmsAdjustEndianess32(*(cmsUInt32Number *) buf);
-        *(cmsUInt32Number *) buf = t;
+        cmsUInt32Number t = _cmsAdjustEndianess32(*(cmsUInt32Number*)buf);
+        *(cmsUInt32Number*)buf = t;
         buf += sizeof(cmsUInt32Number);
 
     } while (--longs);
-
 }
 
 #else
 #define byteReverse(buf, len)
 #endif
 
-
-typedef struct {
+typedef struct
+{
 
     cmsUInt32Number buf[4];
     cmsUInt32Number bits[2];
@@ -61,11 +59,9 @@ typedef struct {
 #define F4(x, y, z) (y ^ (x | ~z))
 
 #define STEP(f, w, x, y, z, data, s) \
-    ( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
+    (w += f(x, y, z) + data, w = w << s | w >> (32 - s), w += x)
 
-
-static
-void MD5_Transform(cmsUInt32Number buf[4], cmsUInt32Number in[16])
+static void MD5_Transform(cmsUInt32Number buf[4], cmsUInt32Number in[16])
 
 {
     register cmsUInt32Number a, b, c, d;
@@ -149,15 +145,14 @@ void MD5_Transform(cmsUInt32Number buf[4], cmsUInt32Number in[16])
     buf[3] += d;
 }
 
-
 // Create a MD5 object
-static
-cmsHANDLE  MD5alloc(cmsContext ContextID)
+static cmsHANDLE MD5alloc(cmsContext ContextID)
 {
-    _cmsMD5* ctx = (_cmsMD5*) _cmsMallocZero(ContextID, sizeof(_cmsMD5));
-    if (ctx == NULL) return NULL;
+    _cmsMD5* ctx = (_cmsMD5*)_cmsMallocZero(ContextID, sizeof(_cmsMD5));
+    if (ctx == NULL)
+        return NULL;
 
-    ctx ->ContextID = ContextID;
+    ctx->ContextID = ContextID;
 
     ctx->buf[0] = 0x67452301;
     ctx->buf[1] = 0xefcdab89;
@@ -167,14 +162,12 @@ cmsHANDLE  MD5alloc(cmsContext ContextID)
     ctx->bits[0] = 0;
     ctx->bits[1] = 0;
 
-    return (cmsHANDLE) ctx;
+    return (cmsHANDLE)ctx;
 }
 
-
-static
-void MD5add(cmsHANDLE Handle, cmsUInt8Number* buf, cmsUInt32Number len)
+static void MD5add(cmsHANDLE Handle, cmsUInt8Number* buf, cmsUInt32Number len)
 {
-    _cmsMD5* ctx = (_cmsMD5*) Handle;
+    _cmsMD5* ctx = (_cmsMD5*)Handle;
     cmsUInt32Number t;
 
     t = ctx->bits[0];
@@ -185,12 +178,14 @@ void MD5add(cmsHANDLE Handle, cmsUInt8Number* buf, cmsUInt32Number len)
 
     t = (t >> 3) & 0x3f;
 
-    if (t) {
+    if (t)
+    {
 
-        cmsUInt8Number *p = (cmsUInt8Number *) ctx->in + t;
+        cmsUInt8Number* p = (cmsUInt8Number*)ctx->in + t;
 
         t = 64 - t;
-        if (len < t) {
+        if (len < t)
+        {
             memmove(p, buf, len);
             return;
         }
@@ -198,15 +193,16 @@ void MD5add(cmsHANDLE Handle, cmsUInt8Number* buf, cmsUInt32Number len)
         memmove(p, buf, t);
         byteReverse(ctx->in, 16);
 
-        MD5_Transform(ctx->buf, (cmsUInt32Number *) ctx->in);
+        MD5_Transform(ctx->buf, (cmsUInt32Number*)ctx->in);
         buf += t;
         len -= t;
     }
 
-    while (len >= 64) {
+    while (len >= 64)
+    {
         memmove(ctx->in, buf, 64);
         byteReverse(ctx->in, 16);
-        MD5_Transform(ctx->buf, (cmsUInt32Number *) ctx->in);
+        MD5_Transform(ctx->buf, (cmsUInt32Number*)ctx->in);
         buf += 64;
         len -= 64;
     }
@@ -215,12 +211,11 @@ void MD5add(cmsHANDLE Handle, cmsUInt8Number* buf, cmsUInt32Number len)
 }
 
 // Destroy the object and return the checksum
-static
-void MD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
+static void MD5finish(cmsProfileID* ProfileID, cmsHANDLE Handle)
 {
-    _cmsMD5* ctx = (_cmsMD5*) Handle;
+    _cmsMD5* ctx = (_cmsMD5*)Handle;
     cmsUInt32Number count;
-    cmsUInt8Number *p;
+    cmsUInt8Number* p;
 
     count = (ctx->bits[0] >> 3) & 0x3F;
 
@@ -229,30 +224,31 @@ void MD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 
     count = 64 - 1 - count;
 
-    if (count < 8) {
+    if (count < 8)
+    {
 
         memset(p, 0, count);
         byteReverse(ctx->in, 16);
-        MD5_Transform(ctx->buf, (cmsUInt32Number *) ctx->in);
+        MD5_Transform(ctx->buf, (cmsUInt32Number*)ctx->in);
 
         memset(ctx->in, 0, 56);
-    } else {
+    }
+    else
+    {
         memset(p, 0, count - 8);
     }
     byteReverse(ctx->in, 14);
 
-    ((cmsUInt32Number *) ctx->in)[14] = ctx->bits[0];
-    ((cmsUInt32Number *) ctx->in)[15] = ctx->bits[1];
+    ((cmsUInt32Number*)ctx->in)[14] = ctx->bits[0];
+    ((cmsUInt32Number*)ctx->in)[15] = ctx->bits[1];
 
-    MD5_Transform(ctx->buf, (cmsUInt32Number *) ctx->in);
+    MD5_Transform(ctx->buf, (cmsUInt32Number*)ctx->in);
 
-    byteReverse((cmsUInt8Number *) ctx->buf, 4);
-    memmove(ProfileID ->ID8, ctx->buf, 16);
+    byteReverse((cmsUInt8Number*)ctx->buf, 4);
+    memmove(ProfileID->ID8, ctx->buf, 16);
 
-    _cmsFree(ctx ->ContextID, ctx);
+    _cmsFree(ctx->ContextID, ctx);
 }
-
-
 
 // Assuming io points to an ICC profile, compute and store MD5 checksum
 // In the header, rendering intentent, attributes and ID should be set to zero
@@ -260,11 +256,11 @@ void MD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 
 cmsBool CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
 {
-    cmsContext   ContextID;
+    cmsContext ContextID;
     cmsUInt32Number BytesNeeded;
     cmsUInt8Number* Mem = NULL;
-    cmsHANDLE  MD5 = NULL;
-    _cmsICCPROFILE* Icc = (_cmsICCPROFILE*) hProfile;
+    cmsHANDLE MD5 = NULL;
+    _cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
     _cmsICCPROFILE Keep;
 
     _cmsAssert(hProfile != NULL);
@@ -275,23 +271,27 @@ cmsBool CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
     memmove(&Keep, Icc, sizeof(_cmsICCPROFILE));
 
     // Set RI, attributes and ID
-    memset(&Icc ->attributes, 0, sizeof(Icc ->attributes));
-    Icc ->RenderingIntent = 0;
-    memset(&Icc ->ProfileID, 0, sizeof(Icc ->ProfileID));
+    memset(&Icc->attributes, 0, sizeof(Icc->attributes));
+    Icc->RenderingIntent = 0;
+    memset(&Icc->ProfileID, 0, sizeof(Icc->ProfileID));
 
     // Compute needed storage
-    if (!cmsSaveProfileToMem(hProfile, NULL, &BytesNeeded)) goto Error;
+    if (!cmsSaveProfileToMem(hProfile, NULL, &BytesNeeded))
+        goto Error;
 
     // Allocate memory
-    Mem = (cmsUInt8Number*) _cmsMalloc(ContextID, BytesNeeded);
-    if (Mem == NULL) goto Error;
+    Mem = (cmsUInt8Number*)_cmsMalloc(ContextID, BytesNeeded);
+    if (Mem == NULL)
+        goto Error;
 
     // Save to temporary storage
-    if (!cmsSaveProfileToMem(hProfile, Mem, &BytesNeeded)) goto Error;
+    if (!cmsSaveProfileToMem(hProfile, Mem, &BytesNeeded))
+        goto Error;
 
     // Create MD5 object
     MD5 = MD5alloc(ContextID);
-    if (MD5 == NULL) goto Error;
+    if (MD5 == NULL)
+        goto Error;
 
     // Add all bytes
     MD5add(MD5, Mem, BytesNeeded);
@@ -303,15 +303,15 @@ cmsBool CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
     memmove(Icc, &Keep, sizeof(_cmsICCPROFILE));
 
     // And store the ID
-    MD5finish(&Icc ->ProfileID,  MD5);
+    MD5finish(&Icc->ProfileID, MD5);
     return TRUE;
 
 Error:
 
     // Free resources as something went wrong
     // "MD5" cannot be other than NULL here, so no need to free it
-    if (Mem != NULL) _cmsFree(ContextID, Mem);
+    if (Mem != NULL)
+        _cmsFree(ContextID, Mem);
     memmove(Icc, &Keep, sizeof(_cmsICCPROFILE));
     return FALSE;
 }
-

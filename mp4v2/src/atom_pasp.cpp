@@ -19,34 +19,34 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4PaspAtom::MP4PaspAtom(MP4File &file)
-        : MP4Atom(file, "pasp")
+namespace mp4v2
 {
+    namespace impl
+    {
 
-    AddProperty( /* 0 */
-        new MP4Integer32Property(*this, "hSpacing"));
+        ///////////////////////////////////////////////////////////////////////////////
 
-    AddProperty( /* 1 */
-        new MP4Integer32Property(*this, "vSpacing"));
+        MP4PaspAtom::MP4PaspAtom(MP4File& file)
+            : MP4Atom(file, "pasp")
+        {
 
-}
+            AddProperty(/* 0 */
+                        new MP4Integer32Property(*this, "hSpacing"));
 
-void MP4PaspAtom::Generate()
-{
+            AddProperty(/* 1 */
+                        new MP4Integer32Property(*this, "vSpacing"));
+        }
 
-    MP4Atom::Generate();
+        void MP4PaspAtom::Generate()
+        {
 
-    ((MP4Integer32Property*)m_pProperties[0])->SetValue(1);
-    ((MP4Integer32Property*)m_pProperties[1])->SetValue(1);
+            MP4Atom::Generate();
 
-}
+            ((MP4Integer32Property*)m_pProperties[0])->SetValue(1);
+            ((MP4Integer32Property*)m_pProperties[1])->SetValue(1);
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-}
-} // namespace mp4v2::impl
+    } // namespace impl
+} // namespace mp4v2

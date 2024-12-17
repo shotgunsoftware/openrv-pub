@@ -31,31 +31,27 @@
 #include "FTInternals.h"
 #include "FTExtrudeFontImpl.h"
 
-
 //
 //  FTExtrudeFont
 //
 
+FTExtrudeFont::FTExtrudeFont(char const* fontFilePath)
+    : FTFont(new FTExtrudeFontImpl(this, fontFilePath))
+{
+}
 
-FTExtrudeFont::FTExtrudeFont(char const *fontFilePath) :
-    FTFont(new FTExtrudeFontImpl(this, fontFilePath))
-{}
+FTExtrudeFont::FTExtrudeFont(const unsigned char* pBufferBytes,
+                             size_t bufferSizeInBytes)
+    : FTFont(new FTExtrudeFontImpl(this, pBufferBytes, bufferSizeInBytes))
+{
+}
 
-
-FTExtrudeFont::FTExtrudeFont(const unsigned char *pBufferBytes,
-                             size_t bufferSizeInBytes) :
-    FTFont(new FTExtrudeFontImpl(this, pBufferBytes, bufferSizeInBytes))
-{}
-
-
-FTExtrudeFont::~FTExtrudeFont()
-{}
-
+FTExtrudeFont::~FTExtrudeFont() {}
 
 FTGlyph* FTExtrudeFont::MakeGlyph(FT_GlyphSlot ftGlyph)
 {
-    FTExtrudeFontImpl *myimpl = dynamic_cast<FTExtrudeFontImpl *>(impl);
-    if(!myimpl)
+    FTExtrudeFontImpl* myimpl = dynamic_cast<FTExtrudeFontImpl*>(impl);
+    if (!myimpl)
     {
         return NULL;
     }
@@ -64,26 +60,26 @@ FTGlyph* FTExtrudeFont::MakeGlyph(FT_GlyphSlot ftGlyph)
                               myimpl->back, myimpl->useDisplayLists);
 }
 
-
 //
 //  FTExtrudeFontImpl
 //
 
-
-FTExtrudeFontImpl::FTExtrudeFontImpl(FTFont *ftFont, const char* fontFilePath)
-: FTFontImpl(ftFont, fontFilePath),
-  depth(0.0f), front(0.0f), back(0.0f)
+FTExtrudeFontImpl::FTExtrudeFontImpl(FTFont* ftFont, const char* fontFilePath)
+    : FTFontImpl(ftFont, fontFilePath)
+    , depth(0.0f)
+    , front(0.0f)
+    , back(0.0f)
 {
     load_flags = FT_LOAD_NO_HINTING;
 }
 
-
-FTExtrudeFontImpl::FTExtrudeFontImpl(FTFont *ftFont,
-                                     const unsigned char *pBufferBytes,
+FTExtrudeFontImpl::FTExtrudeFontImpl(FTFont* ftFont,
+                                     const unsigned char* pBufferBytes,
                                      size_t bufferSizeInBytes)
-: FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes),
-  depth(0.0f), front(0.0f), back(0.0f)
+    : FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes)
+    , depth(0.0f)
+    , front(0.0f)
+    , back(0.0f)
 {
     load_flags = FT_LOAD_NO_HINTING;
 }
-

@@ -23,131 +23,131 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 { namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4DataAtom::MP4DataAtom(MP4File &file)
-    : MP4Atom ( file, "data" )
-    , typeReserved      ( *new MP4Integer16Property( *this, "typeReserved" ))
-    , typeSetIdentifier ( *new MP4Integer8Property( *this, "typeSetIdentifier" ))
-    , typeCode          ( *new MP4BasicTypeProperty( *this, "typeCode" ))
-    , locale            ( *new MP4Integer32Property( *this, "locale" ))
-    , metadata          ( *new MP4BytesProperty( *this, "metadata" ))
+namespace mp4v2
 {
-    AddProperty( &typeReserved );
-    AddProperty( &typeSetIdentifier );
-    AddProperty( &typeCode );
-    AddProperty( &locale );
-    AddProperty( &metadata );
-}
+    namespace impl
+    {
 
-void
-MP4DataAtom::Read()
-{
-    // calculate size of the metadata from the atom size
-    metadata.SetValueSize( m_size - 8 );
-    MP4Atom::Read();
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
+        MP4DataAtom::MP4DataAtom(MP4File& file)
+            : MP4Atom(file, "data")
+            , typeReserved(*new MP4Integer16Property(*this, "typeReserved"))
+            , typeSetIdentifier(
+                  *new MP4Integer8Property(*this, "typeSetIdentifier"))
+            , typeCode(*new MP4BasicTypeProperty(*this, "typeCode"))
+            , locale(*new MP4Integer32Property(*this, "locale"))
+            , metadata(*new MP4BytesProperty(*this, "metadata"))
+        {
+            AddProperty(&typeReserved);
+            AddProperty(&typeSetIdentifier);
+            AddProperty(&typeCode);
+            AddProperty(&locale);
+            AddProperty(&metadata);
+        }
 
-MP4FullAtom::MP4FullAtom( MP4File &file, const char* type )
-    : MP4Atom ( file, type )
-    , version ( *new MP4Integer8Property( *this, "version" ))
-    , flags   ( *new MP4Integer24Property( *this, "flags" ))
-{
-    AddProperty( &version );
-    AddProperty( &flags );
-}
+        void MP4DataAtom::Read()
+        {
+            // calculate size of the metadata from the atom size
+            metadata.SetValueSize(m_size - 8);
+            MP4Atom::Read();
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-MP4ItemAtom::MP4ItemAtom( MP4File &file, const char* type )
-    : MP4Atom( file, type )
-{
-    ExpectChildAtom( "mean", Optional, OnlyOne );
-    ExpectChildAtom( "name", Optional, OnlyOne );
-    ExpectChildAtom( "data", Required, Many );
-}
+        MP4FullAtom::MP4FullAtom(MP4File& file, const char* type)
+            : MP4Atom(file, type)
+            , version(*new MP4Integer8Property(*this, "version"))
+            , flags(*new MP4Integer24Property(*this, "flags"))
+        {
+            AddProperty(&version);
+            AddProperty(&flags);
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-MP4ItmfHdlrAtom::MP4ItmfHdlrAtom(MP4File &file)
-    : MP4FullAtom ( file, "hdlr" )
-    , reserved1   ( *new MP4Integer32Property( *this, "reserved1" ))
-    , handlerType ( *new MP4BytesProperty( *this, "handlerType", 4 ))
-    , reserved2   ( *new MP4BytesProperty( *this, "reserved2", 12 ))
-    , name        ( *new MP4BytesProperty( *this, "name", 1 ))
-{
-    AddProperty( &reserved1 );
-    AddProperty( &handlerType );
-    AddProperty( &reserved2 );
-    AddProperty( &name );
+        MP4ItemAtom::MP4ItemAtom(MP4File& file, const char* type)
+            : MP4Atom(file, type)
+        {
+            ExpectChildAtom("mean", Optional, OnlyOne);
+            ExpectChildAtom("name", Optional, OnlyOne);
+            ExpectChildAtom("data", Required, Many);
+        }
 
-    const uint8_t htData[] = { 'm', 'd', 'i', 'r' };
-    handlerType.SetValue( htData, sizeof( htData ));
+        ///////////////////////////////////////////////////////////////////////////////
 
-    const uint8_t nameData[] = { 0 };
-    name.SetValue( nameData, sizeof( nameData ));
-}
+        MP4ItmfHdlrAtom::MP4ItmfHdlrAtom(MP4File& file)
+            : MP4FullAtom(file, "hdlr")
+            , reserved1(*new MP4Integer32Property(*this, "reserved1"))
+            , handlerType(*new MP4BytesProperty(*this, "handlerType", 4))
+            , reserved2(*new MP4BytesProperty(*this, "reserved2", 12))
+            , name(*new MP4BytesProperty(*this, "name", 1))
+        {
+            AddProperty(&reserved1);
+            AddProperty(&handlerType);
+            AddProperty(&reserved2);
+            AddProperty(&name);
 
-void
-MP4ItmfHdlrAtom::Read()
-{
-    name.SetValueSize( m_size - 24 );
-    MP4FullAtom::Read();
-}
+            const uint8_t htData[] = {'m', 'd', 'i', 'r'};
+            handlerType.SetValue(htData, sizeof(htData));
 
-///////////////////////////////////////////////////////////////////////////////
+            const uint8_t nameData[] = {0};
+            name.SetValue(nameData, sizeof(nameData));
+        }
 
-MP4MeanAtom::MP4MeanAtom(MP4File &file)
-    : MP4FullAtom ( file, "mean" )
-    , value       ( *new MP4BytesProperty( *this, "value" ))
-{
-    AddProperty( &value );
-}
+        void MP4ItmfHdlrAtom::Read()
+        {
+            name.SetValueSize(m_size - 24);
+            MP4FullAtom::Read();
+        }
 
-void
-MP4MeanAtom::Read()
-{
-    value.SetValueSize( m_size - 4 );
-    MP4Atom::Read();
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
+        MP4MeanAtom::MP4MeanAtom(MP4File& file)
+            : MP4FullAtom(file, "mean")
+            , value(*new MP4BytesProperty(*this, "value"))
+        {
+            AddProperty(&value);
+        }
 
-MP4NameAtom::MP4NameAtom(MP4File &file)
-    : MP4FullAtom ( file, "name" )
-    , value       ( *new MP4BytesProperty( *this, "value" ))
-{
-    AddProperty( &value );
-}
+        void MP4MeanAtom::Read()
+        {
+            value.SetValueSize(m_size - 4);
+            MP4Atom::Read();
+        }
 
-void
-MP4NameAtom::Read()
-{
-    value.SetValueSize( m_size - 4 );
-    MP4FullAtom::Read();
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
+        MP4NameAtom::MP4NameAtom(MP4File& file)
+            : MP4FullAtom(file, "name")
+            , value(*new MP4BytesProperty(*this, "value"))
+        {
+            AddProperty(&value);
+        }
 
-MP4UdtaElementAtom::MP4UdtaElementAtom( MP4File &file, const char* type )
-    : MP4Atom ( file, type )
-    , value   ( *new MP4BytesProperty( *this, "value" ))
-{
-    AddProperty( &value );
-}
+        void MP4NameAtom::Read()
+        {
+            value.SetValueSize(m_size - 4);
+            MP4FullAtom::Read();
+        }
 
-void
-MP4UdtaElementAtom::Read()
-{
-    // calculate size of the metadata from the atom size
-    value.SetValueSize( m_size );
-    MP4Atom::Read();
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
+        MP4UdtaElementAtom::MP4UdtaElementAtom(MP4File& file, const char* type)
+            : MP4Atom(file, type)
+            , value(*new MP4BytesProperty(*this, "value"))
+        {
+            AddProperty(&value);
+        }
 
-}} // namespace mp4v2::impl
+        void MP4UdtaElementAtom::Read()
+        {
+            // calculate size of the metadata from the atom size
+            value.SetValueSize(m_size);
+            MP4Atom::Read();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2
