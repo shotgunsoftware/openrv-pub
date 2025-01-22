@@ -15,13 +15,12 @@
 /*                                                                         */
 /***************************************************************************/
 
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* This file is used to define the monochrome renderer error enumeration */
-  /* constants.                                                            */
-  /*                                                                       */
-  /*************************************************************************/
+/*************************************************************************/
+/*                                                                       */
+/* This file is used to define the monochrome renderer error enumeration */
+/* constants.                                                            */
+/*                                                                       */
+/*************************************************************************/
 
 #ifndef __RASTERRS_H__
 #define __RASTERRS_H__
@@ -30,12 +29,11 @@
 
 #undef __FTERRORS_H__
 
-#define FT_ERR_PREFIX  Raster_Err_
-#define FT_ERR_BASE    FT_Mod_Err_Raster
+#define FT_ERR_PREFIX Raster_Err_
+#define FT_ERR_BASE FT_Mod_Err_Raster
 
 #include FT_ERRORS_H
 
 #endif /* __RASTERRS_H__ */
-
 
 /* END */

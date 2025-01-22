@@ -32,17 +32,17 @@
 #include FT_TRUETYPE_TABLES_H
 
 FTFace::FTFace(const char* fontFilePath, bool precomputeKerning)
-:   numGlyphs(0),
-    fontEncodingList(0),
-    kerningCache(0),
-    err(0)
+    : numGlyphs(0)
+    , fontEncodingList(0)
+    , kerningCache(0)
+    , err(0)
 {
     const FT_Long DEFAULT_FACE_INDEX = 0;
     ftFace = new FT_Face;
 
     err = FT_New_Face(*FTLibrary::Instance().GetLibrary(), fontFilePath,
                       DEFAULT_FACE_INDEX, ftFace);
-    if(err)
+    if (err)
     {
         delete ftFace;
         ftFace = 0;
@@ -52,27 +52,26 @@ FTFace::FTFace(const char* fontFilePath, bool precomputeKerning)
     numGlyphs = (*ftFace)->num_glyphs;
     hasKerningTable = (FT_HAS_KERNING((*ftFace)) != 0);
 
-    if(hasKerningTable && precomputeKerning)
+    if (hasKerningTable && precomputeKerning)
     {
         BuildKerningCache();
     }
 }
 
-
-FTFace::FTFace(const unsigned char *pBufferBytes, size_t bufferSizeInBytes,
+FTFace::FTFace(const unsigned char* pBufferBytes, size_t bufferSizeInBytes,
                bool precomputeKerning)
-:   numGlyphs(0),
-    fontEncodingList(0),
-    kerningCache(0),
-    err(0)
+    : numGlyphs(0)
+    , fontEncodingList(0)
+    , kerningCache(0)
+    , err(0)
 {
     const FT_Long DEFAULT_FACE_INDEX = 0;
     ftFace = new FT_Face;
 
-    err = FT_New_Memory_Face(*FTLibrary::Instance().GetLibrary(),
-                             (FT_Byte const *)pBufferBytes, (FT_Long)bufferSizeInBytes,
-                             DEFAULT_FACE_INDEX, ftFace);
-    if(err)
+    err = FT_New_Memory_Face(
+        *FTLibrary::Instance().GetLibrary(), (FT_Byte const*)pBufferBytes,
+        (FT_Long)bufferSizeInBytes, DEFAULT_FACE_INDEX, ftFace);
+    if (err)
     {
         delete ftFace;
         ftFace = 0;
@@ -82,21 +81,20 @@ FTFace::FTFace(const unsigned char *pBufferBytes, size_t bufferSizeInBytes,
     numGlyphs = (*ftFace)->num_glyphs;
     hasKerningTable = (FT_HAS_KERNING((*ftFace)) != 0);
 
-    if(hasKerningTable && precomputeKerning)
+    if (hasKerningTable && precomputeKerning)
     {
         BuildKerningCache();
     }
 }
 
-
 FTFace::~FTFace()
 {
-    if(kerningCache)
+    if (kerningCache)
     {
         delete[] kerningCache;
     }
 
-    if(ftFace)
+    if (ftFace)
     {
         FT_Done_Face(*ftFace);
         delete ftFace;
@@ -104,27 +102,23 @@ FTFace::~FTFace()
     }
 }
 
-
 bool FTFace::Attach(const char* fontFilePath)
 {
     err = FT_Attach_File(*ftFace, fontFilePath);
     return !err;
 }
 
-
-bool FTFace::Attach(const unsigned char *pBufferBytes,
-                    size_t bufferSizeInBytes)
+bool FTFace::Attach(const unsigned char* pBufferBytes, size_t bufferSizeInBytes)
 {
     FT_Open_Args open;
 
     open.flags = FT_OPEN_MEMORY;
-    open.memory_base = (FT_Byte const *)pBufferBytes;
+    open.memory_base = (FT_Byte const*)pBufferBytes;
     open.memory_size = (FT_Long)bufferSizeInBytes;
 
     err = FT_Attach_Stream(*ftFace, &open);
     return !err;
 }
-
 
 const FTSize& FTFace::Size(const unsigned int size, const unsigned int res)
 {
@@ -134,19 +128,14 @@ const FTSize& FTFace::Size(const unsigned int size, const unsigned int res)
     return charSize;
 }
 
-
-unsigned int FTFace::CharMapCount() const
-{
-    return (*ftFace)->num_charmaps;
-}
-
+unsigned int FTFace::CharMapCount() const { return (*ftFace)->num_charmaps; }
 
 FT_Encoding* FTFace::CharMapList()
 {
-    if(0 == fontEncodingList)
+    if (0 == fontEncodingList)
     {
         fontEncodingList = new FT_Encoding[CharMapCount()];
-        for(size_t i = 0; i < CharMapCount(); ++i)
+        for (size_t i = 0; i < CharMapCount(); ++i)
         {
             fontEncodingList[i] = (*ftFace)->charmaps[i]->encoding;
         }
@@ -155,17 +144,16 @@ FT_Encoding* FTFace::CharMapList()
     return fontEncodingList;
 }
 
-
 FTPoint FTFace::KernAdvance(unsigned int index1, unsigned int index2)
 {
     float x, y;
 
-    if(!hasKerningTable || !index1 || !index2)
+    if (!hasKerningTable || !index1 || !index2)
     {
         return FTPoint(0.0f, 0.0f);
     }
 
-    if(kerningCache && index1 < FTFace::MAX_PRECOMPUTED
+    if (kerningCache && index1 < FTFace::MAX_PRECOMPUTED
         && index2 < FTFace::MAX_PRECOMPUTED)
     {
         x = kerningCache[2 * (index2 * FTFace::MAX_PRECOMPUTED + index1)];
@@ -178,7 +166,7 @@ FTPoint FTFace::KernAdvance(unsigned int index1, unsigned int index2)
 
     err = FT_Get_Kerning(*ftFace, index1, index2, ft_kerning_unfitted,
                          &kernAdvance);
-    if(err)
+    if (err)
     {
         return FTPoint(0.0f, 0.0f);
     }
@@ -189,11 +177,10 @@ FTPoint FTFace::KernAdvance(unsigned int index1, unsigned int index2)
     return FTPoint(x, y);
 }
 
-
 FT_GlyphSlot FTFace::Glyph(unsigned int index, FT_Int load_flags)
 {
     err = FT_Load_Glyph(*ftFace, index, load_flags);
-    if(err)
+    if (err)
     {
         return NULL;
     }
@@ -201,21 +188,20 @@ FT_GlyphSlot FTFace::Glyph(unsigned int index, FT_Int load_flags)
     return (*ftFace)->glyph;
 }
 
-
 void FTFace::BuildKerningCache()
 {
     FT_Vector kernAdvance;
     kernAdvance.x = 0;
     kernAdvance.y = 0;
-    kerningCache = new float[FTFace::MAX_PRECOMPUTED
-                              * FTFace::MAX_PRECOMPUTED * 2];
-    for(unsigned int j = 0; j < FTFace::MAX_PRECOMPUTED; j++)
+    kerningCache =
+        new float[FTFace::MAX_PRECOMPUTED * FTFace::MAX_PRECOMPUTED * 2];
+    for (unsigned int j = 0; j < FTFace::MAX_PRECOMPUTED; j++)
     {
-        for(unsigned int i = 0; i < FTFace::MAX_PRECOMPUTED; i++)
+        for (unsigned int i = 0; i < FTFace::MAX_PRECOMPUTED; i++)
         {
             err = FT_Get_Kerning(*ftFace, i, j, ft_kerning_unfitted,
                                  &kernAdvance);
-            if(err)
+            if (err)
             {
                 delete[] kerningCache;
                 kerningCache = NULL;
@@ -223,10 +209,9 @@ void FTFace::BuildKerningCache()
             }
 
             kerningCache[2 * (j * FTFace::MAX_PRECOMPUTED + i)] =
-                                static_cast<float>(kernAdvance.x) / 64.0f;
+                static_cast<float>(kernAdvance.x) / 64.0f;
             kerningCache[2 * (j * FTFace::MAX_PRECOMPUTED + i) + 1] =
-                                static_cast<float>(kernAdvance.y) / 64.0f;
+                static_cast<float>(kernAdvance.y) / 64.0f;
         }
     }
 }
-

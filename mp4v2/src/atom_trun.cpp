@@ -21,69 +21,75 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4TrunAtom::MP4TrunAtom(MP4File &file)
-        : MP4Atom(file, "trun")
+namespace mp4v2
 {
-    AddVersionAndFlags();   /* 0, 1 */
-    AddProperty( /* 2 */
-        new MP4Integer32Property(*this, "sampleCount"));
-}
+    namespace impl
+    {
 
-void MP4TrunAtom::AddProperties(uint32_t flags)
-{
-    if (flags & 0x01) {
-        // Note this is a signed 32 value
-        AddProperty(
-            new MP4Integer32Property(*this, "dataOffset"));
-    }
-    if (flags & 0x04) {
-        AddProperty(
-            new MP4Integer32Property(*this, "firstSampleFlags"));
-    }
+        ///////////////////////////////////////////////////////////////////////////////
 
-    MP4TableProperty* pTable =
-        new MP4TableProperty(*this, "samples",
-                             (MP4Integer32Property *)m_pProperties[2]);
-    AddProperty(pTable);
+        MP4TrunAtom::MP4TrunAtom(MP4File& file)
+            : MP4Atom(file, "trun")
+        {
+            AddVersionAndFlags(); /* 0, 1 */
+            AddProperty(          /* 2 */
+                        new MP4Integer32Property(*this, "sampleCount"));
+        }
 
-    if (flags & 0x100) {
-        pTable->AddProperty(
-            new MP4Integer32Property(*this, "sampleDuration"));
-    }
-    if (flags & 0x200) {
-        pTable->AddProperty(
-            new MP4Integer32Property(*this, "sampleSize"));
-    }
-    if (flags & 0x400) {
-        pTable->AddProperty(
-            new MP4Integer32Property(*this, "sampleFlags"));
-    }
-    if (flags & 0x800) {
-        pTable->AddProperty(
-            new MP4Integer32Property(*this, "sampleCompositionTimeOffset"));
-    }
-}
+        void MP4TrunAtom::AddProperties(uint32_t flags)
+        {
+            if (flags & 0x01)
+            {
+                // Note this is a signed 32 value
+                AddProperty(new MP4Integer32Property(*this, "dataOffset"));
+            }
+            if (flags & 0x04)
+            {
+                AddProperty(
+                    new MP4Integer32Property(*this, "firstSampleFlags"));
+            }
 
-void MP4TrunAtom::Read()
-{
-    /* read atom version, flags, and sampleCount */
-    ReadProperties(0, 3);
+            MP4TableProperty* pTable = new MP4TableProperty(
+                *this, "samples", (MP4Integer32Property*)m_pProperties[2]);
+            AddProperty(pTable);
 
-    /* need to create the properties based on the atom flags */
-    AddProperties(GetFlags());
+            if (flags & 0x100)
+            {
+                pTable->AddProperty(
+                    new MP4Integer32Property(*this, "sampleDuration"));
+            }
+            if (flags & 0x200)
+            {
+                pTable->AddProperty(
+                    new MP4Integer32Property(*this, "sampleSize"));
+            }
+            if (flags & 0x400)
+            {
+                pTable->AddProperty(
+                    new MP4Integer32Property(*this, "sampleFlags"));
+            }
+            if (flags & 0x800)
+            {
+                pTable->AddProperty(new MP4Integer32Property(
+                    *this, "sampleCompositionTimeOffset"));
+            }
+        }
 
-    /* now we can read the remaining properties */
-    ReadProperties(3);
+        void MP4TrunAtom::Read()
+        {
+            /* read atom version, flags, and sampleCount */
+            ReadProperties(0, 3);
 
-    Skip(); // to end of atom
-}
+            /* need to create the properties based on the atom flags */
+            AddProperties(GetFlags());
 
-///////////////////////////////////////////////////////////////////////////////
+            /* now we can read the remaining properties */
+            ReadProperties(3);
 
-}
-} // namespace mp4v2::impl
+            Skip(); // to end of atom
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

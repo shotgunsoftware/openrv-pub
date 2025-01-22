@@ -12,28 +12,25 @@
  * modified is included with the above copyright notice.
  */
 
-# ifdef HAVE_CONFIG_H
-#   include "private/config.h"
-# endif
+#ifdef HAVE_CONFIG_H
+#include "private/config.h"
+#endif
 
-# ifdef PCR
+#ifdef PCR
 /*
  * This definition should go in its own file that includes no other
  * header files.  Otherwise, we risk not getting the underlying system
  * malloc.
  */
-# define PCR_NO_RENAME
-# include <stdlib.h>
+#define PCR_NO_RENAME
+#include <stdlib.h>
 
-void * real_malloc(size_t size)
-{
-    return(malloc(size));
-}
+void* real_malloc(size_t size) { return (malloc(size)); }
 
-# else
+#else
 
 extern int GC_quiet;
-        /* ANSI C doesn't allow translation units to be empty.  */
-        /* So we guarantee this one is nonempty.                */
+/* ANSI C doesn't allow translation units to be empty.  */
+/* So we guarantee this one is nonempty.                */
 
 #endif /* PCR */

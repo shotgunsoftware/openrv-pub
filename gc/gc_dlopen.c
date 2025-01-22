@@ -26,13 +26,13 @@
 
 #undef GC_MUST_RESTORE_REDEFINED_DLOPEN
 #if defined(dlopen) && !defined(GC_USE_LD_WRAP)
-  /* To support various threads pkgs, gc.h interposes on dlopen by      */
-  /* defining "dlopen" to be "GC_dlopen", which is implemented below.   */
-  /* However, both GC_FirstDLOpenedLinkMap() and GC_dlopen() use the    */
-  /* real system dlopen() in their implementation. We first remove      */
-  /* gc.h's dlopen definition and restore it later, after GC_dlopen().  */
-# undef dlopen
-# define GC_MUST_RESTORE_REDEFINED_DLOPEN
+/* To support various threads pkgs, gc.h interposes on dlopen by      */
+/* defining "dlopen" to be "GC_dlopen", which is implemented below.   */
+/* However, both GC_FirstDLOpenedLinkMap() and GC_dlopen() use the    */
+/* real system dlopen() in their implementation. We first remove      */
+/* gc.h's dlopen definition and restore it later, after GC_dlopen().  */
+#undef dlopen
+#define GC_MUST_RESTORE_REDEFINED_DLOPEN
 #endif
 
 /* Make sure we're not in the middle of a collection, and make sure we  */
@@ -44,16 +44,17 @@
 /* library initialization code allocates substantial amounts of GC'ed   */
 /* memory.                                                              */
 #ifndef USE_PROC_FOR_LIBRARIES
-  static void disable_gc_for_dlopen(void)
-  {
+static void disable_gc_for_dlopen(void)
+{
     DCL_LOCK_STATE;
     LOCK();
-    while (GC_incremental && GC_collection_in_progress()) {
-      GC_collect_a_little_inner(1000);
+    while (GC_incremental && GC_collection_in_progress())
+    {
+        GC_collect_a_little_inner(1000);
     }
     ++GC_dont_gc;
     UNLOCK();
-  }
+}
 #endif
 
 /* Redefine dlopen to guarantee mutual exclusion with           */
@@ -62,42 +63,42 @@
 
 /* This is similar to WRAP/REAL_FUNC() in pthread_support.c.    */
 #ifdef GC_USE_LD_WRAP
-# define WRAP_DLFUNC(f) __wrap_##f
-# define REAL_DLFUNC(f) __real_##f
-  void * REAL_DLFUNC(dlopen)(const char *, int);
+#define WRAP_DLFUNC(f) __wrap_##f
+#define REAL_DLFUNC(f) __real_##f
+void* REAL_DLFUNC(dlopen)(const char*, int);
 #else
-# define WRAP_DLFUNC(f) GC_##f
-# define REAL_DLFUNC(f) f
+#define WRAP_DLFUNC(f) GC_##f
+#define REAL_DLFUNC(f) f
 #endif
 
-GC_API void * WRAP_DLFUNC(dlopen)(const char *path, int mode)
+GC_API void* WRAP_DLFUNC(dlopen)(const char* path, int mode)
 {
-  void * result;
+    void* result;
 
-# ifndef USE_PROC_FOR_LIBRARIES
+#ifndef USE_PROC_FOR_LIBRARIES
     /* Disable collections.  This solution risks heap growth (or,       */
     /* even, heap overflow) but there seems no better solutions.        */
     disable_gc_for_dlopen();
-# endif
-  result = REAL_DLFUNC(dlopen)(path, mode);
-# ifndef USE_PROC_FOR_LIBRARIES
+#endif
+    result = REAL_DLFUNC(dlopen)(path, mode);
+#ifndef USE_PROC_FOR_LIBRARIES
     GC_enable(); /* undoes disable_gc_for_dlopen */
-# endif
-  return(result);
+#endif
+    return (result);
 }
 
 #ifdef GC_USE_LD_WRAP
-  /* Define GC_ function as an alias for the plain one, which will be   */
-  /* intercepted.  This allows files which include gc.h, and hence      */
-  /* generate references to the GC_ symbol, to see the right symbol.    */
-  GC_API void *GC_dlopen(const char *path, int mode)
-  {
+/* Define GC_ function as an alias for the plain one, which will be   */
+/* intercepted.  This allows files which include gc.h, and hence      */
+/* generate references to the GC_ symbol, to see the right symbol.    */
+GC_API void* GC_dlopen(const char* path, int mode)
+{
     return dlopen(path, mode);
-  }
+}
 #endif /* GC_USE_LD_WRAP */
 
 #ifdef GC_MUST_RESTORE_REDEFINED_DLOPEN
-# define dlopen GC_dlopen
+#define dlopen GC_dlopen
 #endif
 
-#endif  /* GC_PTHREADS && !GC_NO_DLOPEN */
+#endif /* GC_PTHREADS && !GC_NO_DLOPEN */

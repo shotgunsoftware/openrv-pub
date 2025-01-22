@@ -28,22 +28,19 @@
 
 #include "FTLibrary.h"
 
-static pthread_once_t threadInit     = PTHREAD_ONCE_INIT;
-static pthread_key_t  threadKey;
+static pthread_once_t threadInit = PTHREAD_ONCE_INIT;
+static pthread_key_t threadKey;
 
-static void thread_once (void)
+static void thread_once(void)
 {
     if (pthread_key_create(&threadKey, NULL) != 0)
     {
-        cout << "ERRRO: pthread_key_create failed: in "
-             << __FUNCTION__
-             << ", " << __FILE__
-             << ", line " << __LINE__
-             << endl;
+        cout << "ERRRO: pthread_key_create failed: in " << __FUNCTION__ << ", "
+             << __FILE__ << ", line " << __LINE__ << endl;
     }
 }
 
-const FTLibrary&  FTLibrary::Instance()
+const FTLibrary& FTLibrary::Instance()
 {
     pthread_once(&threadInit, thread_once);
 
@@ -58,44 +55,41 @@ const FTLibrary&  FTLibrary::Instance()
     return *l;
 }
 
-
 FTLibrary::~FTLibrary()
 {
-    if(library != 0)
+    if (library != 0)
     {
         FT_Done_FreeType(*library);
 
         delete library;
-        library= 0;
+        library = 0;
     }
 
-//  if(manager != 0)
-//  {
-//      FTC_Manager_Done(manager);
-//
-//      delete manager;
-//      manager= 0;
-//  }
+    //  if(manager != 0)
+    //  {
+    //      FTC_Manager_Done(manager);
+    //
+    //      delete manager;
+    //      manager= 0;
+    //  }
 }
 
-
 FTLibrary::FTLibrary()
-:   library(0),
-    err(0)
+    : library(0)
+    , err(0)
 {
     Initialise();
 }
 
-
 bool FTLibrary::Initialise()
 {
-    if(library != 0)
+    if (library != 0)
         return true;
 
     library = new FT_Library;
     err = FT_Init_FreeType(library);
 
-    if(err)
+    if (err)
     {
         cout << "ERROR: FTLibrary::Initialise failed" << endl;
         delete library;

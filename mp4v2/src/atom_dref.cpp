@@ -21,47 +21,51 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4DrefAtom::MP4DrefAtom(MP4File &file)
-        : MP4Atom(file, "dref")
+namespace mp4v2
 {
-    AddVersionAndFlags();
+    namespace impl
+    {
 
-    MP4Integer32Property* pCount =
-        new MP4Integer32Property(*this, "entryCount");
-    pCount->SetReadOnly();
-    AddProperty(pCount);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    ExpectChildAtom("url ", Optional, Many);
-    ExpectChildAtom("urn ", Optional, Many);
-    ExpectChildAtom("alis", Optional, Many);
-}
+        MP4DrefAtom::MP4DrefAtom(MP4File& file)
+            : MP4Atom(file, "dref")
+        {
+            AddVersionAndFlags();
 
-void MP4DrefAtom::Read()
-{
-    /* do the usual read */
-    MP4Atom::Read();
+            MP4Integer32Property* pCount =
+                new MP4Integer32Property(*this, "entryCount");
+            pCount->SetReadOnly();
+            AddProperty(pCount);
 
-    // check that number of children == entryCount
-    MP4Integer32Property* pCount =
-        (MP4Integer32Property*)m_pProperties[2];
+            ExpectChildAtom("url ", Optional, Many);
+            ExpectChildAtom("urn ", Optional, Many);
+            ExpectChildAtom("alis", Optional, Many);
+        }
 
-    if (m_pChildAtoms.Size() != pCount->GetValue()) {
-        log.warningf("%s: \"%s\": dref inconsistency with number of entries",
-                     __FUNCTION__, GetFile().GetFilename().c_str() );
+        void MP4DrefAtom::Read()
+        {
+            /* do the usual read */
+            MP4Atom::Read();
 
-        /* fix it */
-        pCount->SetReadOnly(false);
-        pCount->SetValue(m_pChildAtoms.Size());
-        pCount->SetReadOnly(true);
-    }
-}
+            // check that number of children == entryCount
+            MP4Integer32Property* pCount =
+                (MP4Integer32Property*)m_pProperties[2];
 
-///////////////////////////////////////////////////////////////////////////////
+            if (m_pChildAtoms.Size() != pCount->GetValue())
+            {
+                log.warningf(
+                    "%s: \"%s\": dref inconsistency with number of entries",
+                    __FUNCTION__, GetFile().GetFilename().c_str());
 
-}
-} // namespace mp4v2::impl
+                /* fix it */
+                pCount->SetReadOnly(false);
+                pCount->SetValue(m_pChildAtoms.Size());
+                pCount->SetReadOnly(true);
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

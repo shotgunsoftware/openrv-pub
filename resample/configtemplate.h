@@ -4,4 +4,3 @@
 */
 
 #undef HAVE_INTTYPES_H
-

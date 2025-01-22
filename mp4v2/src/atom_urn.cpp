@@ -21,34 +21,37 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4UrnAtom::MP4UrnAtom(MP4File &file)
-        : MP4Atom(file, "urn ")
+namespace mp4v2
 {
-    AddVersionAndFlags();
-    AddProperty(new MP4StringProperty(*this, "name"));
-    AddProperty(new MP4StringProperty(*this, "location"));
-}
+    namespace impl
+    {
 
-void MP4UrnAtom::Read()
-{
-    // read the version, flags, and name properties
-    ReadProperties(0, 3);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    // check if location is present
-    if (m_File.GetPosition() < GetEnd()) {
-        // read it
-        ReadProperties(3);
-    }
+        MP4UrnAtom::MP4UrnAtom(MP4File& file)
+            : MP4Atom(file, "urn ")
+        {
+            AddVersionAndFlags();
+            AddProperty(new MP4StringProperty(*this, "name"));
+            AddProperty(new MP4StringProperty(*this, "location"));
+        }
 
-    Skip(); // to end of atom
-}
+        void MP4UrnAtom::Read()
+        {
+            // read the version, flags, and name properties
+            ReadProperties(0, 3);
 
-///////////////////////////////////////////////////////////////////////////////
+            // check if location is present
+            if (m_File.GetPosition() < GetEnd())
+            {
+                // read it
+                ReadProperties(3);
+            }
 
-}
-} // namespace mp4v2::impl
+            Skip(); // to end of atom
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

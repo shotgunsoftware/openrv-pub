@@ -24,15 +24,14 @@
  */
 
 #ifndef __ftgl__
-#   warning Please use <FTGL/ftgl.h> instead of <FTBufferFont.h>.
-#   include <FTGL/ftgl.h>
+#warning Please use <FTGL/ftgl.h> instead of <FTBufferFont.h>.
+#include <FTGL/ftgl.h>
 #endif
 
 #ifndef __FTBufferFont__
 #define __FTBufferFont__
 
 #ifdef __cplusplus
-
 
 /**
  * FTBufferFont is a specialisation of the FTFont class for handling
@@ -42,41 +41,40 @@
  */
 class FTGL_EXPORT FTBufferFont : public FTFont
 {
-    public:
-        /**
-         * Open and read a font file. Sets Error flag.
-         *
-         * @param fontFilePath  font file path.
-         */
-        FTBufferFont(const char* fontFilePath);
+public:
+    /**
+     * Open and read a font file. Sets Error flag.
+     *
+     * @param fontFilePath  font file path.
+     */
+    FTBufferFont(const char* fontFilePath);
 
-        /**
-         * Open and read a font from a buffer in memory. Sets Error flag.
-         * The buffer is owned by the client and is NOT copied by FTGL. The
-         * pointer must be valid while using FTGL.
-         *
-         * @param pBufferBytes  the in-memory buffer
-         * @param bufferSizeInBytes  the length of the buffer in bytes
-         */
-        FTBufferFont(const unsigned char *pBufferBytes,
-                     size_t bufferSizeInBytes);
+    /**
+     * Open and read a font from a buffer in memory. Sets Error flag.
+     * The buffer is owned by the client and is NOT copied by FTGL. The
+     * pointer must be valid while using FTGL.
+     *
+     * @param pBufferBytes  the in-memory buffer
+     * @param bufferSizeInBytes  the length of the buffer in bytes
+     */
+    FTBufferFont(const unsigned char* pBufferBytes, size_t bufferSizeInBytes);
 
-        /**
-         * Destructor
-         */
-        ~FTBufferFont();
+    /**
+     * Destructor
+     */
+    ~FTBufferFont();
 
-    protected:
-        /**
-         * Construct a glyph of the correct type.
-         *
-         * Clients must override the function and return their specialised
-         * FTGlyph.
-         *
-         * @param slot  A FreeType glyph slot.
-         * @return  An FT****Glyph or <code>null</code> on failure.
-         */
-        virtual FTGlyph* MakeGlyph(FT_GlyphSlot slot);
+protected:
+    /**
+     * Construct a glyph of the correct type.
+     *
+     * Clients must override the function and return their specialised
+     * FTGlyph.
+     *
+     * @param slot  A FreeType glyph slot.
+     * @return  An FT****Glyph or <code>null</code> on failure.
+     */
+    virtual FTGlyph* MakeGlyph(FT_GlyphSlot slot);
 };
 
 #endif //__cplusplus
@@ -91,9 +89,8 @@ FTGL_BEGIN_C_DECLS
  *
  * @see  FTGLfont
  */
-FTGL_EXPORT FTGLfont *ftglCreateBufferFont(const char *file);
+FTGL_EXPORT FTGLfont* ftglCreateBufferFont(const char* file);
 
 FTGL_END_C_DECLS
 
-#endif  //  __FTBufferFont__
-
+#endif //  __FTBufferFont__

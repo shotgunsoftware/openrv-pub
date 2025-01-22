@@ -8,11 +8,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace mp4v2 { namespace impl {
-    using namespace mp4v2::platform;
-    using io::File;
-    using io::FileSystem;
-}} // namspace mp4v2::impl
+namespace mp4v2
+{
+    namespace impl
+    {
+        using namespace mp4v2::platform;
+        using io::File;
+        using io::FileSystem;
+    } // namespace impl
+} // namespace mp4v2
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -9,9 +9,9 @@
 //  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 //  License for the specific language governing rights and limitations
 //  under the License.
-// 
+//
 //  The Original Code is MP4v2.
-// 
+//
 //  The Initial Developer of the Original Code is Kona Blend.
 //  Portions created by Kona Blend are Copyright (C) 2008.
 //  All Rights Reserved.
@@ -30,13 +30,20 @@
 /// This namespace implements some features that are specified by
 /// ISO base media file format, ISO/IEC 14496-12:2005(E).
 ///
-namespace mp4v2 { namespace impl { namespace bmff {
-    ;
-}}}
+namespace mp4v2
+{
+    namespace impl
+    {
+        namespace bmff
+        {
+            ;
+        }
+    } // namespace impl
+} // namespace mp4v2
 
 ///////////////////////////////////////////////////////////////////////////////
 
-//#include "type.h"
+// #include "type.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

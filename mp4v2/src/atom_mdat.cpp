@@ -21,28 +21,27 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4MdatAtom::MP4MdatAtom(MP4File &file)
-        : MP4Atom(file, "mdat")
+namespace mp4v2
 {
-}
+    namespace impl
+    {
 
-void MP4MdatAtom::Read()
-{
-    Skip();
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-void MP4MdatAtom::Write()
-{
-    // should never get here
-    ASSERT(false);
-}
+        MP4MdatAtom::MP4MdatAtom(MP4File& file)
+            : MP4Atom(file, "mdat")
+        {
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        void MP4MdatAtom::Read() { Skip(); }
 
-}
-} // namespace mp4v2::impl
+        void MP4MdatAtom::Write()
+        {
+            // should never get here
+            ASSERT(false);
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

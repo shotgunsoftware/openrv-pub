@@ -33,41 +33,35 @@
 #include "FTInternals.h"
 #include "FTBitmapGlyphImpl.h"
 
-
 //
 //  FTGLBitmapGlyph
 //
 
+FTBitmapGlyph::FTBitmapGlyph(FT_GlyphSlot glyph)
+    : FTGlyph(new FTBitmapGlyphImpl(glyph))
+{
+}
 
-FTBitmapGlyph::FTBitmapGlyph(FT_GlyphSlot glyph) :
-    FTGlyph(new FTBitmapGlyphImpl(glyph))
-{}
-
-
-FTBitmapGlyph::~FTBitmapGlyph()
-{}
-
+FTBitmapGlyph::~FTBitmapGlyph() {}
 
 const FTPoint& FTBitmapGlyph::Render(const FTPoint& pen, int renderMode)
 {
-    FTBitmapGlyphImpl *myimpl = dynamic_cast<FTBitmapGlyphImpl *>(impl);
+    FTBitmapGlyphImpl* myimpl = dynamic_cast<FTBitmapGlyphImpl*>(impl);
     return myimpl->RenderImpl(pen, renderMode);
 }
-
 
 //
 //  FTGLBitmapGlyphImpl
 //
 
-
 FTBitmapGlyphImpl::FTBitmapGlyphImpl(FT_GlyphSlot glyph)
-:   FTGlyphImpl(glyph),
-    destWidth(0),
-    destHeight(0),
-    data(0)
+    : FTGlyphImpl(glyph)
+    , destWidth(0)
+    , destHeight(0)
+    , data(0)
 {
     err = FT_Render_Glyph(glyph, FT_RENDER_MODE_MONO);
-    if(err || ft_glyph_format_bitmap != glyph->format)
+    if (err || ft_glyph_format_bitmap != glyph->format)
     {
         return;
     }
@@ -82,14 +76,14 @@ FTBitmapGlyphImpl::FTBitmapGlyphImpl(FT_GlyphSlot glyph)
     destHeight = srcHeight;
     destPitch = srcPitch;
 
-    if(destWidth && destHeight)
+    if (destWidth && destHeight)
     {
         data = new unsigned char[destPitch * destHeight];
         unsigned char* dest = data + ((destHeight - 1) * destPitch);
 
         unsigned char* src = bitmap.buffer;
 
-        for(unsigned int y = 0; y < srcHeight; ++y)
+        for (unsigned int y = 0; y < srcHeight; ++y)
         {
             memcpy(dest, src, srcPitch);
             dest -= destPitch;
@@ -97,19 +91,15 @@ FTBitmapGlyphImpl::FTBitmapGlyphImpl(FT_GlyphSlot glyph)
         }
     }
 
-    pos = FTPoint(glyph->bitmap_left, static_cast<int>(srcHeight) - glyph->bitmap_top, 0.0);
+    pos = FTPoint(glyph->bitmap_left,
+                  static_cast<int>(srcHeight) - glyph->bitmap_top, 0.0);
 }
 
-
-FTBitmapGlyphImpl::~FTBitmapGlyphImpl()
-{
-    delete [] data;
-}
-
+FTBitmapGlyphImpl::~FTBitmapGlyphImpl() { delete[] data; }
 
 const FTPoint& FTBitmapGlyphImpl::RenderImpl(const FTPoint& pen, int renderMode)
 {
-    if(data)
+    if (data)
     {
         float dx, dy;
 
@@ -125,4 +115,3 @@ const FTPoint& FTBitmapGlyphImpl::RenderImpl(const FTPoint& pen, int renderMode)
 
     return advance;
 }
-

@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #ifndef DLFCN_H
@@ -25,29 +25,30 @@
  * To simplify use with Windows API, we treat them the same way.
  */
 
-#define RTLD_LAZY   0
-#define RTLD_NOW    0
+#define RTLD_LAZY 0
+#define RTLD_NOW 0
 
 #define RTLD_GLOBAL (1 << 1)
-#define RTLD_LOCAL  (1 << 2)
+#define RTLD_LOCAL (1 << 2)
 
 /* These two were added in The Open Group Base Specifications Issue 6.
  * Note: All other RTLD_* flags in any dlfcn.h are not standard compliant.
  */
 
-#define RTLD_DEFAULT    0
-#define RTLD_NEXT       0
+#define RTLD_DEFAULT 0
+#define RTLD_NEXT 0
 
-#ifdef	__cplusplus
-extern "C" {
+#ifdef __cplusplus
+extern "C"
+{
 #endif
 
-WIN_POSIX_EXPORT void *dlopen ( const char *file, int mode );
-WIN_POSIX_EXPORT int   dlclose( void *handle );
-WIN_POSIX_EXPORT void *dlsym  ( void *handle, const char *name );
-WIN_POSIX_EXPORT char *dlerror( void );
+    WIN_POSIX_EXPORT void* dlopen(const char* file, int mode);
+    WIN_POSIX_EXPORT int dlclose(void* handle);
+    WIN_POSIX_EXPORT void* dlsym(void* handle, const char* name);
+    WIN_POSIX_EXPORT char* dlerror(void);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

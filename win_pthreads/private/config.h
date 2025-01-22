@@ -93,7 +93,6 @@
  */
 #undef PTW32_THREAD_ID_REUSE_INCREMENT
 
-
 /*********************************************************************
  * Target specific groups
  *
@@ -134,7 +133,5 @@
 #define HAVE_SIGNAL_H
 #define HAVE_C_INLINE
 #endif
-
-
 
 #endif

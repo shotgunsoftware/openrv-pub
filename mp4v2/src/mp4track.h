@@ -29,266 +29,248 @@
 #ifndef MP4V2_IMPL_MP4TRACK_H
 #define MP4V2_IMPL_MP4TRACK_H
 
-namespace mp4v2 { namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-typedef uint32_t MP4ChunkId;
-
-// forward declarations
-class MP4File;
-class MP4Atom;
-class MP4Property;
-class MP4IntegerProperty;
-class MP4Integer8Property;
-class MP4Integer16Property;
-class MP4Integer32Property;
-class MP4Integer64Property;
-class MP4StringProperty;
-
-class MP4Track
+namespace mp4v2
 {
-public:
-    MP4Track(MP4File& file, MP4Atom& trakAtom);
+    namespace impl
+    {
 
-    virtual ~MP4Track();
+        ///////////////////////////////////////////////////////////////////////////////
 
-    MP4TrackId GetId() {
-        return m_trackId;
-    }
+        typedef uint32_t MP4ChunkId;
 
-    const char* GetType();
+        // forward declarations
+        class MP4File;
+        class MP4Atom;
+        class MP4Property;
+        class MP4IntegerProperty;
+        class MP4Integer8Property;
+        class MP4Integer16Property;
+        class MP4Integer32Property;
+        class MP4Integer64Property;
+        class MP4StringProperty;
 
-    void SetType(const char* type);
+        class MP4Track
+        {
+        public:
+            MP4Track(MP4File& file, MP4Atom& trakAtom);
 
-    MP4File& GetFile() {
-        return m_File;
-    }
+            virtual ~MP4Track();
 
-    MP4Atom& GetTrakAtom() {
-        return m_trakAtom;
-    }
+            MP4TrackId GetId() { return m_trackId; }
 
-    void ReadSample(
-        // input parameters
-        MP4SampleId sampleId,
-        // output parameters
-        uint8_t**     ppBytes,
-        uint32_t*     pNumBytes,
-        MP4Timestamp* pStartTime = NULL,
-        MP4Duration*  pDuration = NULL,
-        MP4Duration*  pRenderingOffset = NULL,
-        bool*         pIsSyncSample = NULL,
-        bool*         hasDependencyFlags = NULL,
-        uint32_t*     dependencyFlags = NULL );
+            const char* GetType();
 
-    void WriteSample(
-        const uint8_t* pBytes,
-        uint32_t numBytes,
-        MP4Duration duration = 0,
-        MP4Duration renderingOffset = 0,
-        bool isSyncSample = true);
+            void SetType(const char* type);
 
-    void WriteSampleDependency(
-        const uint8_t* pBytes,
-        uint32_t       numBytes,
-        MP4Duration    duration,
-        MP4Duration    renderingOffset,
-        bool           isSyncSample,
-        uint32_t       dependencyFlags );
+            MP4File& GetFile() { return m_File; }
 
-    virtual void FinishWrite(uint32_t options = 0);
+            MP4Atom& GetTrakAtom() { return m_trakAtom; }
 
-    uint64_t    GetDuration();      // in track timeScale units
-    uint32_t    GetTimeScale();
-    uint32_t    GetNumberOfSamples();
-    uint32_t    GetSampleSize(MP4SampleId sampleId);
-    uint32_t    GetMaxSampleSize();
-    uint64_t    GetTotalOfSampleSizes();
-    uint32_t    GetAvgBitrate();    // in bps
-    uint32_t    GetMaxBitrate();    // in bps
+            void ReadSample(
+                // input parameters
+                MP4SampleId sampleId,
+                // output parameters
+                uint8_t** ppBytes, uint32_t* pNumBytes,
+                MP4Timestamp* pStartTime = NULL, MP4Duration* pDuration = NULL,
+                MP4Duration* pRenderingOffset = NULL,
+                bool* pIsSyncSample = NULL, bool* hasDependencyFlags = NULL,
+                uint32_t* dependencyFlags = NULL);
 
-    MP4Duration GetFixedSampleDuration();
-    void        SetFixedSampleDuration(MP4Duration duration);
+            void WriteSample(const uint8_t* pBytes, uint32_t numBytes,
+                             MP4Duration duration = 0,
+                             MP4Duration renderingOffset = 0,
+                             bool isSyncSample = true);
 
-    void        GetSampleTimes(MP4SampleId sampleId,
-                               MP4Timestamp* pStartTime, MP4Duration* pDuration);
+            void WriteSampleDependency(const uint8_t* pBytes, uint32_t numBytes,
+                                       MP4Duration duration,
+                                       MP4Duration renderingOffset,
+                                       bool isSyncSample,
+                                       uint32_t dependencyFlags);
 
-    bool        IsSyncSample(MP4SampleId sampleId);
+            virtual void FinishWrite(uint32_t options = 0);
 
-    MP4SampleId GetSampleIdFromTime(
-        MP4Timestamp when,
-        bool wantSyncSample = false);
+            uint64_t GetDuration(); // in track timeScale units
+            uint32_t GetTimeScale();
+            uint32_t GetNumberOfSamples();
+            uint32_t GetSampleSize(MP4SampleId sampleId);
+            uint32_t GetMaxSampleSize();
+            uint64_t GetTotalOfSampleSizes();
+            uint32_t GetAvgBitrate(); // in bps
+            uint32_t GetMaxBitrate(); // in bps
 
-    MP4Duration GetSampleRenderingOffset(MP4SampleId sampleId);
-    void        SetSampleRenderingOffset(MP4SampleId sampleId,
-                                         MP4Duration renderingOffset);
+            MP4Duration GetFixedSampleDuration();
+            void SetFixedSampleDuration(MP4Duration duration);
 
-    MP4EditId   AddEdit(
-        MP4EditId editId = MP4_INVALID_EDIT_ID);
+            void GetSampleTimes(MP4SampleId sampleId, MP4Timestamp* pStartTime,
+                                MP4Duration* pDuration);
 
-    void        DeleteEdit(
-        MP4EditId editId);
+            bool IsSyncSample(MP4SampleId sampleId);
 
-    MP4Timestamp GetEditStart(
-        MP4EditId editId);
+            MP4SampleId GetSampleIdFromTime(MP4Timestamp when,
+                                            bool wantSyncSample = false);
 
-    MP4Timestamp GetEditTotalDuration(
-        MP4EditId editId);
+            MP4Duration GetSampleRenderingOffset(MP4SampleId sampleId);
+            void SetSampleRenderingOffset(MP4SampleId sampleId,
+                                          MP4Duration renderingOffset);
 
-    MP4SampleId GetSampleIdFromEditTime(
-        MP4Timestamp editWhen,
-        MP4Timestamp* pStartTime = NULL,
-        MP4Duration* pDuration = NULL);
+            MP4EditId AddEdit(MP4EditId editId = MP4_INVALID_EDIT_ID);
 
-    // special operation for use during hint track packet assembly
-    void ReadSampleFragment(
-        MP4SampleId sampleId,
-        uint32_t sampleOffset,
-        uint16_t sampleLength,
-        uint8_t* pDest);
+            void DeleteEdit(MP4EditId editId);
 
-    // special operations for use during optimization
+            MP4Timestamp GetEditStart(MP4EditId editId);
 
-    uint32_t GetNumberOfChunks();
+            MP4Timestamp GetEditTotalDuration(MP4EditId editId);
 
-    MP4Timestamp GetChunkTime(MP4ChunkId chunkId);
+            MP4SampleId GetSampleIdFromEditTime(MP4Timestamp editWhen,
+                                                MP4Timestamp* pStartTime = NULL,
+                                                MP4Duration* pDuration = NULL);
 
-    void ReadChunk(MP4ChunkId chunkId,
-                   uint8_t** ppChunk, uint32_t* pChunkSize);
+            // special operation for use during hint track packet assembly
+            void ReadSampleFragment(MP4SampleId sampleId, uint32_t sampleOffset,
+                                    uint16_t sampleLength, uint8_t* pDest);
 
-    void RewriteChunk(MP4ChunkId chunkId,
-                      uint8_t* pChunk, uint32_t chunkSize);
+            // special operations for use during optimization
 
-    MP4Duration GetDurationPerChunk();
-    void        SetDurationPerChunk( MP4Duration );
+            uint32_t GetNumberOfChunks();
 
-protected:
-    bool        InitEditListProperties();
+            MP4Timestamp GetChunkTime(MP4ChunkId chunkId);
 
-    File*       GetSampleFile( MP4SampleId sampleId );
-    uint64_t    GetSampleFileOffset(MP4SampleId sampleId);
-    uint32_t    GetSampleStscIndex(MP4SampleId sampleId);
-    uint32_t    GetChunkStscIndex(MP4ChunkId chunkId);
-    uint32_t    GetChunkSize(MP4ChunkId chunkId);
-    uint32_t    GetSampleCttsIndex(MP4SampleId sampleId,
-                                   MP4SampleId* pFirstSampleId = NULL);
-    MP4SampleId GetNextSyncSample(MP4SampleId sampleId);
+            void ReadChunk(MP4ChunkId chunkId, uint8_t** ppChunk,
+                           uint32_t* pChunkSize);
 
-    void UpdateSampleSizes(MP4SampleId sampleId,
-                           uint32_t numBytes);
-    bool IsChunkFull(MP4SampleId sampleId);
-    void UpdateSampleToChunk(MP4SampleId sampleId,
-                             MP4ChunkId chunkId, uint32_t samplesPerChunk);
-    void UpdateChunkOffsets(uint64_t chunkOffset);
-    void UpdateSampleTimes(MP4Duration duration);
-    void UpdateRenderingOffsets(MP4SampleId sampleId,
-                                MP4Duration renderingOffset);
-    void UpdateSyncSamples(MP4SampleId sampleId,
-                           bool isSyncSample);
+            void RewriteChunk(MP4ChunkId chunkId, uint8_t* pChunk,
+                              uint32_t chunkSize);
 
-    MP4Atom* AddAtom(const char* parentName, const char* childName);
+            MP4Duration GetDurationPerChunk();
+            void SetDurationPerChunk(MP4Duration);
 
-    void UpdateDurations(MP4Duration duration);
-    MP4Duration ToMovieDuration(MP4Duration trackDuration);
+        protected:
+            bool InitEditListProperties();
 
-    void UpdateModificationTimes();
+            File* GetSampleFile(MP4SampleId sampleId);
+            uint64_t GetSampleFileOffset(MP4SampleId sampleId);
+            uint32_t GetSampleStscIndex(MP4SampleId sampleId);
+            uint32_t GetChunkStscIndex(MP4ChunkId chunkId);
+            uint32_t GetChunkSize(MP4ChunkId chunkId);
+            uint32_t GetSampleCttsIndex(MP4SampleId sampleId,
+                                        MP4SampleId* pFirstSampleId = NULL);
+            MP4SampleId GetNextSyncSample(MP4SampleId sampleId);
 
-    void WriteChunkBuffer();
+            void UpdateSampleSizes(MP4SampleId sampleId, uint32_t numBytes);
+            bool IsChunkFull(MP4SampleId sampleId);
+            void UpdateSampleToChunk(MP4SampleId sampleId, MP4ChunkId chunkId,
+                                     uint32_t samplesPerChunk);
+            void UpdateChunkOffsets(uint64_t chunkOffset);
+            void UpdateSampleTimes(MP4Duration duration);
+            void UpdateRenderingOffsets(MP4SampleId sampleId,
+                                        MP4Duration renderingOffset);
+            void UpdateSyncSamples(MP4SampleId sampleId, bool isSyncSample);
 
-    void CalculateBytesPerSample();
+            MP4Atom* AddAtom(const char* parentName, const char* childName);
 
-    void FinishSdtp();
+            void UpdateDurations(MP4Duration duration);
+            MP4Duration ToMovieDuration(MP4Duration trackDuration);
 
-protected:
-    MP4File&    m_File;
-    MP4Atom&    m_trakAtom;         // moov.trak[]
-    MP4TrackId  m_trackId;          // moov.trak[].tkhd.trackId
-    MP4StringProperty* m_pTypeProperty; // moov.trak[].mdia.hdlr.handlerType
+            void UpdateModificationTimes();
 
-    uint32_t m_lastStsdIndex;
-    File*    m_lastSampleFile;
+            void WriteChunkBuffer();
 
-    // for efficient construction of hint track packets
-    MP4SampleId m_cachedReadSampleId;
-    uint8_t*    m_pCachedReadSample;
-    uint32_t    m_cachedReadSampleSize;
+            void CalculateBytesPerSample();
 
-    // for writing
-    MP4SampleId m_writeSampleId;
-    MP4Duration m_fixedSampleDuration;
-    uint8_t*    m_pChunkBuffer;
-    uint32_t    m_chunkBufferSize;          // Actual size of our chunk buffer.
-    uint32_t    m_sizeOfDataInChunkBuffer;  // Size of the data in the chunk buffer.
-    uint32_t    m_chunkSamples;
-    MP4Duration m_chunkDuration;
+            void FinishSdtp();
 
-    // controls for chunking
-    uint32_t    m_samplesPerChunk;
-    MP4Duration m_durationPerChunk;
+        protected:
+            MP4File& m_File;
+            MP4Atom& m_trakAtom;  // moov.trak[]
+            MP4TrackId m_trackId; // moov.trak[].tkhd.trackId
+            MP4StringProperty*
+                m_pTypeProperty; // moov.trak[].mdia.hdlr.handlerType
 
-    uint32_t       m_bytesPerSample;
+            uint32_t m_lastStsdIndex;
+            File* m_lastSampleFile;
 
-    // controls for AMR chunking
-    int     m_isAmr;
-    uint8_t m_curMode;
+            // for efficient construction of hint track packets
+            MP4SampleId m_cachedReadSampleId;
+            uint8_t* m_pCachedReadSample;
+            uint32_t m_cachedReadSampleSize;
 
-    MP4Integer32Property* m_pTimeScaleProperty;
-    MP4IntegerProperty* m_pTrackDurationProperty;       // 32 or 64 bits
-    MP4IntegerProperty* m_pMediaDurationProperty;       // 32 or 64 bits
-    MP4IntegerProperty* m_pTrackModificationProperty;   // 32 or 64 bits
-    MP4IntegerProperty* m_pMediaModificationProperty;   // 32 or 64 bits
+            // for writing
+            MP4SampleId m_writeSampleId;
+            MP4Duration m_fixedSampleDuration;
+            uint8_t* m_pChunkBuffer;
+            uint32_t m_chunkBufferSize; // Actual size of our chunk buffer.
+            uint32_t m_sizeOfDataInChunkBuffer; // Size of the data in the chunk
+                                                // buffer.
+            uint32_t m_chunkSamples;
+            MP4Duration m_chunkDuration;
 
-    MP4Integer32Property* m_pStszFixedSampleSizeProperty;
-    MP4Integer32Property* m_pStszSampleCountProperty;
+            // controls for chunking
+            uint32_t m_samplesPerChunk;
+            MP4Duration m_durationPerChunk;
 
-    void SampleSizePropertyAddValue(uint32_t bytes);
-    uint8_t m_stsz_sample_bits;
-    bool m_have_stz2_4bit_sample;
-    uint8_t m_stz2_4bit_sample_value;
-    MP4IntegerProperty* m_pStszSampleSizeProperty;
+            uint32_t m_bytesPerSample;
 
-    MP4Integer32Property* m_pStscCountProperty;
-    MP4Integer32Property* m_pStscFirstChunkProperty;
-    MP4Integer32Property* m_pStscSamplesPerChunkProperty;
-    MP4Integer32Property* m_pStscSampleDescrIndexProperty;
-    MP4Integer32Property* m_pStscFirstSampleProperty;
+            // controls for AMR chunking
+            int m_isAmr;
+            uint8_t m_curMode;
 
-    MP4Integer32Property* m_pChunkCountProperty;
-    MP4IntegerProperty*   m_pChunkOffsetProperty;       // 32 or 64 bits
+            MP4Integer32Property* m_pTimeScaleProperty;
+            MP4IntegerProperty* m_pTrackDurationProperty;     // 32 or 64 bits
+            MP4IntegerProperty* m_pMediaDurationProperty;     // 32 or 64 bits
+            MP4IntegerProperty* m_pTrackModificationProperty; // 32 or 64 bits
+            MP4IntegerProperty* m_pMediaModificationProperty; // 32 or 64 bits
 
-    MP4Integer32Property* m_pSttsCountProperty;
-    MP4Integer32Property* m_pSttsSampleCountProperty;
-    MP4Integer32Property* m_pSttsSampleDeltaProperty;
+            MP4Integer32Property* m_pStszFixedSampleSizeProperty;
+            MP4Integer32Property* m_pStszSampleCountProperty;
 
-    // for improve sequental timestamp index access
-    uint32_t    m_cachedSttsIndex;
-    MP4SampleId m_cachedSttsSid;
-    MP4Timestamp    m_cachedSttsElapsed;
+            void SampleSizePropertyAddValue(uint32_t bytes);
+            uint8_t m_stsz_sample_bits;
+            bool m_have_stz2_4bit_sample;
+            uint8_t m_stz2_4bit_sample_value;
+            MP4IntegerProperty* m_pStszSampleSizeProperty;
 
-    uint32_t    m_cachedCttsIndex;
-    MP4SampleId m_cachedCttsSid;
+            MP4Integer32Property* m_pStscCountProperty;
+            MP4Integer32Property* m_pStscFirstChunkProperty;
+            MP4Integer32Property* m_pStscSamplesPerChunkProperty;
+            MP4Integer32Property* m_pStscSampleDescrIndexProperty;
+            MP4Integer32Property* m_pStscFirstSampleProperty;
 
-    MP4Integer32Property* m_pCttsCountProperty;
-    MP4Integer32Property* m_pCttsSampleCountProperty;
-    MP4Integer32Property* m_pCttsSampleOffsetProperty;
+            MP4Integer32Property* m_pChunkCountProperty;
+            MP4IntegerProperty* m_pChunkOffsetProperty; // 32 or 64 bits
 
-    MP4Integer32Property* m_pStssCountProperty;
-    MP4Integer32Property* m_pStssSampleProperty;
+            MP4Integer32Property* m_pSttsCountProperty;
+            MP4Integer32Property* m_pSttsSampleCountProperty;
+            MP4Integer32Property* m_pSttsSampleDeltaProperty;
 
-    MP4Integer32Property* m_pElstCountProperty;
-    MP4IntegerProperty*   m_pElstMediaTimeProperty;     // 32 or 64 bits
-    MP4IntegerProperty*   m_pElstDurationProperty;      // 32 or 64 bits
-    MP4Integer16Property* m_pElstRateProperty;
-    MP4Integer16Property* m_pElstReservedProperty;
+            // for improve sequental timestamp index access
+            uint32_t m_cachedSttsIndex;
+            MP4SampleId m_cachedSttsSid;
+            MP4Timestamp m_cachedSttsElapsed;
 
-    string m_sdtpLog; // records frame types for H264 samples
-};
+            uint32_t m_cachedCttsIndex;
+            MP4SampleId m_cachedCttsSid;
 
-MP4ARRAY_DECL(MP4Track, MP4Track*);
+            MP4Integer32Property* m_pCttsCountProperty;
+            MP4Integer32Property* m_pCttsSampleCountProperty;
+            MP4Integer32Property* m_pCttsSampleOffsetProperty;
 
-///////////////////////////////////////////////////////////////////////////////
+            MP4Integer32Property* m_pStssCountProperty;
+            MP4Integer32Property* m_pStssSampleProperty;
 
-}} // namespace mp4v2::impl
+            MP4Integer32Property* m_pElstCountProperty;
+            MP4IntegerProperty* m_pElstMediaTimeProperty; // 32 or 64 bits
+            MP4IntegerProperty* m_pElstDurationProperty;  // 32 or 64 bits
+            MP4Integer16Property* m_pElstRateProperty;
+            MP4Integer16Property* m_pElstReservedProperty;
+
+            string m_sdtpLog; // records frame types for H264 samples
+        };
+
+        MP4ARRAY_DECL(MP4Track, MP4Track*);
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2
 
 #endif // MP4V2_IMPL_MP4TRACK_H

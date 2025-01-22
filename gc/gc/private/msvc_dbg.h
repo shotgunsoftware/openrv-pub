@@ -25,7 +25,8 @@
 #include <stdlib.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #if !MSVC_DBG_DLL
@@ -40,30 +41,54 @@ extern "C" {
 #define MAX_SYM_NAME 2000
 #endif
 
-typedef void*  HANDLE;
-typedef struct _CONTEXT CONTEXT;
+    typedef void* HANDLE;
+    typedef struct _CONTEXT CONTEXT;
 
-MSVC_DBG_EXPORT size_t GetStackFrames(size_t skip, void* frames[], size_t maxFrames);
-MSVC_DBG_EXPORT size_t GetStackFramesFromContext(HANDLE hProcess, HANDLE hThread, CONTEXT* context, size_t skip, void* frames[], size_t maxFrames);
+    MSVC_DBG_EXPORT size_t GetStackFrames(size_t skip, void* frames[],
+                                          size_t maxFrames);
+    MSVC_DBG_EXPORT size_t
+    GetStackFramesFromContext(HANDLE hProcess, HANDLE hThread, CONTEXT* context,
+                              size_t skip, void* frames[], size_t maxFrames);
 
-MSVC_DBG_EXPORT size_t GetModuleNameFromAddress(void* address, char* moduleName, size_t size);
-MSVC_DBG_EXPORT size_t GetModuleNameFromStack(size_t skip, char* moduleName, size_t size);
+    MSVC_DBG_EXPORT size_t GetModuleNameFromAddress(void* address,
+                                                    char* moduleName,
+                                                    size_t size);
+    MSVC_DBG_EXPORT size_t GetModuleNameFromStack(size_t skip, char* moduleName,
+                                                  size_t size);
 
-MSVC_DBG_EXPORT size_t GetSymbolNameFromAddress(void* address, char* symbolName, size_t size, size_t* offsetBytes);
-MSVC_DBG_EXPORT size_t GetSymbolNameFromStack(size_t skip, char* symbolName, size_t size, size_t* offsetBytes);
+    MSVC_DBG_EXPORT size_t GetSymbolNameFromAddress(void* address,
+                                                    char* symbolName,
+                                                    size_t size,
+                                                    size_t* offsetBytes);
+    MSVC_DBG_EXPORT size_t GetSymbolNameFromStack(size_t skip, char* symbolName,
+                                                  size_t size,
+                                                  size_t* offsetBytes);
 
-MSVC_DBG_EXPORT size_t GetFileLineFromAddress(void* address, char* fileName, size_t size, size_t* lineNumber, size_t* offsetBytes);
-MSVC_DBG_EXPORT size_t GetFileLineFromStack(size_t skip, char* fileName, size_t size, size_t* lineNumber, size_t* offsetBytes);
+    MSVC_DBG_EXPORT size_t GetFileLineFromAddress(void* address, char* fileName,
+                                                  size_t size,
+                                                  size_t* lineNumber,
+                                                  size_t* offsetBytes);
+    MSVC_DBG_EXPORT size_t GetFileLineFromStack(size_t skip, char* fileName,
+                                                size_t size, size_t* lineNumber,
+                                                size_t* offsetBytes);
 
-MSVC_DBG_EXPORT size_t GetDescriptionFromAddress(void* address, const char* format, char* description, size_t size);
-MSVC_DBG_EXPORT size_t GetDescriptionFromStack(void*const frames[], size_t count, const char* format, char* description[], size_t size);
+    MSVC_DBG_EXPORT size_t GetDescriptionFromAddress(void* address,
+                                                     const char* format,
+                                                     char* description,
+                                                     size_t size);
+    MSVC_DBG_EXPORT size_t GetDescriptionFromStack(void* const frames[],
+                                                   size_t count,
+                                                   const char* format,
+                                                   char* description[],
+                                                   size_t size);
 
-/* Compatibility with <execinfo.h> */
-MSVC_DBG_EXPORT int    backtrace(void* addresses[], int count);
-MSVC_DBG_EXPORT char** backtrace_symbols(void*const addresses[], int count);
+    /* Compatibility with <execinfo.h> */
+    MSVC_DBG_EXPORT int backtrace(void* addresses[], int count);
+    MSVC_DBG_EXPORT char** backtrace_symbols(void* const addresses[],
+                                             int count);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif/*_MSVC_DBG_H*/
+#endif /*_MSVC_DBG_H*/

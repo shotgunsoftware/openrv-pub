@@ -8,8 +8,7 @@
 #endif
 #include <assert.h>
 
-int
-main(void)
+int main(void)
 {
     int major = -1;
     int minor = -1;

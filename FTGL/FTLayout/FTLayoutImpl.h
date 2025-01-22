@@ -30,27 +30,25 @@
 #include "FTSize.h"
 #include "FTGlyphContainer.h"
 
-
 class FTLayoutImpl
 {
-        friend class FTLayout;
+    friend class FTLayout;
 
-    protected:
-        FTLayoutImpl();
+protected:
+    FTLayoutImpl();
 
-        virtual ~FTLayoutImpl();
+    virtual ~FTLayoutImpl();
 
-    protected:
-        /**
-         * Current pen or cursor position;
-         */
-        FTPoint pen;
+protected:
+    /**
+     * Current pen or cursor position;
+     */
+    FTPoint pen;
 
-        /**
-         * Current error code. Zero means no error.
-         */
-        FT_Error err;
+    /**
+     * Current error code. Zero means no error.
+     */
+    FT_Error err;
 };
 
-#endif  //  __FTLayoutImpl__
-
+#endif //  __FTLayoutImpl__

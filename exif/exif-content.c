@@ -27,253 +27,253 @@
 #include <string.h>
 
 /* unused constant
- * static const unsigned char ExifHeader[] = {0x45, 0x78, 0x69, 0x66, 0x00, 0x00};
+ * static const unsigned char ExifHeader[] = {0x45, 0x78, 0x69, 0x66, 0x00,
+ * 0x00};
  */
 
 struct _ExifContentPrivate
 {
-	unsigned int ref_count;
+    unsigned int ref_count;
 
-	ExifMem *mem;
-	ExifLog *log;
+    ExifMem* mem;
+    ExifLog* log;
 };
 
-ExifContent *
-exif_content_new (void)
+ExifContent* exif_content_new(void)
 {
-	ExifMem *mem = exif_mem_new_default ();
-	ExifContent *content = exif_content_new_mem (mem);
+    ExifMem* mem = exif_mem_new_default();
+    ExifContent* content = exif_content_new_mem(mem);
 
-	exif_mem_unref (mem);
+    exif_mem_unref(mem);
 
-	return content;
+    return content;
 }
 
-ExifContent *
-exif_content_new_mem (ExifMem *mem)
+ExifContent* exif_content_new_mem(ExifMem* mem)
 {
-	ExifContent *content;
+    ExifContent* content;
 
-	if (!mem) return NULL;
+    if (!mem)
+        return NULL;
 
-	content = exif_mem_alloc (mem, (ExifLong) sizeof (ExifContent));
-	if (!content)
-		return NULL;
-	content->priv = exif_mem_alloc (mem,
-				(ExifLong) sizeof (ExifContentPrivate));
-	if (!content->priv) {
-		exif_mem_free (mem, content);
-		return NULL;
-	}
+    content = exif_mem_alloc(mem, (ExifLong)sizeof(ExifContent));
+    if (!content)
+        return NULL;
+    content->priv = exif_mem_alloc(mem, (ExifLong)sizeof(ExifContentPrivate));
+    if (!content->priv)
+    {
+        exif_mem_free(mem, content);
+        return NULL;
+    }
 
-	content->priv->ref_count = 1;
+    content->priv->ref_count = 1;
 
-	content->priv->mem = mem;
-	exif_mem_ref (mem);
+    content->priv->mem = mem;
+    exif_mem_ref(mem);
 
-	return content;
+    return content;
 }
 
-void
-exif_content_ref (ExifContent *content)
+void exif_content_ref(ExifContent* content) { content->priv->ref_count++; }
+
+void exif_content_unref(ExifContent* content)
 {
-	content->priv->ref_count++;
+    content->priv->ref_count--;
+    if (!content->priv->ref_count)
+        exif_content_free(content);
 }
 
-void
-exif_content_unref (ExifContent *content)
+void exif_content_free(ExifContent* content)
 {
-	content->priv->ref_count--;
-	if (!content->priv->ref_count)
-		exif_content_free (content);
+    ExifMem* mem = (content && content->priv) ? content->priv->mem : NULL;
+    unsigned int i;
+
+    if (!content)
+        return;
+
+    for (i = 0; i < content->count; i++)
+        exif_entry_unref(content->entries[i]);
+    exif_mem_free(mem, content->entries);
+
+    if (content->priv)
+    {
+        exif_log_unref(content->priv->log);
+    }
+
+    exif_mem_free(mem, content->priv);
+    exif_mem_free(mem, content);
+    exif_mem_unref(mem);
 }
 
-void
-exif_content_free (ExifContent *content)
+void exif_content_dump(ExifContent* content, unsigned int indent)
 {
-	ExifMem *mem = (content && content->priv) ? content->priv->mem : NULL;
-	unsigned int i;
+    char buf[1024];
+    unsigned int i;
 
-	if (!content) return;
+    for (i = 0; i < 2 * indent; i++)
+        buf[i] = ' ';
+    buf[i] = '\0';
 
-	for (i = 0; i < content->count; i++)
-		exif_entry_unref (content->entries[i]);
-	exif_mem_free (mem, content->entries);
+    if (!content)
+        return;
 
-	if (content->priv) {
-		exif_log_unref (content->priv->log);
-	}
-
-	exif_mem_free (mem, content->priv);
-	exif_mem_free (mem, content);
-	exif_mem_unref (mem);
+    printf("%sDumping exif content (%u entries)...\n", buf, content->count);
+    for (i = 0; i < content->count; i++)
+        exif_entry_dump(content->entries[i], indent + 1);
 }
 
-void
-exif_content_dump (ExifContent *content, unsigned int indent)
+void exif_content_add_entry(ExifContent* c, ExifEntry* entry)
 {
-	char buf[1024];
-	unsigned int i;
+    ExifEntry** entries;
+    if (!c || !c->priv || !entry || entry->parent)
+        return;
 
-	for (i = 0; i < 2 * indent; i++)
-		buf[i] = ' ';
-	buf[i] = '\0';
+    /* One tag can only be added once to an IFD. */
+    if (exif_content_get_entry(c, entry->tag))
+    {
+        exif_log(c->priv->log, EXIF_LOG_CODE_DEBUG, "ExifContent",
+                 "An attempt has been made to add "
+                 "the tag '%s' twice to an IFD. This is against "
+                 "specification.",
+                 exif_tag_get_name(entry->tag));
+        return;
+    }
 
-	if (!content)
-		return;
-
-	printf ("%sDumping exif content (%u entries)...\n", buf,
-		content->count);
-	for (i = 0; i < content->count; i++)
-		exif_entry_dump (content->entries[i], indent + 1);
+    entries = exif_mem_realloc(c->priv->mem, c->entries,
+                               sizeof(ExifEntry*) * (c->count + 1));
+    if (!entries)
+        return;
+    entry->parent = c;
+    entries[c->count++] = entry;
+    c->entries = entries;
+    exif_entry_ref(entry);
 }
 
-void
-exif_content_add_entry (ExifContent *c, ExifEntry *entry)
+void exif_content_remove_entry(ExifContent* c, ExifEntry* e)
 {
-	ExifEntry **entries;
-	if (!c || !c->priv || !entry || entry->parent) return;
+    unsigned int i;
 
-	/* One tag can only be added once to an IFD. */
-	if (exif_content_get_entry (c, entry->tag)) {
-		exif_log (c->priv->log, EXIF_LOG_CODE_DEBUG, "ExifContent",
-			"An attempt has been made to add "
-			"the tag '%s' twice to an IFD. This is against "
-			"specification.", exif_tag_get_name (entry->tag));
-		return;
-	}
+    if (!c || !c->priv || !e || (e->parent != c))
+        return;
 
-	entries = exif_mem_realloc (c->priv->mem,
-		c->entries, sizeof (ExifEntry*) * (c->count + 1));
-	if (!entries) return;
-	entry->parent = c;
-	entries[c->count++] = entry;
-	c->entries = entries;
-	exif_entry_ref (entry);
+    /* Search the entry */
+    for (i = 0; i < c->count; i++)
+        if (c->entries[i] == e)
+            break;
+    if (i == c->count)
+        return;
+
+    /* Remove the entry */
+    memmove(&c->entries[i], &c->entries[i + 1],
+            sizeof(ExifEntry*) * (c->count - i - 1));
+    c->count--;
+    e->parent = NULL;
+    exif_entry_unref(e);
+    c->entries = exif_mem_realloc(c->priv->mem, c->entries,
+                                  sizeof(ExifEntry*) * c->count);
 }
 
-void
-exif_content_remove_entry (ExifContent *c, ExifEntry *e)
+ExifEntry* exif_content_get_entry(ExifContent* content, ExifTag tag)
 {
-	unsigned int i;
+    unsigned int i;
 
-	if (!c || !c->priv || !e || (e->parent != c)) return;
+    if (!content)
+        return (NULL);
 
-	/* Search the entry */
-	for (i = 0; i < c->count; i++) if (c->entries[i] == e) break;
-	if (i == c->count) return;
-
-	/* Remove the entry */
-	memmove (&c->entries[i], &c->entries[i + 1],
-		 sizeof (ExifEntry*) * (c->count - i - 1));
-	c->count--;
-	e->parent = NULL;
-	exif_entry_unref (e);
-	c->entries = exif_mem_realloc (c->priv->mem, c->entries,
-					sizeof(ExifEntry*) * c->count);
+    for (i = 0; i < content->count; i++)
+        if (content->entries[i]->tag == tag)
+            return (content->entries[i]);
+    return (NULL);
 }
 
-ExifEntry *
-exif_content_get_entry (ExifContent *content, ExifTag tag)
+void exif_content_foreach_entry(ExifContent* content,
+                                ExifContentForeachEntryFunc func, void* data)
 {
-	unsigned int i;
+    unsigned int i;
 
-	if (!content)
-		return (NULL);
+    if (!content || !func)
+        return;
 
-	for (i = 0; i < content->count; i++)
-		if (content->entries[i]->tag == tag)
-			return (content->entries[i]);
-	return (NULL);
+    for (i = 0; i < content->count; i++)
+        func(content->entries[i], data);
 }
 
-void
-exif_content_foreach_entry (ExifContent *content,
-			    ExifContentForeachEntryFunc func, void *data)
+void exif_content_log(ExifContent* content, ExifLog* log)
 {
-	unsigned int i;
+    if (!content || !content->priv || !log || content->priv->log == log)
+        return;
 
-	if (!content || !func)
-		return;
-
-	for (i = 0; i < content->count; i++)
-		func (content->entries[i], data);
+    if (content->priv->log)
+        exif_log_unref(content->priv->log);
+    content->priv->log = log;
+    exif_log_ref(log);
 }
 
-void
-exif_content_log (ExifContent *content, ExifLog *log)
+ExifIfd exif_content_get_ifd(ExifContent* c)
 {
-	if (!content || !content->priv || !log || content->priv->log == log)
-		return;
+    if (!c || !c->parent)
+        return EXIF_IFD_COUNT;
 
-	if (content->priv->log) exif_log_unref (content->priv->log);
-	content->priv->log = log;
-	exif_log_ref (log);
+    return ((c)->parent->ifd[EXIF_IFD_0] == (c))      ? EXIF_IFD_0
+           : ((c)->parent->ifd[EXIF_IFD_1] == (c))    ? EXIF_IFD_1
+           : ((c)->parent->ifd[EXIF_IFD_EXIF] == (c)) ? EXIF_IFD_EXIF
+           : ((c)->parent->ifd[EXIF_IFD_GPS] == (c))  ? EXIF_IFD_GPS
+           : ((c)->parent->ifd[EXIF_IFD_INTEROPERABILITY] == (c))
+               ? EXIF_IFD_INTEROPERABILITY
+               : EXIF_IFD_COUNT;
 }
 
-ExifIfd
-exif_content_get_ifd (ExifContent *c)
+static void fix_func(ExifEntry* e, void* data) { exif_entry_fix(e); }
+
+void exif_content_fix(ExifContent* c)
 {
-	if (!c || !c->parent) return EXIF_IFD_COUNT;
+    ExifIfd ifd = exif_content_get_ifd(c);
+    ExifDataType dt;
+    ExifTag t;
+    ExifEntry* e;
 
-	return 
-		((c)->parent->ifd[EXIF_IFD_0] == (c)) ? EXIF_IFD_0 :
-		((c)->parent->ifd[EXIF_IFD_1] == (c)) ? EXIF_IFD_1 :
-		((c)->parent->ifd[EXIF_IFD_EXIF] == (c)) ? EXIF_IFD_EXIF :
-		((c)->parent->ifd[EXIF_IFD_GPS] == (c)) ? EXIF_IFD_GPS :
-		((c)->parent->ifd[EXIF_IFD_INTEROPERABILITY] == (c)) ? EXIF_IFD_INTEROPERABILITY :
-		EXIF_IFD_COUNT;
-}
+    if (!c)
+        return;
 
-static void
-fix_func (ExifEntry *e, void *data)
-{
-	exif_entry_fix (e);
-}
+    dt = exif_data_get_data_type(c->parent);
 
-void
-exif_content_fix (ExifContent *c)
-{
-	ExifIfd ifd = exif_content_get_ifd (c);
-	ExifDataType dt;
-	ExifTag t;
-	ExifEntry *e;
+    /* First of all, fix all existing entries. */
+    exif_content_foreach_entry(c, fix_func, NULL);
 
-	if (!c) return;
-
-	dt = exif_data_get_data_type (c->parent);
-
-	/* First of all, fix all existing entries. */
-	exif_content_foreach_entry (c, fix_func, NULL);
-
-	/*
-	 * Then check for existing tags that are not allowed and for
-	 * non-existing mandatory tags.
-	 */
-	for (t = 0; t <= 0xffff; t++) {
-		switch (exif_tag_get_support_level_in_ifd (t, ifd, dt)) {
-		case EXIF_SUPPORT_LEVEL_MANDATORY:
-			if (exif_content_get_entry (c, t)) break;
-			exif_log (c->priv->log, EXIF_LOG_CODE_DEBUG, "exif-content",
-					"Tag '%s' is mandatory in IFD '%s' and has therefore been added.",
-					exif_tag_get_name_in_ifd (t, ifd), exif_ifd_get_name (ifd));
-			e = exif_entry_new ();
-			exif_content_add_entry (c, e);
-			exif_entry_initialize (e, t);
-			exif_entry_unref (e);
-			break;
-		case EXIF_SUPPORT_LEVEL_NOT_RECORDED:
-			e = exif_content_get_entry (c, t);
-			if (!e) break;
-			exif_log (c->priv->log, EXIF_LOG_CODE_DEBUG, "exif-content",
-					"Tag '%s' is not recoreded in IFD '%s' and has therefore been "
-					"removed.", exif_tag_get_name_in_ifd (t, ifd),
-					exif_ifd_get_name (ifd));
-			exif_content_remove_entry (c, e);
-			break;
-		case EXIF_SUPPORT_LEVEL_OPTIONAL:
-		default:
-			break;
-		}
-	}
+    /*
+     * Then check for existing tags that are not allowed and for
+     * non-existing mandatory tags.
+     */
+    for (t = 0; t <= 0xffff; t++)
+    {
+        switch (exif_tag_get_support_level_in_ifd(t, ifd, dt))
+        {
+        case EXIF_SUPPORT_LEVEL_MANDATORY:
+            if (exif_content_get_entry(c, t))
+                break;
+            exif_log(c->priv->log, EXIF_LOG_CODE_DEBUG, "exif-content",
+                     "Tag '%s' is mandatory in IFD '%s' and has therefore been "
+                     "added.",
+                     exif_tag_get_name_in_ifd(t, ifd), exif_ifd_get_name(ifd));
+            e = exif_entry_new();
+            exif_content_add_entry(c, e);
+            exif_entry_initialize(e, t);
+            exif_entry_unref(e);
+            break;
+        case EXIF_SUPPORT_LEVEL_NOT_RECORDED:
+            e = exif_content_get_entry(c, t);
+            if (!e)
+                break;
+            exif_log(
+                c->priv->log, EXIF_LOG_CODE_DEBUG, "exif-content",
+                "Tag '%s' is not recoreded in IFD '%s' and has therefore been "
+                "removed.",
+                exif_tag_get_name_in_ifd(t, ifd), exif_ifd_get_name(ifd));
+            exif_content_remove_entry(c, e);
+            break;
+        case EXIF_SUPPORT_LEVEL_OPTIONAL:
+        default:
+            break;
+        }
+    }
 }

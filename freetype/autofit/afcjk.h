@@ -15,27 +15,21 @@
 /*                                                                         */
 /***************************************************************************/
 
-
 #ifndef __AFCJK_H__
 #define __AFCJK_H__
 
 #include "afhints.h"
 
-
 FT_BEGIN_HEADER
 
+/* the CJK-specific script class */
 
-  /* the CJK-specific script class */
-
-  FT_CALLBACK_TABLE const AF_ScriptClassRec
-  af_cjk_script_class;
-
+FT_CALLBACK_TABLE const AF_ScriptClassRec af_cjk_script_class;
 
 /* */
 
 FT_END_HEADER
 
 #endif /* __AFCJK_H__ */
-
 
 /* END */

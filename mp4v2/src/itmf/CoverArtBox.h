@@ -9,9 +9,9 @@
 //  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 //  License for the specific language governing rights and limitations
 //  under the License.
-// 
+//
 //  The Original Code is MP4v2.
-// 
+//
 //  The Initial Developer of the Original Code is Kona Blend.
 //  Portions created by Kona Blend are Copyright (C) 2008.
 //  All Rights Reserved.
@@ -24,98 +24,112 @@
 #ifndef MP4V2_IMPL_ITMF_COVERARTBOX_H
 #define MP4V2_IMPL_ITMF_COVERARTBOX_H
 
-namespace mp4v2 { namespace impl { namespace itmf {
-
-///////////////////////////////////////////////////////////////////////////////
-
-/// Functional class for covr-box (Cover-art Box) support.
-///
-class MP4V2_EXPORT CoverArtBox
+namespace mp4v2
 {
-public:
-    /// Data object for covr-box item.
-    /// This object correlates to one covr->data atom and offers automatic
-    /// memory freeing when <b>autofree</b> is true.
-    ///
-    class MP4V2_EXPORT Item
+    namespace impl
     {
-    public:
-        Item();
-        Item( const Item& );
-        ~Item();
+        namespace itmf
+        {
 
-        Item& operator=( const Item& );
+            ///////////////////////////////////////////////////////////////////////////////
 
-        /// Reset to state of newly constructed object.
-        /// If <b>buffer</b> is not NULL and <b>autofree</b> is true the
-        /// buffer will be free'd.
-        void reset();
+            /// Functional class for covr-box (Cover-art Box) support.
+            ///
+            class MP4V2_EXPORT CoverArtBox
+            {
+            public:
+                /// Data object for covr-box item.
+                /// This object correlates to one covr->data atom and offers
+                /// automatic memory freeing when <b>autofree</b> is true.
+                ///
+                class MP4V2_EXPORT Item
+                {
+                public:
+                    Item();
+                    Item(const Item&);
+                    ~Item();
 
-        BasicType type;     ///< covr-box type.
-        uint8_t*  buffer;   ///< buffer point to raw covr-box data.
-        uint32_t  size;     ///< size of covr-box buffer size in bytes.
-        bool      autofree; ///< when true invoke free(buffer) upon destruction.
-    };
+                    Item& operator=(const Item&);
 
-    /// Object representing a list of covr-box items.
-    typedef vector<Item> ItemList;
+                    /// Reset to state of newly constructed object.
+                    /// If <b>buffer</b> is not NULL and <b>autofree</b> is true
+                    /// the buffer will be free'd.
+                    void reset();
 
-    /// Fetch list of covr-box items from file.
-    ///
-    /// @param hFile on which to operate.
-    /// @param out vector of ArtItem objects.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool list( MP4FileHandle hFile, ItemList& out );
+                    BasicType type;  ///< covr-box type.
+                    uint8_t* buffer; ///< buffer point to raw covr-box data.
+                    uint32_t size;   ///< size of covr-box buffer size in bytes.
+                    bool autofree;   ///< when true invoke free(buffer) upon
+                                     ///< destruction.
+                };
 
-    /// Add covr-box item to file.
-    /// Any necessary metadata atoms are first created.
-    /// Additionally, if an empty data-atom exists it will be used,
-    /// otherwise a new data-atom is added to <b>covr-atom</b>.
-    ///
-    /// @param hFile on which to operate.
-    /// @param item covr-box object to place in file.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool add( MP4FileHandle hFile, const Item& item );
+                /// Object representing a list of covr-box items.
+                typedef vector<Item> ItemList;
 
-    /// Replace covr-box item in file.
-    ///
-    /// @param hFile on which to operate.
-    /// @param item covr-box object to place in file.
-    /// @param index 0-based index of image to replace.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool set( MP4FileHandle hFile, const Item& item, uint32_t index );
+                /// Fetch list of covr-box items from file.
+                ///
+                /// @param hFile on which to operate.
+                /// @param out vector of ArtItem objects.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool list(MP4FileHandle hFile, ItemList& out);
 
-    /// Fetch covr-box item from file.
-    ///
-    /// @param hFile on which to operate.
-    /// @param item covr-box object populated with data.
-    ///     The resulting object owns the malloc'd buffer and <b>item.autofree</b>
-    ///     is set to true for convenient memory management.
-    /// @param index 0-based index of image to fetch.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool get( MP4FileHandle hFile, Item& item, uint32_t index );
+                /// Add covr-box item to file.
+                /// Any necessary metadata atoms are first created.
+                /// Additionally, if an empty data-atom exists it will be used,
+                /// otherwise a new data-atom is added to <b>covr-atom</b>.
+                ///
+                /// @param hFile on which to operate.
+                /// @param item covr-box object to place in file.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool add(MP4FileHandle hFile, const Item& item);
 
-    /// Remove covr-box item from file.
-    ///
-    /// @param hFile on which to operate.
-    /// @param index 0-based index of image to remove.
-    ///     Default value indicates wildcard behavior to remove all items.
-    ///
-    /// @return <b>true</b> on failure, <b>false</b> on success.
-    ///
-    static bool remove( MP4FileHandle hFile, uint32_t index = numeric_limits<uint32_t>::max() );
-};
+                /// Replace covr-box item in file.
+                ///
+                /// @param hFile on which to operate.
+                /// @param item covr-box object to place in file.
+                /// @param index 0-based index of image to replace.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool set(MP4FileHandle hFile, const Item& item,
+                                uint32_t index);
 
-///////////////////////////////////////////////////////////////////////////////
+                /// Fetch covr-box item from file.
+                ///
+                /// @param hFile on which to operate.
+                /// @param item covr-box object populated with data.
+                ///     The resulting object owns the malloc'd buffer and
+                ///     <b>item.autofree</b> is set to true for convenient
+                ///     memory management.
+                /// @param index 0-based index of image to fetch.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool get(MP4FileHandle hFile, Item& item,
+                                uint32_t index);
 
-}}} // namespace mp4v2::impl::itmf
+                /// Remove covr-box item from file.
+                ///
+                /// @param hFile on which to operate.
+                /// @param index 0-based index of image to remove.
+                ///     Default value indicates wildcard behavior to remove all
+                ///     items.
+                ///
+                /// @return <b>true</b> on failure, <b>false</b> on success.
+                ///
+                static bool
+                remove(MP4FileHandle hFile,
+                       uint32_t index = numeric_limits<uint32_t>::max());
+            };
+
+            ///////////////////////////////////////////////////////////////////////////////
+
+        } // namespace itmf
+    } // namespace impl
+} // namespace mp4v2
 
 #endif // MP4V2_IMPL_ITMF_COVERARTBOX_H

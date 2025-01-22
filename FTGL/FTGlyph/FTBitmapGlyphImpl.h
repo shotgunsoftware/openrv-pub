@@ -33,39 +33,38 @@ class FTBitmapGlyphImpl : public FTGlyphImpl
 {
     friend class FTBitmapGlyph;
 
-    protected:
-        FTBitmapGlyphImpl(FT_GlyphSlot glyph);
+protected:
+    FTBitmapGlyphImpl(FT_GlyphSlot glyph);
 
-        virtual ~FTBitmapGlyphImpl();
+    virtual ~FTBitmapGlyphImpl();
 
-        virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
+    virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
 
-    private:
-        /**
-         * The width of the glyph 'image'
-         */
-        unsigned int destWidth;
+private:
+    /**
+     * The width of the glyph 'image'
+     */
+    unsigned int destWidth;
 
-        /**
-         * The height of the glyph 'image'
-         */
-        unsigned int destHeight;
+    /**
+     * The height of the glyph 'image'
+     */
+    unsigned int destHeight;
 
-        /**
-         * The pitch of the glyph 'image'
-         */
-        unsigned int destPitch;
+    /**
+     * The pitch of the glyph 'image'
+     */
+    unsigned int destPitch;
 
-        /**
-         * Vector from the pen position to the topleft corner of the bitmap
-         */
-        FTPoint pos;
+    /**
+     * Vector from the pen position to the topleft corner of the bitmap
+     */
+    FTPoint pos;
 
-        /**
-         * Pointer to the 'image' data
-         */
-        unsigned char* data;
+    /**
+     * Pointer to the 'image' data
+     */
+    unsigned char* data;
 };
 
-#endif  //  __FTBitmapGlyphImpl__
-
+#endif //  __FTBitmapGlyphImpl__

@@ -21,59 +21,63 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4StszAtom::MP4StszAtom(MP4File &file)
-        : MP4Atom(file, "stsz")
+namespace mp4v2
 {
-    AddVersionAndFlags(); /* 0, 1 */
+    namespace impl
+    {
 
-    AddProperty( /* 2 */
-        new MP4Integer32Property(*this, "sampleSize"));
+        ///////////////////////////////////////////////////////////////////////////////
 
-    MP4Integer32Property* pCount =
-        new MP4Integer32Property(*this, "sampleCount");
-    AddProperty(pCount); /* 3 */
+        MP4StszAtom::MP4StszAtom(MP4File& file)
+            : MP4Atom(file, "stsz")
+        {
+            AddVersionAndFlags(); /* 0, 1 */
 
-    MP4TableProperty* pTable = new MP4TableProperty(*this, "entries", pCount);
-    AddProperty(pTable); /* 4 */
+            AddProperty(/* 2 */
+                        new MP4Integer32Property(*this, "sampleSize"));
 
-    pTable->AddProperty( /* 4/0 */
-        new MP4Integer32Property(pTable->GetParentAtom(), "entrySize"));
-}
+            MP4Integer32Property* pCount =
+                new MP4Integer32Property(*this, "sampleCount");
+            AddProperty(pCount); /* 3 */
 
-void MP4StszAtom::Read()
-{
-    ReadProperties(0, 4);
+            MP4TableProperty* pTable =
+                new MP4TableProperty(*this, "entries", pCount);
+            AddProperty(pTable); /* 4 */
 
-    uint32_t sampleSize =
-        ((MP4Integer32Property*)m_pProperties[2])->GetValue();
+            pTable->AddProperty(/* 4/0 */
+                                new MP4Integer32Property(
+                                    pTable->GetParentAtom(), "entrySize"));
+        }
 
-    // only attempt to read entries table if sampleSize is zero
-    // i.e sample size is not constant
-    m_pProperties[4]->SetImplicit(sampleSize != 0);
+        void MP4StszAtom::Read()
+        {
+            ReadProperties(0, 4);
 
-    ReadProperties(4);
+            uint32_t sampleSize =
+                ((MP4Integer32Property*)m_pProperties[2])->GetValue();
 
-    Skip(); // to end of atom
-}
+            // only attempt to read entries table if sampleSize is zero
+            // i.e sample size is not constant
+            m_pProperties[4]->SetImplicit(sampleSize != 0);
 
-void MP4StszAtom::Write()
-{
-    uint32_t sampleSize =
-        ((MP4Integer32Property*)m_pProperties[2])->GetValue();
+            ReadProperties(4);
 
-    // only attempt to write entries table if sampleSize is zero
-    // i.e sample size is not constant
-    m_pProperties[4]->SetImplicit(sampleSize != 0);
+            Skip(); // to end of atom
+        }
 
-    MP4Atom::Write();
-}
+        void MP4StszAtom::Write()
+        {
+            uint32_t sampleSize =
+                ((MP4Integer32Property*)m_pProperties[2])->GetValue();
 
-///////////////////////////////////////////////////////////////////////////////
+            // only attempt to write entries table if sampleSize is zero
+            // i.e sample size is not constant
+            m_pProperties[4]->SetImplicit(sampleSize != 0);
 
-}
-} // namespace mp4v2::impl
+            MP4Atom::Write();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

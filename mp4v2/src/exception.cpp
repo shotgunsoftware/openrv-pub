@@ -9,9 +9,9 @@
 //  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 //  License for the specific language governing rights and limitations
 //  under the License.
-// 
+//
 //  The Original Code is MP4v2.
-// 
+//
 //  The Initial Developer of the Original Code is Kona Blend.
 //  Portions created by Kona Blend are Copyright (C) 2008.
 //  Portions created by David Byron are Copyright (C) 2009.
@@ -25,72 +25,67 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 { namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-Exception::Exception( const string&     what_,
-                      const char        *file_,
-                      int               line_,
-                      const char        *function_ )
-    : what(what_)
-    , file(file_)
-    , line(line_)
-    , function(function_)
+namespace mp4v2
 {
-    ASSERT(file_);
-    ASSERT(function_);
-}
+    namespace impl
+    {
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-Exception::~Exception()
-{
-}
+        Exception::Exception(const string& what_, const char* file_, int line_,
+                             const char* function_)
+            : what(what_)
+            , file(file_)
+            , line(line_)
+            , function(function_)
+        {
+            ASSERT(file_);
+            ASSERT(function_);
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-string
-Exception::msg() const
-{
-    ostringstream retval;
+        Exception::~Exception() {}
 
-    retval << function << ": " << what << " (" << file << "," << line << ")";
+        ///////////////////////////////////////////////////////////////////////////////
 
-    return retval.str();
-}
+        string Exception::msg() const
+        {
+            ostringstream retval;
 
-///////////////////////////////////////////////////////////////////////////////
+            retval << function << ": " << what << " (" << file << "," << line
+                   << ")";
 
-PlatformException::PlatformException( const string&     what_,
-                                      int               errno_,
-                                      const char        *file_,
-                                      int               line_,
-                                      const char        *function_ )
-    : Exception(what_,file_,line_,function_)
-    , m_errno(errno_)
-{
-}
+            return retval.str();
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-PlatformException::~PlatformException()
-{
-}
+        PlatformException::PlatformException(const string& what_, int errno_,
+                                             const char* file_, int line_,
+                                             const char* function_)
+            : Exception(what_, file_, line_, function_)
+            , m_errno(errno_)
+        {
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-string
-PlatformException::msg() const
-{
-    ostringstream retval;
+        PlatformException::~PlatformException() {}
 
-    retval << function << ": " << what << ": errno: " << m_errno << " (" <<
-        file << "," << line << ")";
+        ///////////////////////////////////////////////////////////////////////////////
 
-    return retval.str();
-}
+        string PlatformException::msg() const
+        {
+            ostringstream retval;
 
-///////////////////////////////////////////////////////////////////////////////
+            retval << function << ": " << what << ": errno: " << m_errno << " ("
+                   << file << "," << line << ")";
 
-}} // namespace mp4v2::impl
+            return retval.str();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

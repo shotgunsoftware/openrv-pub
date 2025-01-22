@@ -26,8 +26,8 @@
  */
 
 #ifndef __ftgl__
-#   warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
-#   include <FTGL/ftgl.h>
+#warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
+#include <FTGL/ftgl.h>
 #endif
 
 #ifndef __FTPolygonGlyph__
@@ -35,40 +35,39 @@
 
 #ifdef __cplusplus
 
-
 /**
  * FTPolygonGlyph is a specialisation of FTGlyph for creating tessellated
  * polygon glyphs.
  */
 class FTGL_EXPORT FTPolygonGlyph : public FTGlyph
 {
-    public:
-        /**
-         * Constructor. Sets the Error to Invalid_Outline if the glyphs
-         * isn't an outline.
-         *
-         * @param glyph The Freetype glyph to be processed
-         * @param outset  The outset distance
-         * @param useDisplayList Enable or disable the use of Display Lists
-         *                       for this glyph
-         *                       <code>true</code> turns ON display lists.
-         *                       <code>false</code> turns OFF display lists.
-         */
-        FTPolygonGlyph(FT_GlyphSlot glyph, float outset, bool useDisplayList);
+public:
+    /**
+     * Constructor. Sets the Error to Invalid_Outline if the glyphs
+     * isn't an outline.
+     *
+     * @param glyph The Freetype glyph to be processed
+     * @param outset  The outset distance
+     * @param useDisplayList Enable or disable the use of Display Lists
+     *                       for this glyph
+     *                       <code>true</code> turns ON display lists.
+     *                       <code>false</code> turns OFF display lists.
+     */
+    FTPolygonGlyph(FT_GlyphSlot glyph, float outset, bool useDisplayList);
 
-        /**
-         * Destructor
-         */
-        virtual ~FTPolygonGlyph();
+    /**
+     * Destructor
+     */
+    virtual ~FTPolygonGlyph();
 
-        /**
-         * Render this glyph at the current pen position.
-         *
-         * @param pen  The current pen position.
-         * @param renderMode  Render mode to display
-         * @return  The advance distance for this glyph.
-         */
-        virtual const FTPoint& Render(const FTPoint& pen, int renderMode);
+    /**
+     * Render this glyph at the current pen position.
+     *
+     * @param pen  The current pen position.
+     * @param renderMode  Render mode to display
+     * @return  The advance distance for this glyph.
+     */
+    virtual const FTPoint& Render(const FTPoint& pen, int renderMode);
 };
 
 #define FTPolyGlyph FTPolygonGlyph
@@ -89,10 +88,9 @@ FTGL_BEGIN_C_DECLS
  *                       <code>false</code> turns OFF display lists.
  * @return  An FTGLglyph* object.
  */
-FTGL_EXPORT FTGLglyph *ftglCreatePolygonGlyph(FT_GlyphSlot glyph, float outset,
+FTGL_EXPORT FTGLglyph* ftglCreatePolygonGlyph(FT_GlyphSlot glyph, float outset,
                                               int useDisplayList);
 
 FTGL_END_C_DECLS
 
-#endif  //  __FTPolygonGlyph__
-
+#endif //  __FTPolygonGlyph__

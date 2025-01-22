@@ -26,15 +26,14 @@
  */
 
 #ifndef __ftgl__
-#   warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
-#   include <FTGL/ftgl.h>
+#warning This header is deprecated. Please use <FTGL/ftgl.h> from now.
+#include <FTGL/ftgl.h>
 #endif
 
 #ifndef __FTLayout__
 #define __FTLayout__
 
 #ifdef __cplusplus
-
 
 class FTLayoutImpl;
 
@@ -51,93 +50,93 @@ class FTLayoutImpl;
  */
 class FTGL_EXPORT FTLayout
 {
-    protected:
-        FTLayout();
+protected:
+    FTLayout();
 
-    private:
-        /**
-         * Internal FTGL FTLayout constructor. For private use only.
-         *
-         * @param pImpl  Internal implementation object. Will be destroyed
-         *               upon FTLayout deletion.
-         */
-        FTLayout(FTLayoutImpl *pImpl);
+private:
+    /**
+     * Internal FTGL FTLayout constructor. For private use only.
+     *
+     * @param pImpl  Internal implementation object. Will be destroyed
+     *               upon FTLayout deletion.
+     */
+    FTLayout(FTLayoutImpl* pImpl);
 
-        /* Allow our internal subclasses to access the private constructor */
-        friend class FTSimpleLayout;
+    /* Allow our internal subclasses to access the private constructor */
+    friend class FTSimpleLayout;
 
-    public:
-        /**
-         * Destructor
-         */
-        virtual ~FTLayout();
+public:
+    /**
+     * Destructor
+     */
+    virtual ~FTLayout();
 
-        /**
-         * Get the bounding box for a formatted string.
-         *
-         * @param string  A char string.
-         * @param len  The length of the string. If < 0 then all characters
-         *             will be checked until a null character is encountered
-         *             (optional).
-         * @param position  The pen position of the first character (optional).
-         * @return  The corresponding bounding box.
-         */
-        virtual FTBBox BBox(const char* string, const int len = -1,
-                            FTPoint position = FTPoint()) = 0;
+    /**
+     * Get the bounding box for a formatted string.
+     *
+     * @param string  A char string.
+     * @param len  The length of the string. If < 0 then all characters
+     *             will be checked until a null character is encountered
+     *             (optional).
+     * @param position  The pen position of the first character (optional).
+     * @return  The corresponding bounding box.
+     */
+    virtual FTBBox BBox(const char* string, const int len = -1,
+                        FTPoint position = FTPoint()) = 0;
 
-        /**
-         * Get the bounding box for a formatted string.
-         *
-         * @param string  A wchar_t string.
-         * @param len  The length of the string. If < 0 then all characters
-         *             will be checked until a null character is encountered
-         *             (optional).
-         * @param position  The pen position of the first character (optional).
-         * @return  The corresponding bounding box.
-         */
-        virtual FTBBox BBox(const wchar_t* string, const int len = -1,
-                            FTPoint position = FTPoint()) = 0;
+    /**
+     * Get the bounding box for a formatted string.
+     *
+     * @param string  A wchar_t string.
+     * @param len  The length of the string. If < 0 then all characters
+     *             will be checked until a null character is encountered
+     *             (optional).
+     * @param position  The pen position of the first character (optional).
+     * @return  The corresponding bounding box.
+     */
+    virtual FTBBox BBox(const wchar_t* string, const int len = -1,
+                        FTPoint position = FTPoint()) = 0;
 
-        /**
-         * Render a string of characters.
-         *
-         * @param string    'C' style string to be output.
-         * @param len  The length of the string. If < 0 then all characters
-         *             will be displayed until a null character is encountered
-         *             (optional).
-         * @param position  The pen position of the first character (optional).
-         * @param renderMode  Render mode to display (optional)
-         */
-        virtual void Render(const char *string, const int len = -1,
-                            FTPoint position = FTPoint(),
-                            int renderMode = FTGL::RENDER_ALL) = 0;
+    /**
+     * Render a string of characters.
+     *
+     * @param string    'C' style string to be output.
+     * @param len  The length of the string. If < 0 then all characters
+     *             will be displayed until a null character is encountered
+     *             (optional).
+     * @param position  The pen position of the first character (optional).
+     * @param renderMode  Render mode to display (optional)
+     */
+    virtual void Render(const char* string, const int len = -1,
+                        FTPoint position = FTPoint(),
+                        int renderMode = FTGL::RENDER_ALL) = 0;
 
-        /**
-         * Render a string of characters.
-         *
-         * @param string    wchar_t string to be output.
-         * @param len  The length of the string. If < 0 then all characters
-         *             will be displayed until a null character is encountered
-         *             (optional).
-         * @param position  The pen position of the first character (optional).
-         * @param renderMode  Render mode to display (optional)
-         */
-        virtual void Render(const wchar_t *string, const int len = -1,
-                            FTPoint position = FTPoint(),
-                            int renderMode = FTGL::RENDER_ALL) = 0;
+    /**
+     * Render a string of characters.
+     *
+     * @param string    wchar_t string to be output.
+     * @param len  The length of the string. If < 0 then all characters
+     *             will be displayed until a null character is encountered
+     *             (optional).
+     * @param position  The pen position of the first character (optional).
+     * @param renderMode  Render mode to display (optional)
+     */
+    virtual void Render(const wchar_t* string, const int len = -1,
+                        FTPoint position = FTPoint(),
+                        int renderMode = FTGL::RENDER_ALL) = 0;
 
-        /**
-         * Queries the Layout for errors.
-         *
-         * @return  The current error code.
-         */
-        virtual FT_Error Error() const;
+    /**
+     * Queries the Layout for errors.
+     *
+     * @return  The current error code.
+     */
+    virtual FT_Error Error() const;
 
-    private:
-        /**
-         * Internal FTGL FTLayout implementation object. For private use only.
-         */
-        FTLayoutImpl *impl;
+private:
+    /**
+     * Internal FTGL FTLayout implementation object. For private use only.
+     */
+    FTLayoutImpl* impl;
 };
 
 #endif //__cplusplus
@@ -165,7 +164,7 @@ FTGL_EXPORT void ftglDestroyLayout(FTGLlayout* layout);
  * @param bounds  An array of 6 float values where the bounding box's lower
  *                left near and upper right far 3D coordinates will be stored.
  */
-FTGL_EXPORT void ftglGetLayoutBBox(FTGLlayout *layout, const char* string,
+FTGL_EXPORT void ftglGetLayoutBBox(FTGLlayout* layout, const char* string,
                                    float bounds[6]);
 
 /**
@@ -175,7 +174,7 @@ FTGL_EXPORT void ftglGetLayoutBBox(FTGLlayout *layout, const char* string,
  * @param string  Char string to be output.
  * @param mode  Render mode to display.
  */
-FTGL_EXPORT void ftglRenderLayout(FTGLlayout *layout, const char *string,
+FTGL_EXPORT void ftglRenderLayout(FTGLlayout* layout, const char* string,
                                   int mode);
 
 /**
@@ -188,5 +187,4 @@ FTGL_EXPORT FT_Error ftglGetLayoutError(FTGLlayout* layout);
 
 FTGL_END_C_DECLS
 
-#endif  /* __FTLayout__ */
-
+#endif /* __FTLayout__ */

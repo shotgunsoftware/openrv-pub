@@ -24,8 +24,8 @@
  */
 
 #ifndef __ftgl__
-#   warning Please use <FTGL/ftgl.h> instead of <FTBuffer.h>.
-#   include <FTGL/ftgl.h>
+#warning Please use <FTGL/ftgl.h> instead of <FTBuffer.h>.
+#include <FTGL/ftgl.h>
 #endif
 
 #ifndef __FTBuffer__
@@ -44,84 +44,77 @@
  */
 class FTGL_EXPORT FTBuffer
 {
-    public:
-        /**
-         * Default constructor.
-         */
-        FTBuffer();
+public:
+    /**
+     * Default constructor.
+     */
+    FTBuffer();
 
-        /**
-         * Destructor
-         */
-        ~FTBuffer();
+    /**
+     * Destructor
+     */
+    ~FTBuffer();
 
-        /**
-         * Get the pen's position in the buffer.
-         *
-         * @return  The pen's position as an FTPoint object.
-         */
-        inline FTPoint Pos() const
-        {
-            return pos;
-        }
+    /**
+     * Get the pen's position in the buffer.
+     *
+     * @return  The pen's position as an FTPoint object.
+     */
+    inline FTPoint Pos() const { return pos; }
 
-        /**
-         * Set the pen's position in the buffer.
-         *
-         * @param arg  An FTPoint object with the desired pen's position.
-         */
-        inline void Pos(FTPoint arg)
-        {
-            pos = arg;
-        }
+    /**
+     * Set the pen's position in the buffer.
+     *
+     * @param arg  An FTPoint object with the desired pen's position.
+     */
+    inline void Pos(FTPoint arg) { pos = arg; }
 
-        /**
-         * Set the buffer's size.
-         *
-         * @param w  The buffer's desired width, in pixels.
-         * @param h  The buffer's desired height, in pixels.
-         */
-        void Size(int w, int h);
+    /**
+     * Set the buffer's size.
+     *
+     * @param w  The buffer's desired width, in pixels.
+     * @param h  The buffer's desired height, in pixels.
+     */
+    void Size(int w, int h);
 
-        /**
-         * Get the buffer's width.
-         *
-         * @return  The buffer's width, in pixels.
-         */
-        inline int Width() const { return width; }
+    /**
+     * Get the buffer's width.
+     *
+     * @return  The buffer's width, in pixels.
+     */
+    inline int Width() const { return width; }
 
-        /**
-         * Get the buffer's height.
-         *
-         * @return  The buffer's height, in pixels.
-         */
-        inline int Height() const { return height; }
+    /**
+     * Get the buffer's height.
+     *
+     * @return  The buffer's height, in pixels.
+     */
+    inline int Height() const { return height; }
 
-        /**
-         * Get the buffer's direct pixel buffer.
-         *
-         * @return  A read-write pointer to the buffer's pixels.
-         */
-        inline unsigned char *Pixels() const { return pixels; }
+    /**
+     * Get the buffer's direct pixel buffer.
+     *
+     * @return  A read-write pointer to the buffer's pixels.
+     */
+    inline unsigned char* Pixels() const { return pixels; }
 
-    private:
-        /**
-         * Buffer's width and height.
-         */
-        int width, height;
+private:
+    /**
+     * Buffer's width and height.
+     */
+    int width, height;
 
-        /**
-         * Buffer's pixel buffer.
-         */
-        unsigned char *pixels;
+    /**
+     * Buffer's pixel buffer.
+     */
+    unsigned char* pixels;
 
-        /**
-         * Buffer's internal pen position.
-         */
-        FTPoint pos;
+    /**
+     * Buffer's internal pen position.
+     */
+    FTPoint pos;
 };
 
 #endif //__cplusplus
 
 #endif // __FTBuffer__
-

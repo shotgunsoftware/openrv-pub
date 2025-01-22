@@ -21,36 +21,39 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4UdtaAtom::MP4UdtaAtom(MP4File &file)
-        : MP4Atom(file, "udta")
+namespace mp4v2
 {
-    ExpectChildAtom("chpl", Optional, OnlyOne);
-    ExpectChildAtom("cprt", Optional, Many);
-    ExpectChildAtom("hnti", Optional, OnlyOne);
-    ExpectChildAtom("meta", Optional, OnlyOne);
-    ExpectChildAtom("\251cpy", Optional, OnlyOne);
-    ExpectChildAtom("\251des", Optional, OnlyOne);
-    ExpectChildAtom("\251nam", Optional, OnlyOne);
-    ExpectChildAtom("\251cmt", Optional, OnlyOne);
-    ExpectChildAtom("\251prd", Optional, OnlyOne);
-}
+    namespace impl
+    {
 
-void MP4UdtaAtom::Read()
-{
-    if (ATOMID(m_pParentAtom->GetType()) == ATOMID("trak")) {
-        ExpectChildAtom("hinf", Optional, OnlyOne);
-        ExpectChildAtom("name", Optional, OnlyOne);
-    }
+        ///////////////////////////////////////////////////////////////////////////////
 
-    MP4Atom::Read();
-}
+        MP4UdtaAtom::MP4UdtaAtom(MP4File& file)
+            : MP4Atom(file, "udta")
+        {
+            ExpectChildAtom("chpl", Optional, OnlyOne);
+            ExpectChildAtom("cprt", Optional, Many);
+            ExpectChildAtom("hnti", Optional, OnlyOne);
+            ExpectChildAtom("meta", Optional, OnlyOne);
+            ExpectChildAtom("\251cpy", Optional, OnlyOne);
+            ExpectChildAtom("\251des", Optional, OnlyOne);
+            ExpectChildAtom("\251nam", Optional, OnlyOne);
+            ExpectChildAtom("\251cmt", Optional, OnlyOne);
+            ExpectChildAtom("\251prd", Optional, OnlyOne);
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        void MP4UdtaAtom::Read()
+        {
+            if (ATOMID(m_pParentAtom->GetType()) == ATOMID("trak"))
+            {
+                ExpectChildAtom("hinf", Optional, OnlyOne);
+                ExpectChildAtom("name", Optional, OnlyOne);
+            }
 
-}
-} // namespace mp4v2::impl
+            MP4Atom::Read();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

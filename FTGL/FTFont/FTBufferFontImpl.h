@@ -35,47 +35,43 @@ class FTBufferFontImpl : public FTFontImpl
 {
     friend class FTBufferFont;
 
-    protected:
-        FTBufferFontImpl(FTFont *ftFont, const char* fontFilePath);
+protected:
+    FTBufferFontImpl(FTFont* ftFont, const char* fontFilePath);
 
-        FTBufferFontImpl(FTFont *ftFont, const unsigned char *pBufferBytes,
-                         size_t bufferSizeInBytes);
+    FTBufferFontImpl(FTFont* ftFont, const unsigned char* pBufferBytes,
+                     size_t bufferSizeInBytes);
 
-        virtual ~FTBufferFontImpl();
+    virtual ~FTBufferFontImpl();
 
-        virtual FTPoint Render(const char *s, const int len,
-                               FTPoint position, FTPoint spacing,
-                               int renderMode);
+    virtual FTPoint Render(const char* s, const int len, FTPoint position,
+                           FTPoint spacing, int renderMode);
 
-        virtual FTPoint Render(const wchar_t *s, const int len,
-                               FTPoint position, FTPoint spacing,
-                               int renderMode);
+    virtual FTPoint Render(const wchar_t* s, const int len, FTPoint position,
+                           FTPoint spacing, int renderMode);
 
-        virtual bool FaceSize(const unsigned int size,
-                              const unsigned int res);
+    virtual bool FaceSize(const unsigned int size, const unsigned int res);
 
-    private:
-        /**
-         * Create an FTBufferGlyph object for the base class.
-         */
-        FTGlyph* MakeGlyphImpl(FT_GlyphSlot ftGlyph);
+private:
+    /**
+     * Create an FTBufferGlyph object for the base class.
+     */
+    FTGlyph* MakeGlyphImpl(FT_GlyphSlot ftGlyph);
 
-        /* Internal generic Render() implementation */
-        template <typename T>
-        inline FTPoint RenderI(const T *s, const int len,
-                               FTPoint position, FTPoint spacing, int mode);
+    /* Internal generic Render() implementation */
+    template <typename T>
+    inline FTPoint RenderI(const T* s, const int len, FTPoint position,
+                           FTPoint spacing, int mode);
 
-        /* Pixel buffer */
-        FTBuffer *buffer;
+    /* Pixel buffer */
+    FTBuffer* buffer;
 
-        static const int BUFFER_CACHE_SIZE = 16;
-        /* Texture IDs */
-        GLuint idCache[BUFFER_CACHE_SIZE];
-        void *stringCache[BUFFER_CACHE_SIZE];
-        FTBBox bboxCache[BUFFER_CACHE_SIZE];
-        FTPoint advanceCache[BUFFER_CACHE_SIZE];
-        int lastString;
+    static const int BUFFER_CACHE_SIZE = 16;
+    /* Texture IDs */
+    GLuint idCache[BUFFER_CACHE_SIZE];
+    void* stringCache[BUFFER_CACHE_SIZE];
+    FTBBox bboxCache[BUFFER_CACHE_SIZE];
+    FTPoint advanceCache[BUFFER_CACHE_SIZE];
+    int lastString;
 };
 
-#endif  //  __FTBufferFontImpl__
-
+#endif //  __FTBufferFontImpl__

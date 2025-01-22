@@ -15,22 +15,20 @@
 /*                                                                         */
 /***************************************************************************/
 
-
 #define FT_MAKE_OPTION_SINGLE_OBJECT
 
 #include <ft2build.h>
-#include "ttdriver.c"   /* driver interface    */
-#include "ttpload.c"    /* tables loader       */
-#include "ttgload.c"    /* glyph loader        */
-#include "ttobjs.c"     /* object manager      */
+#include "ttdriver.c" /* driver interface    */
+#include "ttpload.c"  /* tables loader       */
+#include "ttgload.c"  /* glyph loader        */
+#include "ttobjs.c"   /* object manager      */
 
 #ifdef TT_USE_BYTECODE_INTERPRETER
 #include "ttinterp.c"
 #endif
 
 #ifdef TT_CONFIG_OPTION_GX_VAR_SUPPORT
-#include "ttgxvar.c"    /* gx distortable font */
+#include "ttgxvar.c" /* gx distortable font */
 #endif
-
 
 /* END */

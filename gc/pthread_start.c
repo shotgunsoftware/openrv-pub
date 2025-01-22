@@ -23,15 +23,15 @@
 /* will actually cause the exit handler to be invoked last when         */
 /* thread_exit is called (and if -fexceptions is used).                 */
 #if defined(__GNUC__) && defined(__linux__)
-  /* We undefine __EXCEPTIONS to avoid using GCC __cleanup__ attribute. */
-  /* The current NPTL implementation of pthread_cleanup_push uses       */
-  /* __cleanup__ attribute when __EXCEPTIONS is defined (-fexceptions). */
-  /* The stack unwinding and cleanup with __cleanup__ attributes work   */
-  /* correctly when everything is compiled with -fexceptions, but it is */
-  /* not the requirement for this library clients to use -fexceptions   */
-  /* everywhere.  With __EXCEPTIONS undefined, the cleanup routines are */
-  /* registered with __pthread_register_cancel thus should work anyway. */
-# undef __EXCEPTIONS
+/* We undefine __EXCEPTIONS to avoid using GCC __cleanup__ attribute. */
+/* The current NPTL implementation of pthread_cleanup_push uses       */
+/* __cleanup__ attribute when __EXCEPTIONS is defined (-fexceptions). */
+/* The stack unwinding and cleanup with __cleanup__ attributes work   */
+/* correctly when everything is compiled with -fexceptions, but it is */
+/* not the requirement for this library clients to use -fexceptions   */
+/* everywhere.  With __EXCEPTIONS undefined, the cleanup routines are */
+/* registered with __pthread_register_cancel thus should work anyway. */
+#undef __EXCEPTIONS
 #endif
 
 #include "private/pthread_support.h"
@@ -42,28 +42,28 @@
 #include <sched.h>
 
 /* Invoked from GC_start_routine(). */
-void * GC_CALLBACK GC_inner_start_routine(struct GC_stack_base *sb, void *arg)
+void* GC_CALLBACK GC_inner_start_routine(struct GC_stack_base* sb, void* arg)
 {
-  void * (*start)(void *);
-  void * start_arg;
-  void * result;
-  volatile GC_thread me =
-                GC_start_rtn_prepare_thread(&start, &start_arg, sb, arg);
+    void* (*start)(void*);
+    void* start_arg;
+    void* result;
+    volatile GC_thread me =
+        GC_start_rtn_prepare_thread(&start, &start_arg, sb, arg);
 
-# ifndef NACL
+#ifndef NACL
     pthread_cleanup_push(GC_thread_exit_proc, me);
-# endif
-  result = (*start)(start_arg);
-# ifdef DEBUG_THREADS
+#endif
+    result = (*start)(start_arg);
+#ifdef DEBUG_THREADS
     GC_log_printf("Finishing thread 0x%x\n", (unsigned)pthread_self());
-# endif
-  me -> status = result;
-# ifndef NACL
+#endif
+    me->status = result;
+#ifndef NACL
     pthread_cleanup_pop(1);
     /* Cleanup acquires lock, ensuring that we can't exit while         */
     /* a collection that thinks we're alive is trying to stop us.       */
-# endif
-  return result;
+#endif
+    return result;
 }
 
 #endif /* GC_PTHREADS */

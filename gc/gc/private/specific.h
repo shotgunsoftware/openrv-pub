@@ -34,11 +34,12 @@
 /* for a thread, then value holds the corresponding thread specific     */
 /* value.  This invariant must be preserved at ALL times, since         */
 /* asynchronous reads are allowed.                                      */
-typedef struct thread_specific_entry {
-        volatile AO_t qtid;     /* quick thread id, only for cache */
-        void * value;
-        struct thread_specific_entry *next;
-        pthread_t thread;
+typedef struct thread_specific_entry
+{
+    volatile AO_t qtid; /* quick thread id, only for cache */
+    void* value;
+    struct thread_specific_entry* next;
+    pthread_t thread;
 } tse;
 
 /* We represent each thread-specific datum as two tables.  The first is */
@@ -58,33 +59,35 @@ typedef struct thread_specific_entry {
 #define INVALID_QTID ((unsigned long)0)
 #define INVALID_THREADID ((pthread_t)0)
 
-typedef struct thread_specific_data {
-    tse * volatile cache[TS_CACHE_SIZE];
-                        /* A faster index to the hash table */
-    tse * hash[TS_HASH_SIZE];
+typedef struct thread_specific_data
+{
+    tse* volatile cache[TS_CACHE_SIZE];
+    /* A faster index to the hash table */
+    tse* hash[TS_HASH_SIZE];
     pthread_mutex_t lock;
 } tsd;
 
-typedef tsd * PREFIXED(key_t);
+typedef tsd* PREFIXED(key_t);
 
-int PREFIXED(key_create) (tsd ** key_ptr, void (* destructor)(void *));
-int PREFIXED(setspecific) (tsd * key, void * value);
-void PREFIXED(remove_specific) (tsd * key);
+int PREFIXED(key_create)(tsd** key_ptr, void (*destructor)(void*));
+int PREFIXED(setspecific)(tsd* key, void* value);
+void PREFIXED(remove_specific)(tsd* key);
 
 /* An internal version of getspecific that assumes a cache miss.        */
-void * PREFIXED(slow_getspecific) (tsd * key, unsigned long qtid,
-                                   tse * volatile * cache_entry);
+void* PREFIXED(slow_getspecific)(tsd* key, unsigned long qtid,
+                                 tse* volatile* cache_entry);
 
 /* GC_INLINE is defined in gc_priv.h. */
-GC_INLINE void * PREFIXED(getspecific) (tsd * key)
+GC_INLINE void* PREFIXED(getspecific)(tsd* key)
 {
     unsigned long qtid = quick_thread_id();
     unsigned hash_val = CACHE_HASH(qtid);
-    tse * volatile * entry_ptr = key -> cache + hash_val;
-    tse * entry = *entry_ptr;   /* Must be loaded only once.    */
-    if (EXPECT(entry -> qtid == qtid, TRUE)) {
-      GC_ASSERT(entry -> thread == pthread_self());
-      return entry -> value;
+    tse* volatile* entry_ptr = key->cache + hash_val;
+    tse* entry = *entry_ptr; /* Must be loaded only once.    */
+    if (EXPECT(entry->qtid == qtid, TRUE))
+    {
+        GC_ASSERT(entry->thread == pthread_self());
+        return entry->value;
     }
-    return PREFIXED(slow_getspecific) (key, qtid, entry_ptr);
+    return PREFIXED(slow_getspecific)(key, qtid, entry_ptr);
 }

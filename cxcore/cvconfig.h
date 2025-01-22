@@ -13,7 +13,7 @@
 #define HAVE_ALLOCA 1
 
 /* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix).
-   */
+ */
 #define HAVE_ALLOCA_H 1
 
 /* V4L capturing support */
@@ -23,7 +23,7 @@
 /* #undef HAVE_CAMV4L2 */
 
 /* Carbon windowing environment */
-#define HAVE_CARBON 
+#define HAVE_CARBON
 
 /* IEEE1394 capturing support */
 /* #undef HAVE_DC1394 */
@@ -53,7 +53,7 @@
 /* #undef HAVE_JASPER */
 
 /* IJG JPEG codec */
-#define HAVE_JPEG 
+#define HAVE_JPEG
 
 /* Define to 1 if you have the `dl' library (-ldl). */
 #define HAVE_LIBDL 1
@@ -89,7 +89,7 @@
 /* #undef HAVE_PNG_SET_TRNS_TO_ALPHA */
 
 /* QuickTime video libraries */
-#define HAVE_QUICKTIME 
+#define HAVE_QUICKTIME
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -119,7 +119,7 @@
 /* #undef HAVE_XINE */
 
 /* LZ77 compression/decompression library (used for PNG) */
-#define HAVE_ZLIB 
+#define HAVE_ZLIB
 
 /* Name of package */
 #define PACKAGE "opencv"
@@ -142,9 +142,9 @@
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
    automatically deduced at run-time.
-	STACK_DIRECTION > 0 => grows toward higher addresses
-	STACK_DIRECTION < 0 => grows toward lower addresses
-	STACK_DIRECTION = 0 => direction of growth unknown */
+        STACK_DIRECTION > 0 => grows toward higher addresses
+        STACK_DIRECTION < 0 => grows toward lower addresses
+        STACK_DIRECTION = 0 => direction of growth unknown */
 /* #undef STACK_DIRECTION */
 
 /* Define to 1 if you have the ANSI C header files. */

@@ -31,59 +31,50 @@
 #include "FTInternals.h"
 #include "FTPolygonFontImpl.h"
 
-
 //
 //  FTPolygonFont
 //
 
+FTPolygonFont::FTPolygonFont(char const* fontFilePath)
+    : FTFont(new FTPolygonFontImpl(this, fontFilePath))
+{
+}
 
-FTPolygonFont::FTPolygonFont(char const *fontFilePath) :
-    FTFont(new FTPolygonFontImpl(this, fontFilePath))
-{}
+FTPolygonFont::FTPolygonFont(const unsigned char* pBufferBytes,
+                             size_t bufferSizeInBytes)
+    : FTFont(new FTPolygonFontImpl(this, pBufferBytes, bufferSizeInBytes))
+{
+}
 
-
-FTPolygonFont::FTPolygonFont(const unsigned char *pBufferBytes,
-                             size_t bufferSizeInBytes) :
-    FTFont(new FTPolygonFontImpl(this, pBufferBytes, bufferSizeInBytes))
-{}
-
-
-FTPolygonFont::~FTPolygonFont()
-{}
-
+FTPolygonFont::~FTPolygonFont() {}
 
 FTGlyph* FTPolygonFont::MakeGlyph(FT_GlyphSlot ftGlyph)
 {
-    FTPolygonFontImpl *myimpl = dynamic_cast<FTPolygonFontImpl *>(impl);
-    if(!myimpl)
+    FTPolygonFontImpl* myimpl = dynamic_cast<FTPolygonFontImpl*>(impl);
+    if (!myimpl)
     {
         return NULL;
     }
 
-    return new FTPolygonGlyph(ftGlyph, myimpl->outset,
-                              myimpl->useDisplayLists);
+    return new FTPolygonGlyph(ftGlyph, myimpl->outset, myimpl->useDisplayLists);
 }
-
 
 //
 //  FTPolygonFontImpl
 //
 
-
-FTPolygonFontImpl::FTPolygonFontImpl(FTFont *ftFont, const char* fontFilePath)
-: FTFontImpl(ftFont, fontFilePath),
-  outset(0.0f)
+FTPolygonFontImpl::FTPolygonFontImpl(FTFont* ftFont, const char* fontFilePath)
+    : FTFontImpl(ftFont, fontFilePath)
+    , outset(0.0f)
 {
     load_flags = FT_LOAD_NO_HINTING;
 }
 
-
-FTPolygonFontImpl::FTPolygonFontImpl(FTFont *ftFont,
-                                     const unsigned char *pBufferBytes,
+FTPolygonFontImpl::FTPolygonFontImpl(FTFont* ftFont,
+                                     const unsigned char* pBufferBytes,
                                      size_t bufferSizeInBytes)
-: FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes),
-  outset(0.0f)
+    : FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes)
+    , outset(0.0f)
 {
     load_flags = FT_LOAD_NO_HINTING;
 }
-

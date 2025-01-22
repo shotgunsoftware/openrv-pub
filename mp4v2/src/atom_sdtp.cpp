@@ -9,9 +9,9 @@
 //  basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 //  License for the specific language governing rights and limitations
 //  under the License.
-// 
+//
 //  The Original Code is MP4v2.
-// 
+//
 //  The Initial Developer of the Original Code is Kona Blend.
 //  Portions created by Kona Blend are Copyright (C) 2008.
 //  All Rights Reserved.
@@ -23,25 +23,29 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 { namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4SdtpAtom::MP4SdtpAtom(MP4File &file)
-    : MP4FullAtom ( file, "sdtp" )
-    , data        ( *new MP4BytesProperty( *this, "data" ))
+namespace mp4v2
 {
-    AddProperty( &data );
-}
+    namespace impl
+    {
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-void MP4SdtpAtom::Read()
-{
-    data.SetValueSize( m_size - 4 );
-    MP4FullAtom::Read();
-}
+        MP4SdtpAtom::MP4SdtpAtom(MP4File& file)
+            : MP4FullAtom(file, "sdtp")
+            , data(*new MP4BytesProperty(*this, "data"))
+        {
+            AddProperty(&data);
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-}} // namespace mp4v2::impl
+        void MP4SdtpAtom::Read()
+        {
+            data.SetValueSize(m_size - 4);
+            MP4FullAtom::Read();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

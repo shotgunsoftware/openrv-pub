@@ -21,26 +21,27 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4TmcdNameAtom::MP4TmcdNameAtom (MP4File &file)
-        : MP4Atom(file, "name")
+namespace mp4v2
 {
-    AddReserved(*this, "reserved2", 4);
-    AddProperty( new MP4StringProperty(*this, "name", false) );
-}
+    namespace impl
+    {
 
-void MP4TmcdNameAtom::Read()
-{
-    ((MP4StringProperty*)m_pProperties[1])->SetFixedLength(m_size - 4);
-    MP4Atom::Read();
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
+        MP4TmcdNameAtom::MP4TmcdNameAtom(MP4File& file)
+            : MP4Atom(file, "name")
+        {
+            AddReserved(*this, "reserved2", 4);
+            AddProperty(new MP4StringProperty(*this, "name", false));
+        }
 
-}
-} // namespace mp4v2::impl
+        void MP4TmcdNameAtom::Read()
+        {
+            ((MP4StringProperty*)m_pProperties[1])->SetFixedLength(m_size - 4);
+            MP4Atom::Read();
+        }
 
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

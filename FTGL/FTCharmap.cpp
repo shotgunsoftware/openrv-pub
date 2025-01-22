@@ -29,14 +29,13 @@
 #include "FTFace.h"
 #include "FTCharmap.h"
 
-
 FTCharmap::FTCharmap(FTFace* face)
-:   ftFace(*(face->Face())),
-    err(0)
+    : ftFace(*(face->Face()))
+    , err(0)
 {
-    if(!ftFace->charmap)
+    if (!ftFace->charmap)
     {
-        if(!ftFace->num_charmaps)
+        if (!ftFace->num_charmaps)
         {
             // This face doesn't even have one charmap!
             err = 0x96; // Invalid_CharMap_Format
@@ -48,22 +47,17 @@ FTCharmap::FTCharmap(FTFace* face)
 
     ftEncoding = ftFace->charmap->encoding;
 
-    for(unsigned int i = 0; i < FTCharmap::MAX_PRECOMPUTED; i++)
+    for (unsigned int i = 0; i < FTCharmap::MAX_PRECOMPUTED; i++)
     {
         charIndexCache[i] = FT_Get_Char_Index(ftFace, i);
     }
 }
 
-
-FTCharmap::~FTCharmap()
-{
-    charMap.clear();
-}
-
+FTCharmap::~FTCharmap() { charMap.clear(); }
 
 bool FTCharmap::CharMap(FT_Encoding encoding)
 {
-    if(ftEncoding == encoding)
+    if (ftEncoding == encoding)
     {
         err = 0;
         return true;
@@ -71,7 +65,7 @@ bool FTCharmap::CharMap(FT_Encoding encoding)
 
     err = FT_Select_Charmap(ftFace, encoding);
 
-    if(!err)
+    if (!err)
     {
         ftEncoding = encoding;
         charMap.clear();
@@ -80,16 +74,14 @@ bool FTCharmap::CharMap(FT_Encoding encoding)
     return !err;
 }
 
-
 unsigned int FTCharmap::GlyphListIndex(const unsigned int characterCode)
 {
     return charMap.find(characterCode);
 }
 
-
 unsigned int FTCharmap::FontIndex(const unsigned int characterCode)
 {
-    if(characterCode < FTCharmap::MAX_PRECOMPUTED)
+    if (characterCode < FTCharmap::MAX_PRECOMPUTED)
     {
         return charIndexCache[characterCode];
     }
@@ -97,10 +89,10 @@ unsigned int FTCharmap::FontIndex(const unsigned int characterCode)
     return FT_Get_Char_Index(ftFace, characterCode);
 }
 
-
 void FTCharmap::InsertIndex(const unsigned int characterCode,
                             const size_t containerIndex)
 {
-    charMap.insert(characterCode, static_cast<FTCharToGlyphIndexMap::GlyphIndex>(containerIndex));
+    charMap.insert(
+        characterCode,
+        static_cast<FTCharToGlyphIndexMap::GlyphIndex>(containerIndex));
 }
-

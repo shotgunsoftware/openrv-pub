@@ -21,53 +21,59 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4UrlAtom::MP4UrlAtom(MP4File &file, const char *type)
-        : MP4Atom(file, type)
+namespace mp4v2
 {
-    AddVersionAndFlags();
-    AddProperty(new MP4StringProperty(*this, "location"));
-}
+    namespace impl
+    {
 
-void MP4UrlAtom::Read()
-{
-    // read the version and flags properties
-    ReadProperties(0, 2);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    // check if self-contained flag is set
-    if (!(GetFlags() & 1)) {
-        // if not then read url location
-        ReadProperties(2);
-    }
+        MP4UrlAtom::MP4UrlAtom(MP4File& file, const char* type)
+            : MP4Atom(file, type)
+        {
+            AddVersionAndFlags();
+            AddProperty(new MP4StringProperty(*this, "location"));
+        }
 
-    Skip(); // to end of atom
-}
+        void MP4UrlAtom::Read()
+        {
+            // read the version and flags properties
+            ReadProperties(0, 2);
 
-void MP4UrlAtom::Write()
-{
-    MP4StringProperty* pLocationProp =
-        (MP4StringProperty*)m_pProperties[2];
+            // check if self-contained flag is set
+            if (!(GetFlags() & 1))
+            {
+                // if not then read url location
+                ReadProperties(2);
+            }
 
-    // if no url location has been set
-    // then set self-contained flag
-    // and don't attempt to write anything
-    if (pLocationProp->GetValue() == NULL) {
-        SetFlags(GetFlags() | 1);
-        pLocationProp->SetImplicit(true);
-    } else {
-        SetFlags(GetFlags() & 0xFFFFFE);
-        pLocationProp->SetImplicit(false);
-    }
+            Skip(); // to end of atom
+        }
 
-    // write atom as usual
-    MP4Atom::Write();
-}
+        void MP4UrlAtom::Write()
+        {
+            MP4StringProperty* pLocationProp =
+                (MP4StringProperty*)m_pProperties[2];
 
-///////////////////////////////////////////////////////////////////////////////
+            // if no url location has been set
+            // then set self-contained flag
+            // and don't attempt to write anything
+            if (pLocationProp->GetValue() == NULL)
+            {
+                SetFlags(GetFlags() | 1);
+                pLocationProp->SetImplicit(true);
+            }
+            else
+            {
+                SetFlags(GetFlags() & 0xFFFFFE);
+                pLocationProp->SetImplicit(false);
+            }
 
-}
-} // namespace mp4v2::impl
+            // write atom as usual
+            MP4Atom::Write();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

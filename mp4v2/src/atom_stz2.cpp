@@ -21,88 +21,102 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-/*
- * This is used for the 4 bit sample size below.  We need the sampleCount
- * to be correct for the number of samples, but the table size needs to
- * be correct to read and write it.
- */
-
-class MP4HalfSizeTableProperty : public MP4TableProperty
+namespace mp4v2
 {
-public:
-    MP4HalfSizeTableProperty(MP4Atom& parentAtom, const char *name, MP4IntegerProperty *pCountProperty) :
-            MP4TableProperty(parentAtom, name, pCountProperty) {};
+    namespace impl
+    {
 
-    // The count is half the actual size
-    uint32_t GetCount() {
-        return (m_pCountProperty->GetValue() + 1)/ 2;
-    };
-    void SetCount(uint32_t count) {
-        m_pCountProperty->SetValue(count * 2);
-    };
-private:
-    MP4HalfSizeTableProperty();
-    MP4HalfSizeTableProperty ( const MP4HalfSizeTableProperty &src );
-    MP4HalfSizeTableProperty &operator= ( const MP4HalfSizeTableProperty &src );
-};
+        ///////////////////////////////////////////////////////////////////////////////
 
+        /*
+         * This is used for the 4 bit sample size below.  We need the
+         * sampleCount to be correct for the number of samples, but the table
+         * size needs to be correct to read and write it.
+         */
 
-MP4Stz2Atom::MP4Stz2Atom(MP4File &file)
-        : MP4Atom(file, "stz2")
-{
-    AddVersionAndFlags(); /* 0, 1 */
+        class MP4HalfSizeTableProperty : public MP4TableProperty
+        {
+        public:
+            MP4HalfSizeTableProperty(MP4Atom& parentAtom, const char* name,
+                                     MP4IntegerProperty* pCountProperty)
+                : MP4TableProperty(parentAtom, name, pCountProperty) {};
 
-    AddReserved(*this, "reserved", 3); /* 2 */
+            // The count is half the actual size
+            uint32_t GetCount()
+            {
+                return (m_pCountProperty->GetValue() + 1) / 2;
+            };
 
-    AddProperty( /* 3 */
-        new MP4Integer8Property(*this, "fieldSize"));
+            void SetCount(uint32_t count)
+            {
+                m_pCountProperty->SetValue(count * 2);
+            };
 
-    MP4Integer32Property* pCount =
-        new MP4Integer32Property(*this, "sampleCount");
-    AddProperty(pCount); /* 4 */
+        private:
+            MP4HalfSizeTableProperty();
+            MP4HalfSizeTableProperty(const MP4HalfSizeTableProperty& src);
+            MP4HalfSizeTableProperty&
+            operator=(const MP4HalfSizeTableProperty& src);
+        };
 
-}
+        MP4Stz2Atom::MP4Stz2Atom(MP4File& file)
+            : MP4Atom(file, "stz2")
+        {
+            AddVersionAndFlags(); /* 0, 1 */
 
-void MP4Stz2Atom::Read()
-{
-    ReadProperties(0, 4);
+            AddReserved(*this, "reserved", 3); /* 2 */
 
-    uint8_t fieldSize =
-        ((MP4Integer8Property *)m_pProperties[3])->GetValue();
-    //  uint32_t sampleCount = 0;
+            AddProperty(/* 3 */
+                        new MP4Integer8Property(*this, "fieldSize"));
 
-    MP4Integer32Property* pCount =
-        (MP4Integer32Property *)m_pProperties[4];
+            MP4Integer32Property* pCount =
+                new MP4Integer32Property(*this, "sampleCount");
+            AddProperty(pCount); /* 4 */
+        }
 
-    MP4TableProperty *pTable;
-    if (fieldSize != 4) {
-        pTable = new MP4TableProperty(*this, "entries", pCount);
-    } else {
-        // 4 bit field size uses a special table.
-        pTable = new MP4HalfSizeTableProperty(*this, "entries", pCount);
-    }
+        void MP4Stz2Atom::Read()
+        {
+            ReadProperties(0, 4);
 
-    AddProperty(pTable);
+            uint8_t fieldSize =
+                ((MP4Integer8Property*)m_pProperties[3])->GetValue();
+            //  uint32_t sampleCount = 0;
 
-    if (fieldSize == 16) {
-        pTable->AddProperty( /* 5/0 */
-            new MP4Integer16Property(*this, "entrySize"));
-    } else {
-        pTable->AddProperty( /* 5/0 */
-            new MP4Integer8Property(*this, "entrySize"));
-    }
+            MP4Integer32Property* pCount =
+                (MP4Integer32Property*)m_pProperties[4];
 
-    ReadProperties(4);
+            MP4TableProperty* pTable;
+            if (fieldSize != 4)
+            {
+                pTable = new MP4TableProperty(*this, "entries", pCount);
+            }
+            else
+            {
+                // 4 bit field size uses a special table.
+                pTable = new MP4HalfSizeTableProperty(*this, "entries", pCount);
+            }
 
-    Skip(); // to end of atom
-}
+            AddProperty(pTable);
 
-///////////////////////////////////////////////////////////////////////////////
+            if (fieldSize == 16)
+            {
+                pTable->AddProperty(/* 5/0 */
+                                    new MP4Integer16Property(*this,
+                                                             "entrySize"));
+            }
+            else
+            {
+                pTable->AddProperty(/* 5/0 */
+                                    new MP4Integer8Property(*this,
+                                                            "entrySize"));
+            }
 
-}
-} // namespace mp4v2::impl
+            ReadProperties(4);
+
+            Skip(); // to end of atom
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

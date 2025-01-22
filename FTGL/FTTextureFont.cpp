@@ -38,33 +38,29 @@
 #include "../FTGlyph/FTTextureGlyphImpl.h"
 #include "./FTTextureFontImpl.h"
 
-
 using namespace std;
 
 //
 //  FTTextureFont
 //
 
+FTTextureFont::FTTextureFont(char const* fontFilePath)
+    : FTFont(new FTTextureFontImpl(this, fontFilePath))
+{
+}
 
-FTTextureFont::FTTextureFont(char const *fontFilePath) :
-    FTFont(new FTTextureFontImpl(this, fontFilePath))
-{}
+FTTextureFont::FTTextureFont(const unsigned char* pBufferBytes,
+                             size_t bufferSizeInBytes)
+    : FTFont(new FTTextureFontImpl(this, pBufferBytes, bufferSizeInBytes))
+{
+}
 
-
-FTTextureFont::FTTextureFont(const unsigned char *pBufferBytes,
-                             size_t bufferSizeInBytes) :
-    FTFont(new FTTextureFontImpl(this, pBufferBytes, bufferSizeInBytes))
-{}
-
-
-FTTextureFont::~FTTextureFont()
-{}
-
+FTTextureFont::~FTTextureFont() {}
 
 FTGlyph* FTTextureFont::MakeGlyph(FT_GlyphSlot ftGlyph)
 {
-    FTTextureFontImpl *myimpl = dynamic_cast<FTTextureFontImpl *>(impl);
-    if(!myimpl)
+    FTTextureFontImpl* myimpl = dynamic_cast<FTTextureFontImpl*>(impl);
+    if (!myimpl)
     {
         return NULL;
     }
@@ -72,124 +68,124 @@ FTGlyph* FTTextureFont::MakeGlyph(FT_GlyphSlot ftGlyph)
     return myimpl->MakeGlyphImpl(ftGlyph);
 }
 
-
 //
 //  FTTextureFontImpl
 //
 
-
 static inline GLuint NextPowerOf2(GLuint in)
 {
-     in -= 1;
+    in -= 1;
 
-     in |= in >> 16;
-     in |= in >> 8;
-     in |= in >> 4;
-     in |= in >> 2;
-     in |= in >> 1;
+    in |= in >> 16;
+    in |= in >> 8;
+    in |= in >> 4;
+    in |= in >> 2;
+    in |= in >> 1;
 
-     return in + 1;
+    return in + 1;
 }
 
-
-FTTextureFontImpl::FTTextureFontImpl(FTFont *ftFont, const char* fontFilePath)
-:   FTFontImpl(ftFont, fontFilePath),
-    maximumGLTextureSize(0),
-    textureWidth(0),
-    textureHeight(0),
-    glyphHeight(0),
-    glyphWidth(0),
-    padding(3),
-    xOffset(0),
-    yOffset(0)
+FTTextureFontImpl::FTTextureFontImpl(FTFont* ftFont, const char* fontFilePath)
+    : FTFontImpl(ftFont, fontFilePath)
+    , maximumGLTextureSize(0)
+    , textureWidth(0)
+    , textureHeight(0)
+    , glyphHeight(0)
+    , glyphWidth(0)
+    , padding(3)
+    , xOffset(0)
+    , yOffset(0)
 {
     load_flags = FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP;
     remGlyphs = numGlyphs = face.GlyphCount();
 }
 
-
-FTTextureFontImpl::FTTextureFontImpl(FTFont *ftFont,
-                                     const unsigned char *pBufferBytes,
+FTTextureFontImpl::FTTextureFontImpl(FTFont* ftFont,
+                                     const unsigned char* pBufferBytes,
                                      size_t bufferSizeInBytes)
-:   FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes),
-    maximumGLTextureSize(0),
-    textureWidth(0),
-    textureHeight(0),
-    glyphHeight(0),
-    glyphWidth(0),
-    padding(3),
-    xOffset(0),
-    yOffset(0)
+    : FTFontImpl(ftFont, pBufferBytes, bufferSizeInBytes)
+    , maximumGLTextureSize(0)
+    , textureWidth(0)
+    , textureHeight(0)
+    , glyphHeight(0)
+    , glyphWidth(0)
+    , padding(3)
+    , xOffset(0)
+    , yOffset(0)
 {
     load_flags = FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP;
     remGlyphs = numGlyphs = face.GlyphCount();
 }
-
 
 FTTextureFontImpl::~FTTextureFontImpl()
 {
-    if(textureIDList.size())
+    if (textureIDList.size())
     {
         glDeleteTextures((GLsizei)textureIDList.size(),
                          (const GLuint*)&textureIDList[0]);
     }
 }
 
-
 FTGlyph* FTTextureFontImpl::MakeGlyphImpl(FT_GlyphSlot ftGlyph)
 {
     glyphHeight = static_cast<int>(charSize.Height() + 0.5);
     glyphWidth = static_cast<int>(charSize.Width() + 0.5);
 
-    if(glyphHeight < 1) glyphHeight = 1;
-    if(glyphWidth < 1) glyphWidth = 1;
+    if (glyphHeight < 1)
+        glyphHeight = 1;
+    if (glyphWidth < 1)
+        glyphWidth = 1;
 
-    if(textureIDList.empty())
+    if (textureIDList.empty())
     {
         textureIDList.push_back(CreateTexture());
         xOffset = yOffset = padding;
     }
 
-    if(xOffset > (textureWidth - glyphWidth))
+    if (xOffset > (textureWidth - glyphWidth))
     {
         xOffset = padding;
         yOffset += glyphHeight;
 
-        if(yOffset > (textureHeight - glyphHeight))
+        if (yOffset > (textureHeight - glyphHeight))
         {
             textureIDList.push_back(CreateTexture());
             yOffset = padding;
         }
     }
 
-    FTTextureGlyph* tempGlyph = new FTTextureGlyph(ftGlyph, textureIDList[textureIDList.size() - 1],
-                                                    xOffset, yOffset, textureWidth, textureHeight);
-    xOffset += static_cast<int>(tempGlyph->BBox().Upper().X() - tempGlyph->BBox().Lower().X() + padding + 0.5);
+    FTTextureGlyph* tempGlyph =
+        new FTTextureGlyph(ftGlyph, textureIDList[textureIDList.size() - 1],
+                           xOffset, yOffset, textureWidth, textureHeight);
+    xOffset +=
+        static_cast<int>(tempGlyph->BBox().Upper().X()
+                         - tempGlyph->BBox().Lower().X() + padding + 0.5);
 
     --remGlyphs;
 
     return tempGlyph;
 }
 
-
 void FTTextureFontImpl::CalculateTextureSize()
 {
-    if(!maximumGLTextureSize)
+    if (!maximumGLTextureSize)
     {
         maximumGLTextureSize = 1024;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*)&maximumGLTextureSize);
-        assert(maximumGLTextureSize); // If you hit this then you have an invalid OpenGL context.
+        assert(maximumGLTextureSize); // If you hit this then you have an
+                                      // invalid OpenGL context.
     }
 
     textureWidth = NextPowerOf2((remGlyphs * glyphWidth) + (padding * 2));
-    textureWidth = textureWidth > maximumGLTextureSize ? maximumGLTextureSize : textureWidth;
+    textureWidth = textureWidth > maximumGLTextureSize ? maximumGLTextureSize
+                                                       : textureWidth;
 
     int h = static_cast<int>((textureWidth - (padding * 2)) / glyphWidth + 0.5);
 
     textureHeight = NextPowerOf2(((numGlyphs / h) + 1) * glyphHeight);
-    textureHeight = textureHeight > maximumGLTextureSize ? maximumGLTextureSize : textureHeight;
+    textureHeight = textureHeight > maximumGLTextureSize ? maximumGLTextureSize
+                                                         : textureHeight;
 }
-
 
 GLuint FTTextureFontImpl::CreateTexture()
 {
@@ -208,29 +204,29 @@ GLuint FTTextureFontImpl::CreateTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, textureWidth, textureHeight,
-                 0, GL_ALPHA, GL_UNSIGNED_BYTE, textureMemory);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, textureWidth, textureHeight, 0,
+                 GL_ALPHA, GL_UNSIGNED_BYTE, textureMemory);
 
     FTGL_GLDEBUG
 
-    delete [] textureMemory;
+    delete[] textureMemory;
 
     return textID;
 }
 
-
-bool FTTextureFontImpl::FaceSize(const unsigned int size, const unsigned int res)
+bool FTTextureFontImpl::FaceSize(const unsigned int size,
+                                 const unsigned int res)
 {
-    if(!textureIDList.empty())
+    if (!textureIDList.empty())
     {
-        glDeleteTextures((GLsizei)textureIDList.size(), (const GLuint*)&textureIDList[0]);
+        glDeleteTextures((GLsizei)textureIDList.size(),
+                         (const GLuint*)&textureIDList[0]);
         textureIDList.clear();
         remGlyphs = numGlyphs = face.GlyphCount();
     }
 
     return FTFontImpl::FaceSize(size, res);
 }
-
 
 template <typename T>
 inline FTPoint FTTextureFontImpl::RenderI(const T* string, const int len,
@@ -247,27 +243,24 @@ inline FTPoint FTTextureFontImpl::RenderI(const T* string, const int len,
 
     FTTextureGlyphImpl::ResetActiveTexture();
 
-    FTPoint tmp = FTFontImpl::Render(string, len,
-                                     position, spacing, renderMode);
+    FTPoint tmp =
+        FTFontImpl::Render(string, len, position, spacing, renderMode);
 
     glPopAttrib();
 
     return tmp;
 }
 
-
-FTPoint FTTextureFontImpl::Render(const char * string, const int len,
+FTPoint FTTextureFontImpl::Render(const char* string, const int len,
                                   FTPoint position, FTPoint spacing,
                                   int renderMode)
 {
     return RenderI(string, len, position, spacing, renderMode);
 }
 
-
-FTPoint FTTextureFontImpl::Render(const wchar_t * string, const int len,
+FTPoint FTTextureFontImpl::Render(const wchar_t* string, const int len,
                                   FTPoint position, FTPoint spacing,
                                   int renderMode)
 {
     return RenderI(string, len, position, spacing, renderMode);
 }
-

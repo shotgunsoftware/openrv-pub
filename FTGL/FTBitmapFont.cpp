@@ -31,37 +31,31 @@
 #include "FTInternals.h"
 #include "FTBitmapFontImpl.h"
 
-
 //
 //  FTBitmapFont
 //
 
+FTBitmapFont::FTBitmapFont(char const* fontFilePath)
+    : FTFont(new FTBitmapFontImpl(this, fontFilePath))
+{
+}
 
-FTBitmapFont::FTBitmapFont(char const *fontFilePath) :
-    FTFont(new FTBitmapFontImpl(this, fontFilePath))
-{}
+FTBitmapFont::FTBitmapFont(unsigned char const* pBufferBytes,
+                           size_t bufferSizeInBytes)
+    : FTFont(new FTBitmapFontImpl(this, pBufferBytes, bufferSizeInBytes))
+{
+}
 
-
-FTBitmapFont::FTBitmapFont(unsigned char const *pBufferBytes,
-                           size_t bufferSizeInBytes) :
-    FTFont(new FTBitmapFontImpl(this, pBufferBytes, bufferSizeInBytes))
-{}
-
-
-FTBitmapFont::~FTBitmapFont()
-{}
-
+FTBitmapFont::~FTBitmapFont() {}
 
 FTGlyph* FTBitmapFont::MakeGlyph(FT_GlyphSlot ftGlyph)
 {
     return new FTBitmapGlyph(ftGlyph);
 }
 
-
 //
 //  FTBitmapFontImpl
 //
-
 
 template <typename T>
 inline FTPoint FTBitmapFontImpl::RenderI(const T* string, const int len,
@@ -79,8 +73,8 @@ inline FTPoint FTBitmapFontImpl::RenderI(const T* string, const int len,
 
     glDisable(GL_BLEND);
 
-    FTPoint tmp = FTFontImpl::Render(string, len,
-                                     position, spacing, renderMode);
+    FTPoint tmp =
+        FTFontImpl::Render(string, len, position, spacing, renderMode);
 
     glPopClientAttrib();
     glPopAttrib();
@@ -88,19 +82,16 @@ inline FTPoint FTBitmapFontImpl::RenderI(const T* string, const int len,
     return tmp;
 }
 
-
-FTPoint FTBitmapFontImpl::Render(const char * string, const int len,
+FTPoint FTBitmapFontImpl::Render(const char* string, const int len,
                                  FTPoint position, FTPoint spacing,
                                  int renderMode)
 {
     return RenderI(string, len, position, spacing, renderMode);
 }
 
-
-FTPoint FTBitmapFontImpl::Render(const wchar_t * string, const int len,
+FTPoint FTBitmapFontImpl::Render(const wchar_t* string, const int len,
                                  FTPoint position, FTPoint spacing,
                                  int renderMode)
 {
     return RenderI(string, len, position, spacing, renderMode);
 }
-

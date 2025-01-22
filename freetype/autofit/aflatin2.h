@@ -15,26 +15,21 @@
 /*                                                                         */
 /***************************************************************************/
 
-
 #ifndef __AFLATIN2_H__
 #define __AFLATIN2_H__
 
 #include "afhints.h"
 
-
 FT_BEGIN_HEADER
 
+/* the latin-specific script class */
 
-  /* the latin-specific script class */
-
-  FT_CALLBACK_TABLE const AF_ScriptClassRec
-  af_latin2_script_class;
+FT_CALLBACK_TABLE const AF_ScriptClassRec af_latin2_script_class;
 
 /* */
 
 FT_END_HEADER
 
 #endif /* __AFLATIN_H__ */
-
 
 /* END */

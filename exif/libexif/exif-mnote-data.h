@@ -7,10 +7,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -22,31 +22,38 @@
 #define __EXIF_MNOTE_DATA_H__
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif /* __cplusplus */
 
 #include <libexif/exif-dll.h>
 #include <libexif/exif-log.h>
 
-typedef struct _ExifMnoteData ExifMnoteData;
+    typedef struct _ExifMnoteData ExifMnoteData;
 
-EXIF_EXPORT void exif_mnote_data_ref   (ExifMnoteData *);
-EXIF_EXPORT void exif_mnote_data_unref (ExifMnoteData *);
+    EXIF_EXPORT void exif_mnote_data_ref(ExifMnoteData*);
+    EXIF_EXPORT void exif_mnote_data_unref(ExifMnoteData*);
 
-EXIF_EXPORT void exif_mnote_data_load (ExifMnoteData *, const unsigned char *,
-			   unsigned int);
-EXIF_EXPORT void exif_mnote_data_save (ExifMnoteData *, unsigned char **, unsigned int *);
+    EXIF_EXPORT void exif_mnote_data_load(ExifMnoteData*, const unsigned char*,
+                                          unsigned int);
+    EXIF_EXPORT void exif_mnote_data_save(ExifMnoteData*, unsigned char**,
+                                          unsigned int*);
 
-EXIF_EXPORT unsigned int exif_mnote_data_count           (ExifMnoteData *);
-EXIF_EXPORT unsigned int exif_mnote_data_get_id          (ExifMnoteData *, unsigned int);
-EXIF_EXPORT const char  *exif_mnote_data_get_name        (ExifMnoteData *, unsigned int);
-EXIF_EXPORT const char  *exif_mnote_data_get_title       (ExifMnoteData *, unsigned int);
-EXIF_EXPORT const char  *exif_mnote_data_get_description (ExifMnoteData *, unsigned int);
+    EXIF_EXPORT unsigned int exif_mnote_data_count(ExifMnoteData*);
+    EXIF_EXPORT unsigned int exif_mnote_data_get_id(ExifMnoteData*,
+                                                    unsigned int);
+    EXIF_EXPORT const char* exif_mnote_data_get_name(ExifMnoteData*,
+                                                     unsigned int);
+    EXIF_EXPORT const char* exif_mnote_data_get_title(ExifMnoteData*,
+                                                      unsigned int);
+    EXIF_EXPORT const char* exif_mnote_data_get_description(ExifMnoteData*,
+                                                            unsigned int);
 
-/* Returns NULL or val */
-EXIF_EXPORT char  *exif_mnote_data_get_value (ExifMnoteData *, unsigned int, char *val, unsigned int maxlen);
+    /* Returns NULL or val */
+    EXIF_EXPORT char* exif_mnote_data_get_value(ExifMnoteData*, unsigned int,
+                                                char* val, unsigned int maxlen);
 
-EXIF_EXPORT void exif_mnote_data_log (ExifMnoteData *, ExifLog *);
+    EXIF_EXPORT void exif_mnote_data_log(ExifMnoteData*, ExifLog*);
 
 #ifdef __cplusplus
 }

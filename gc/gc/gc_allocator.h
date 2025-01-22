@@ -45,9 +45,9 @@
 #include <new> // for placement new
 
 #if defined(__GNUC__)
-#  define GC_ATTR_UNUSED __attribute__((__unused__))
+#define GC_ATTR_UNUSED __attribute__((__unused__))
 #else
-#  define GC_ATTR_UNUSED
+#define GC_ATTR_UNUSED
 #endif
 
 /* First some helpers to allow us to dispatch on whether or not a type
@@ -56,16 +56,24 @@
  * GC_DECLARE_PTRFREE macro.
  */
 
-struct GC_true_type {};
-struct GC_false_type {};
-
-template <class GC_tp>
-struct GC_type_traits {
-  GC_false_type GC_is_ptr_free;
+struct GC_true_type
+{
 };
 
-# define GC_DECLARE_PTRFREE(T) \
-template<> struct GC_type_traits<T> { GC_true_type GC_is_ptr_free; }
+struct GC_false_type
+{
+};
+
+template <class GC_tp> struct GC_type_traits
+{
+    GC_false_type GC_is_ptr_free;
+};
+
+#define GC_DECLARE_PTRFREE(T)            \
+    template <> struct GC_type_traits<T> \
+    {                                    \
+        GC_true_type GC_is_ptr_free;     \
+    }
 
 GC_DECLARE_PTRFREE(char);
 GC_DECLARE_PTRFREE(signed char);
@@ -79,170 +87,187 @@ GC_DECLARE_PTRFREE(unsigned long);
 GC_DECLARE_PTRFREE(float);
 GC_DECLARE_PTRFREE(double);
 GC_DECLARE_PTRFREE(long double);
+
 /* The client may want to add others.   */
 
 // In the following GC_Tp is GC_true_type if we are allocating a
 // pointer-free object.
 template <class GC_Tp>
-inline void * GC_selective_alloc(size_t n, GC_Tp, bool ignore_off_page) {
-    return ignore_off_page?GC_MALLOC_IGNORE_OFF_PAGE(n):GC_MALLOC(n);
+inline void* GC_selective_alloc(size_t n, GC_Tp, bool ignore_off_page)
+{
+    return ignore_off_page ? GC_MALLOC_IGNORE_OFF_PAGE(n) : GC_MALLOC(n);
 }
 
 template <>
-inline void * GC_selective_alloc<GC_true_type>(size_t n, GC_true_type,
-                                               bool ignore_off_page) {
-    return ignore_off_page? GC_MALLOC_ATOMIC_IGNORE_OFF_PAGE(n)
-                          : GC_MALLOC_ATOMIC(n);
+inline void* GC_selective_alloc<GC_true_type>(size_t n, GC_true_type,
+                                              bool ignore_off_page)
+{
+    return ignore_off_page ? GC_MALLOC_ATOMIC_IGNORE_OFF_PAGE(n)
+                           : GC_MALLOC_ATOMIC(n);
 }
 
 /* Now the public gc_allocator<T> class:
  */
-template <class GC_Tp>
-class gc_allocator {
+template <class GC_Tp> class gc_allocator
+{
 public:
-  typedef size_t     size_type;
-  typedef ptrdiff_t  difference_type;
-  typedef GC_Tp*       pointer;
-  typedef const GC_Tp* const_pointer;
-  typedef GC_Tp&       reference;
-  typedef const GC_Tp& const_reference;
-  typedef GC_Tp        value_type;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef GC_Tp* pointer;
+    typedef const GC_Tp* const_pointer;
+    typedef GC_Tp& reference;
+    typedef const GC_Tp& const_reference;
+    typedef GC_Tp value_type;
 
-  template <class GC_Tp1> struct rebind {
-    typedef gc_allocator<GC_Tp1> other;
-  };
+    template <class GC_Tp1> struct rebind
+    {
+        typedef gc_allocator<GC_Tp1> other;
+    };
 
-  gc_allocator()  {}
+    gc_allocator() {}
+
     gc_allocator(const gc_allocator&) throw() {}
-# if !(GC_NO_MEMBER_TEMPLATES || 0 < _MSC_VER && _MSC_VER <= 1200)
-  // MSVC++ 6.0 do not support member templates
-  template <class GC_Tp1> gc_allocator(const gc_allocator<GC_Tp1>&) throw() {}
-# endif
-  ~gc_allocator() throw() {}
+#if !(GC_NO_MEMBER_TEMPLATES || 0 < _MSC_VER && _MSC_VER <= 1200)
+    // MSVC++ 6.0 do not support member templates
+    template <class GC_Tp1> gc_allocator(const gc_allocator<GC_Tp1>&) throw() {}
+#endif
+    ~gc_allocator() throw() {}
 
-  pointer address(reference GC_x) const { return &GC_x; }
-  const_pointer address(const_reference GC_x) const { return &GC_x; }
+    pointer address(reference GC_x) const { return &GC_x; }
 
-  // GC_n is permitted to be 0.  The C++ standard says nothing about what
-  // the return value is when GC_n == 0.
-  GC_Tp* allocate(size_type GC_n, const void* = 0) {
-    GC_type_traits<GC_Tp> traits;
-    return static_cast<GC_Tp *>
-            (GC_selective_alloc(GC_n * sizeof(GC_Tp),
-                                traits.GC_is_ptr_free, false));
-  }
+    const_pointer address(const_reference GC_x) const { return &GC_x; }
 
-  // __p is not permitted to be a null pointer.
-  void deallocate(pointer __p, size_type GC_ATTR_UNUSED GC_n)
-    { GC_FREE(__p); }
+    // GC_n is permitted to be 0.  The C++ standard says nothing about what
+    // the return value is when GC_n == 0.
+    GC_Tp* allocate(size_type GC_n, const void* = 0)
+    {
+        GC_type_traits<GC_Tp> traits;
+        return static_cast<GC_Tp*>(GC_selective_alloc(
+            GC_n * sizeof(GC_Tp), traits.GC_is_ptr_free, false));
+    }
 
-  size_type max_size() const throw()
-    { return size_t(-1) / sizeof(GC_Tp); }
+    // __p is not permitted to be a null pointer.
+    void deallocate(pointer __p, size_type GC_ATTR_UNUSED GC_n)
+    {
+        GC_FREE(__p);
+    }
 
-  void construct(pointer __p, const GC_Tp& __val) { new(__p) GC_Tp(__val); }
-  void destroy(pointer __p) { __p->~GC_Tp(); }
+    size_type max_size() const throw() { return size_t(-1) / sizeof(GC_Tp); }
+
+    void construct(pointer __p, const GC_Tp& __val) { new (__p) GC_Tp(__val); }
+
+    void destroy(pointer __p) { __p->~GC_Tp(); }
 };
 
-template<>
-class gc_allocator<void> {
-  typedef size_t      size_type;
-  typedef ptrdiff_t   difference_type;
-  typedef void*       pointer;
-  typedef const void* const_pointer;
-  typedef void        value_type;
+template <> class gc_allocator<void>
+{
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef void* pointer;
+    typedef const void* const_pointer;
+    typedef void value_type;
 
-  template <class GC_Tp1> struct rebind {
-    typedef gc_allocator<GC_Tp1> other;
-  };
+    template <class GC_Tp1> struct rebind
+    {
+        typedef gc_allocator<GC_Tp1> other;
+    };
 };
-
 
 template <class GC_T1, class GC_T2>
 inline bool operator==(const gc_allocator<GC_T1>&, const gc_allocator<GC_T2>&)
 {
-  return true;
+    return true;
 }
 
 template <class GC_T1, class GC_T2>
 inline bool operator!=(const gc_allocator<GC_T1>&, const gc_allocator<GC_T2>&)
 {
-  return false;
+    return false;
 }
-
 
 /* Now the public gc_allocator_ignore_off_page<T> class:
  */
-template <class GC_Tp>
-class gc_allocator_ignore_off_page {
+template <class GC_Tp> class gc_allocator_ignore_off_page
+{
 public:
-  typedef size_t     size_type;
-  typedef ptrdiff_t  difference_type;
-  typedef GC_Tp*       pointer;
-  typedef const GC_Tp* const_pointer;
-  typedef GC_Tp&       reference;
-  typedef const GC_Tp& const_reference;
-  typedef GC_Tp        value_type;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef GC_Tp* pointer;
+    typedef const GC_Tp* const_pointer;
+    typedef GC_Tp& reference;
+    typedef const GC_Tp& const_reference;
+    typedef GC_Tp value_type;
 
-  template <class GC_Tp1> struct rebind {
-    typedef gc_allocator_ignore_off_page<GC_Tp1> other;
-  };
+    template <class GC_Tp1> struct rebind
+    {
+        typedef gc_allocator_ignore_off_page<GC_Tp1> other;
+    };
 
-  gc_allocator_ignore_off_page()  {}
+    gc_allocator_ignore_off_page() {}
+
     gc_allocator_ignore_off_page(const gc_allocator_ignore_off_page&) throw() {}
-# if !(GC_NO_MEMBER_TEMPLATES || 0 < _MSC_VER && _MSC_VER <= 1200)
-  // MSVC++ 6.0 do not support member templates
-  template <class GC_Tp1>
-    gc_allocator_ignore_off_page(const gc_allocator_ignore_off_page<GC_Tp1>&)
-        throw() {}
-# endif
-  ~gc_allocator_ignore_off_page() throw() {}
+#if !(GC_NO_MEMBER_TEMPLATES || 0 < _MSC_VER && _MSC_VER <= 1200)
+    // MSVC++ 6.0 do not support member templates
+    template <class GC_Tp1>
+    gc_allocator_ignore_off_page(
+        const gc_allocator_ignore_off_page<GC_Tp1>&) throw()
+    {
+    }
+#endif
+    ~gc_allocator_ignore_off_page() throw() {}
 
-  pointer address(reference GC_x) const { return &GC_x; }
-  const_pointer address(const_reference GC_x) const { return &GC_x; }
+    pointer address(reference GC_x) const { return &GC_x; }
 
-  // GC_n is permitted to be 0.  The C++ standard says nothing about what
-  // the return value is when GC_n == 0.
-  GC_Tp* allocate(size_type GC_n, const void* = 0) {
-    GC_type_traits<GC_Tp> traits;
-    return static_cast<GC_Tp *>
-            (GC_selective_alloc(GC_n * sizeof(GC_Tp),
-                                traits.GC_is_ptr_free, true));
-  }
+    const_pointer address(const_reference GC_x) const { return &GC_x; }
 
-  // __p is not permitted to be a null pointer.
-  void deallocate(pointer __p, size_type GC_ATTR_UNUSED GC_n)
-    { GC_FREE(__p); }
+    // GC_n is permitted to be 0.  The C++ standard says nothing about what
+    // the return value is when GC_n == 0.
+    GC_Tp* allocate(size_type GC_n, const void* = 0)
+    {
+        GC_type_traits<GC_Tp> traits;
+        return static_cast<GC_Tp*>(GC_selective_alloc(
+            GC_n * sizeof(GC_Tp), traits.GC_is_ptr_free, true));
+    }
 
-  size_type max_size() const throw()
-    { return size_t(-1) / sizeof(GC_Tp); }
+    // __p is not permitted to be a null pointer.
+    void deallocate(pointer __p, size_type GC_ATTR_UNUSED GC_n)
+    {
+        GC_FREE(__p);
+    }
 
-  void construct(pointer __p, const GC_Tp& __val) { new(__p) GC_Tp(__val); }
-  void destroy(pointer __p) { __p->~GC_Tp(); }
+    size_type max_size() const throw() { return size_t(-1) / sizeof(GC_Tp); }
+
+    void construct(pointer __p, const GC_Tp& __val) { new (__p) GC_Tp(__val); }
+
+    void destroy(pointer __p) { __p->~GC_Tp(); }
 };
 
-template<>
-class gc_allocator_ignore_off_page<void> {
-  typedef size_t      size_type;
-  typedef ptrdiff_t   difference_type;
-  typedef void*       pointer;
-  typedef const void* const_pointer;
-  typedef void        value_type;
+template <> class gc_allocator_ignore_off_page<void>
+{
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef void* pointer;
+    typedef const void* const_pointer;
+    typedef void value_type;
 
-  template <class GC_Tp1> struct rebind {
-    typedef gc_allocator_ignore_off_page<GC_Tp1> other;
-  };
+    template <class GC_Tp1> struct rebind
+    {
+        typedef gc_allocator_ignore_off_page<GC_Tp1> other;
+    };
 };
 
 template <class GC_T1, class GC_T2>
-inline bool operator==(const gc_allocator_ignore_off_page<GC_T1>&, const gc_allocator_ignore_off_page<GC_T2>&)
+inline bool operator==(const gc_allocator_ignore_off_page<GC_T1>&,
+                       const gc_allocator_ignore_off_page<GC_T2>&)
 {
-  return true;
+    return true;
 }
 
 template <class GC_T1, class GC_T2>
-inline bool operator!=(const gc_allocator_ignore_off_page<GC_T1>&, const gc_allocator_ignore_off_page<GC_T2>&)
+inline bool operator!=(const gc_allocator_ignore_off_page<GC_T1>&,
+                       const gc_allocator_ignore_off_page<GC_T2>&)
 {
-  return false;
+    return false;
 }
 
 /*
@@ -252,74 +277,85 @@ inline bool operator!=(const gc_allocator_ignore_off_page<GC_T1>&, const gc_allo
 // Note that we currently don't specialize the pointer-free case, since a
 // pointer-free traceable container doesn't make that much sense,
 // though it could become an issue due to abstraction boundaries.
-template <class GC_Tp>
-class traceable_allocator {
+template <class GC_Tp> class traceable_allocator
+{
 public:
-  typedef size_t     size_type;
-  typedef ptrdiff_t  difference_type;
-  typedef GC_Tp*       pointer;
-  typedef const GC_Tp* const_pointer;
-  typedef GC_Tp&       reference;
-  typedef const GC_Tp& const_reference;
-  typedef GC_Tp        value_type;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef GC_Tp* pointer;
+    typedef const GC_Tp* const_pointer;
+    typedef GC_Tp& reference;
+    typedef const GC_Tp& const_reference;
+    typedef GC_Tp value_type;
 
-  template <class GC_Tp1> struct rebind {
-    typedef traceable_allocator<GC_Tp1> other;
-  };
+    template <class GC_Tp1> struct rebind
+    {
+        typedef traceable_allocator<GC_Tp1> other;
+    };
 
-  traceable_allocator() throw() {}
+    traceable_allocator() throw() {}
+
     traceable_allocator(const traceable_allocator&) throw() {}
-# if !(GC_NO_MEMBER_TEMPLATES || 0 < _MSC_VER && _MSC_VER <= 1200)
-  // MSVC++ 6.0 do not support member templates
-  template <class GC_Tp1> traceable_allocator
-          (const traceable_allocator<GC_Tp1>&) throw() {}
-# endif
-  ~traceable_allocator() throw() {}
+#if !(GC_NO_MEMBER_TEMPLATES || 0 < _MSC_VER && _MSC_VER <= 1200)
+    // MSVC++ 6.0 do not support member templates
+    template <class GC_Tp1>
+    traceable_allocator(const traceable_allocator<GC_Tp1>&) throw()
+    {
+    }
+#endif
+    ~traceable_allocator() throw() {}
 
-  pointer address(reference GC_x) const { return &GC_x; }
-  const_pointer address(const_reference GC_x) const { return &GC_x; }
+    pointer address(reference GC_x) const { return &GC_x; }
 
-  // GC_n is permitted to be 0.  The C++ standard says nothing about what
-  // the return value is when GC_n == 0.
-  GC_Tp* allocate(size_type GC_n, const void* = 0) {
-    return static_cast<GC_Tp*>(GC_MALLOC_UNCOLLECTABLE(GC_n * sizeof(GC_Tp)));
-  }
+    const_pointer address(const_reference GC_x) const { return &GC_x; }
 
-  // __p is not permitted to be a null pointer.
-  void deallocate(pointer __p, size_type GC_ATTR_UNUSED GC_n)
-    { GC_FREE(__p); }
+    // GC_n is permitted to be 0.  The C++ standard says nothing about what
+    // the return value is when GC_n == 0.
+    GC_Tp* allocate(size_type GC_n, const void* = 0)
+    {
+        return static_cast<GC_Tp*>(
+            GC_MALLOC_UNCOLLECTABLE(GC_n * sizeof(GC_Tp)));
+    }
 
-  size_type max_size() const throw()
-    { return size_t(-1) / sizeof(GC_Tp); }
+    // __p is not permitted to be a null pointer.
+    void deallocate(pointer __p, size_type GC_ATTR_UNUSED GC_n)
+    {
+        GC_FREE(__p);
+    }
 
-  void construct(pointer __p, const GC_Tp& __val) { new(__p) GC_Tp(__val); }
-  void destroy(pointer __p) { __p->~GC_Tp(); }
+    size_type max_size() const throw() { return size_t(-1) / sizeof(GC_Tp); }
+
+    void construct(pointer __p, const GC_Tp& __val) { new (__p) GC_Tp(__val); }
+
+    void destroy(pointer __p) { __p->~GC_Tp(); }
 };
 
-template<>
-class traceable_allocator<void> {
-  typedef size_t      size_type;
-  typedef ptrdiff_t   difference_type;
-  typedef void*       pointer;
-  typedef const void* const_pointer;
-  typedef void        value_type;
+template <> class traceable_allocator<void>
+{
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+    typedef void* pointer;
+    typedef const void* const_pointer;
+    typedef void value_type;
 
-  template <class GC_Tp1> struct rebind {
-    typedef traceable_allocator<GC_Tp1> other;
-  };
+    template <class GC_Tp1> struct rebind
+    {
+        typedef traceable_allocator<GC_Tp1> other;
+    };
 };
-
 
 template <class GC_T1, class GC_T2>
-inline bool operator==(const traceable_allocator<GC_T1>&, const traceable_allocator<GC_T2>&)
+inline bool operator==(const traceable_allocator<GC_T1>&,
+                       const traceable_allocator<GC_T2>&)
 {
-  return true;
+    return true;
 }
 
 template <class GC_T1, class GC_T2>
-inline bool operator!=(const traceable_allocator<GC_T1>&, const traceable_allocator<GC_T2>&)
+inline bool operator!=(const traceable_allocator<GC_T1>&,
+                       const traceable_allocator<GC_T2>&)
 {
-  return false;
+    return false;
 }
 
 #endif /* GC_ALLOCATOR_H */

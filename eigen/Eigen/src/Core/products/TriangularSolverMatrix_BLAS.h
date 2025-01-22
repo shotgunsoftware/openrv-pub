@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2011, Intel Corporation. All rights reserved.
 
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
 
  * Redistributions of source code must retain the above copyright notice, this
    list of conditions and the following disclaimer.
@@ -33,118 +33,142 @@
 #ifndef EIGEN_TRIANGULAR_SOLVER_MATRIX_BLAS_H
 #define EIGEN_TRIANGULAR_SOLVER_MATRIX_BLAS_H
 
-namespace Eigen {
+namespace Eigen
+{
 
-namespace internal {
+    namespace internal
+    {
 
 // implements LeftSide op(triangular)^-1 * general
-#define EIGEN_BLAS_TRSM_L(EIGTYPE, BLASTYPE, BLASPREFIX) \
-template <typename Index, int Mode, bool Conjugate, int TriStorageOrder> \
-struct triangular_solve_matrix<EIGTYPE,Index,OnTheLeft,Mode,Conjugate,TriStorageOrder,ColMajor> \
-{ \
-  enum { \
-    IsLower = (Mode&Lower) == Lower, \
-    IsUnitDiag  = (Mode&UnitDiag) ? 1 : 0, \
-    IsZeroDiag  = (Mode&ZeroDiag) ? 1 : 0, \
-    conjA = ((TriStorageOrder==ColMajor) && Conjugate) ? 1 : 0 \
-  }; \
-  static void run( \
-      Index size, Index otherSize, \
-      const EIGTYPE* _tri, Index triStride, \
-      EIGTYPE* _other, Index otherStride, level3_blocking<EIGTYPE,EIGTYPE>& /*blocking*/) \
-  { \
-   BlasIndex m = convert_index<BlasIndex>(size), n = convert_index<BlasIndex>(otherSize), lda, ldb; \
-   char side = 'L', uplo, diag='N', transa; \
-   /* Set alpha_ */ \
-   EIGTYPE alpha(1); \
-   ldb = convert_index<BlasIndex>(otherStride);\
-\
-   const EIGTYPE *a; \
-/* Set trans */ \
-   transa = (TriStorageOrder==RowMajor) ? ((Conjugate) ? 'C' : 'T') : 'N'; \
-/* Set uplo */ \
-   uplo = IsLower ? 'L' : 'U'; \
-   if (TriStorageOrder==RowMajor) uplo = (uplo == 'L') ? 'U' : 'L'; \
-/* Set a, lda */ \
-   typedef Matrix<EIGTYPE, Dynamic, Dynamic, TriStorageOrder> MatrixTri; \
-   Map<const MatrixTri, 0, OuterStride<> > tri(_tri,size,size,OuterStride<>(triStride)); \
-   MatrixTri a_tmp; \
-\
-   if (conjA) { \
-     a_tmp = tri.conjugate(); \
-     a = a_tmp.data(); \
-     lda = convert_index<BlasIndex>(a_tmp.outerStride()); \
-   } else { \
-     a = _tri; \
-     lda = convert_index<BlasIndex>(triStride); \
-   } \
-   if (IsUnitDiag) diag='U'; \
-/* call ?trsm*/ \
-   BLASPREFIX##trsm_(&side, &uplo, &transa, &diag, &m, &n, &numext::real_ref(alpha), (const BLASTYPE*)a, &lda, (BLASTYPE*)_other, &ldb); \
- } \
-};
+#define EIGEN_BLAS_TRSM_L(EIGTYPE, BLASTYPE, BLASPREFIX)                       \
+    template <typename Index, int Mode, bool Conjugate, int TriStorageOrder>   \
+    struct triangular_solve_matrix<EIGTYPE, Index, OnTheLeft, Mode, Conjugate, \
+                                   TriStorageOrder, ColMajor>                  \
+    {                                                                          \
+        enum                                                                   \
+        {                                                                      \
+            IsLower = (Mode & Lower) == Lower,                                 \
+            IsUnitDiag = (Mode & UnitDiag) ? 1 : 0,                            \
+            IsZeroDiag = (Mode & ZeroDiag) ? 1 : 0,                            \
+            conjA = ((TriStorageOrder == ColMajor) && Conjugate) ? 1 : 0       \
+        };                                                                     \
+        static void run(Index size, Index otherSize, const EIGTYPE* _tri,      \
+                        Index triStride, EIGTYPE* _other, Index otherStride,   \
+                        level3_blocking<EIGTYPE, EIGTYPE>& /*blocking*/)       \
+        {                                                                      \
+            BlasIndex m = convert_index<BlasIndex>(size),                      \
+                      n = convert_index<BlasIndex>(otherSize), lda, ldb;       \
+            char side = 'L', uplo, diag = 'N', transa;                         \
+            /* Set alpha_ */                                                   \
+            EIGTYPE alpha(1);                                                  \
+            ldb = convert_index<BlasIndex>(otherStride);                       \
+                                                                               \
+            const EIGTYPE* a;                                                  \
+            /* Set trans */                                                    \
+            transa = (TriStorageOrder == RowMajor) ? ((Conjugate) ? 'C' : 'T') \
+                                                   : 'N';                      \
+            /* Set uplo */                                                     \
+            uplo = IsLower ? 'L' : 'U';                                        \
+            if (TriStorageOrder == RowMajor)                                   \
+                uplo = (uplo == 'L') ? 'U' : 'L';                              \
+            /* Set a, lda */                                                   \
+            typedef Matrix<EIGTYPE, Dynamic, Dynamic, TriStorageOrder>         \
+                MatrixTri;                                                     \
+            Map<const MatrixTri, 0, OuterStride<>> tri(                        \
+                _tri, size, size, OuterStride<>(triStride));                   \
+            MatrixTri a_tmp;                                                   \
+                                                                               \
+            if (conjA)                                                         \
+            {                                                                  \
+                a_tmp = tri.conjugate();                                       \
+                a = a_tmp.data();                                              \
+                lda = convert_index<BlasIndex>(a_tmp.outerStride());           \
+            }                                                                  \
+            else                                                               \
+            {                                                                  \
+                a = _tri;                                                      \
+                lda = convert_index<BlasIndex>(triStride);                     \
+            }                                                                  \
+            if (IsUnitDiag)                                                    \
+                diag = 'U';                                                    \
+            /* call ?trsm*/                                                    \
+            BLASPREFIX##trsm_(&side, &uplo, &transa, &diag, &m, &n,            \
+                              &numext::real_ref(alpha), (const BLASTYPE*)a,    \
+                              &lda, (BLASTYPE*)_other, &ldb);                  \
+        }                                                                      \
+    };
 
-EIGEN_BLAS_TRSM_L(double,   double, d)
-EIGEN_BLAS_TRSM_L(dcomplex, double, z)
-EIGEN_BLAS_TRSM_L(float,    float,  s)
-EIGEN_BLAS_TRSM_L(scomplex, float,  c)
-
+        EIGEN_BLAS_TRSM_L(double, double, d)
+        EIGEN_BLAS_TRSM_L(dcomplex, double, z)
+        EIGEN_BLAS_TRSM_L(float, float, s)
+        EIGEN_BLAS_TRSM_L(scomplex, float, c)
 
 // implements RightSide general * op(triangular)^-1
-#define EIGEN_BLAS_TRSM_R(EIGTYPE, BLASTYPE, BLASPREFIX) \
-template <typename Index, int Mode, bool Conjugate, int TriStorageOrder> \
-struct triangular_solve_matrix<EIGTYPE,Index,OnTheRight,Mode,Conjugate,TriStorageOrder,ColMajor> \
-{ \
-  enum { \
-    IsLower = (Mode&Lower) == Lower, \
-    IsUnitDiag  = (Mode&UnitDiag) ? 1 : 0, \
-    IsZeroDiag  = (Mode&ZeroDiag) ? 1 : 0, \
-    conjA = ((TriStorageOrder==ColMajor) && Conjugate) ? 1 : 0 \
-  }; \
-  static void run( \
-      Index size, Index otherSize, \
-      const EIGTYPE* _tri, Index triStride, \
-      EIGTYPE* _other, Index otherStride, level3_blocking<EIGTYPE,EIGTYPE>& /*blocking*/) \
-  { \
-   BlasIndex m = convert_index<BlasIndex>(otherSize), n = convert_index<BlasIndex>(size), lda, ldb; \
-   char side = 'R', uplo, diag='N', transa; \
-   /* Set alpha_ */ \
-   EIGTYPE alpha(1); \
-   ldb = convert_index<BlasIndex>(otherStride);\
-\
-   const EIGTYPE *a; \
-/* Set trans */ \
-   transa = (TriStorageOrder==RowMajor) ? ((Conjugate) ? 'C' : 'T') : 'N'; \
-/* Set uplo */ \
-   uplo = IsLower ? 'L' : 'U'; \
-   if (TriStorageOrder==RowMajor) uplo = (uplo == 'L') ? 'U' : 'L'; \
-/* Set a, lda */ \
-   typedef Matrix<EIGTYPE, Dynamic, Dynamic, TriStorageOrder> MatrixTri; \
-   Map<const MatrixTri, 0, OuterStride<> > tri(_tri,size,size,OuterStride<>(triStride)); \
-   MatrixTri a_tmp; \
-\
-   if (conjA) { \
-     a_tmp = tri.conjugate(); \
-     a = a_tmp.data(); \
-     lda = convert_index<BlasIndex>(a_tmp.outerStride()); \
-   } else { \
-     a = _tri; \
-     lda = convert_index<BlasIndex>(triStride); \
-   } \
-   if (IsUnitDiag) diag='U'; \
-/* call ?trsm*/ \
-   BLASPREFIX##trsm_(&side, &uplo, &transa, &diag, &m, &n, &numext::real_ref(alpha), (const BLASTYPE*)a, &lda, (BLASTYPE*)_other, &ldb); \
-   /*std::cout << "TRMS_L specialization!\n";*/ \
- } \
-};
+#define EIGEN_BLAS_TRSM_R(EIGTYPE, BLASTYPE, BLASPREFIX)                       \
+    template <typename Index, int Mode, bool Conjugate, int TriStorageOrder>   \
+    struct triangular_solve_matrix<EIGTYPE, Index, OnTheRight, Mode,           \
+                                   Conjugate, TriStorageOrder, ColMajor>       \
+    {                                                                          \
+        enum                                                                   \
+        {                                                                      \
+            IsLower = (Mode & Lower) == Lower,                                 \
+            IsUnitDiag = (Mode & UnitDiag) ? 1 : 0,                            \
+            IsZeroDiag = (Mode & ZeroDiag) ? 1 : 0,                            \
+            conjA = ((TriStorageOrder == ColMajor) && Conjugate) ? 1 : 0       \
+        };                                                                     \
+        static void run(Index size, Index otherSize, const EIGTYPE* _tri,      \
+                        Index triStride, EIGTYPE* _other, Index otherStride,   \
+                        level3_blocking<EIGTYPE, EIGTYPE>& /*blocking*/)       \
+        {                                                                      \
+            BlasIndex m = convert_index<BlasIndex>(otherSize),                 \
+                      n = convert_index<BlasIndex>(size), lda, ldb;            \
+            char side = 'R', uplo, diag = 'N', transa;                         \
+            /* Set alpha_ */                                                   \
+            EIGTYPE alpha(1);                                                  \
+            ldb = convert_index<BlasIndex>(otherStride);                       \
+                                                                               \
+            const EIGTYPE* a;                                                  \
+            /* Set trans */                                                    \
+            transa = (TriStorageOrder == RowMajor) ? ((Conjugate) ? 'C' : 'T') \
+                                                   : 'N';                      \
+            /* Set uplo */                                                     \
+            uplo = IsLower ? 'L' : 'U';                                        \
+            if (TriStorageOrder == RowMajor)                                   \
+                uplo = (uplo == 'L') ? 'U' : 'L';                              \
+            /* Set a, lda */                                                   \
+            typedef Matrix<EIGTYPE, Dynamic, Dynamic, TriStorageOrder>         \
+                MatrixTri;                                                     \
+            Map<const MatrixTri, 0, OuterStride<>> tri(                        \
+                _tri, size, size, OuterStride<>(triStride));                   \
+            MatrixTri a_tmp;                                                   \
+                                                                               \
+            if (conjA)                                                         \
+            {                                                                  \
+                a_tmp = tri.conjugate();                                       \
+                a = a_tmp.data();                                              \
+                lda = convert_index<BlasIndex>(a_tmp.outerStride());           \
+            }                                                                  \
+            else                                                               \
+            {                                                                  \
+                a = _tri;                                                      \
+                lda = convert_index<BlasIndex>(triStride);                     \
+            }                                                                  \
+            if (IsUnitDiag)                                                    \
+                diag = 'U';                                                    \
+            /* call ?trsm*/                                                    \
+            BLASPREFIX##trsm_(&side, &uplo, &transa, &diag, &m, &n,            \
+                              &numext::real_ref(alpha), (const BLASTYPE*)a,    \
+                              &lda, (BLASTYPE*)_other, &ldb);                  \
+            /*std::cout << "TRMS_L specialization!\n";*/                       \
+        }                                                                      \
+    };
 
-EIGEN_BLAS_TRSM_R(double,   double, d)
-EIGEN_BLAS_TRSM_R(dcomplex, double, z)
-EIGEN_BLAS_TRSM_R(float,    float,  s)
-EIGEN_BLAS_TRSM_R(scomplex, float,  c)
+        EIGEN_BLAS_TRSM_R(double, double, d)
+        EIGEN_BLAS_TRSM_R(dcomplex, double, z)
+        EIGEN_BLAS_TRSM_R(float, float, s)
+        EIGEN_BLAS_TRSM_R(scomplex, float, c)
 
-
-} // end namespace internal
+    } // end namespace internal
 
 } // end namespace Eigen
 

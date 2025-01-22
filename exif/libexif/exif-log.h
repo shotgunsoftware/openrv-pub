@@ -8,10 +8,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -23,51 +23,58 @@
 #define __EXIF_LOG_H__
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif /* __cplusplus */
 
 #include <libexif/exif-dll.h>
 #include <libexif/exif-mem.h>
 #include <stdarg.h>
 
-typedef struct _ExifLog        ExifLog;
+    typedef struct _ExifLog ExifLog;
 
-EXIF_EXPORT ExifLog *exif_log_new     (void);
-EXIF_EXPORT ExifLog *exif_log_new_mem (ExifMem *);
-EXIF_EXPORT void     exif_log_ref     (ExifLog *log);
-EXIF_EXPORT void     exif_log_unref   (ExifLog *log);
-EXIF_EXPORT void     exif_log_free    (ExifLog *log);
+    EXIF_EXPORT ExifLog* exif_log_new(void);
+    EXIF_EXPORT ExifLog* exif_log_new_mem(ExifMem*);
+    EXIF_EXPORT void exif_log_ref(ExifLog* log);
+    EXIF_EXPORT void exif_log_unref(ExifLog* log);
+    EXIF_EXPORT void exif_log_free(ExifLog* log);
 
-typedef enum {
-	EXIF_LOG_CODE_NONE,
-	EXIF_LOG_CODE_DEBUG,
-	EXIF_LOG_CODE_NO_MEMORY,
-	EXIF_LOG_CODE_CORRUPT_DATA
-} ExifLogCode;
-EXIF_EXPORT const char *exif_log_code_get_title   (ExifLogCode); /* Title for dialog   */
-EXIF_EXPORT const char *exif_log_code_get_message (ExifLogCode); /* Message for dialog */
+    typedef enum
+    {
+        EXIF_LOG_CODE_NONE,
+        EXIF_LOG_CODE_DEBUG,
+        EXIF_LOG_CODE_NO_MEMORY,
+        EXIF_LOG_CODE_CORRUPT_DATA
+    } ExifLogCode;
 
-/** Log callback function prototype.
- */
-typedef void (* ExifLogFunc) (ExifLog *log, ExifLogCode, const char *domain,
-			      const char *format, va_list args, void *data);
+    EXIF_EXPORT const char*
+        exif_log_code_get_title(ExifLogCode); /* Title for dialog   */
+    EXIF_EXPORT const char*
+        exif_log_code_get_message(ExifLogCode); /* Message for dialog */
 
-/** Register log callback function.
- */
-EXIF_EXPORT void     exif_log_set_func (ExifLog *log, ExifLogFunc func, void *data);
+    /** Log callback function prototype.
+     */
+    typedef void (*ExifLogFunc)(ExifLog* log, ExifLogCode, const char* domain,
+                                const char* format, va_list args, void* data);
 
-EXIF_EXPORT void     exif_log  (ExifLog *log, ExifLogCode, const char *domain,
-		    const char *format, ...)
+    /** Register log callback function.
+     */
+    EXIF_EXPORT void exif_log_set_func(ExifLog* log, ExifLogFunc func,
+                                       void* data);
+
+    EXIF_EXPORT void exif_log(ExifLog* log, ExifLogCode, const char* domain,
+                              const char* format, ...)
 #ifdef __GNUC__
-			__attribute__((__format__(printf,4,5)))
+        __attribute__((__format__(printf, 4, 5)))
 #endif
-;
+        ;
 
-EXIF_EXPORT void     exif_logv (ExifLog *log, ExifLogCode, const char *domain,
-		    const char *format, va_list args);
+    EXIF_EXPORT void exif_logv(ExifLog* log, ExifLogCode, const char* domain,
+                               const char* format, va_list args);
 
 /* For your convenience */
-#define EXIF_LOG_NO_MEMORY(l,d,s) exif_log (l, EXIF_LOG_CODE_NO_MEMORY, d, "Could not allocate %i byte(s).", s)
+#define EXIF_LOG_NO_MEMORY(l, d, s) \
+    exif_log(l, EXIF_LOG_CODE_NO_MEMORY, d, "Could not allocate %i byte(s).", s)
 
 #ifdef __cplusplus
 }

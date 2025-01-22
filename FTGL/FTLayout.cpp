@@ -31,50 +31,26 @@
 #include "../FTFont/FTFontImpl.h"
 #include "./FTLayoutImpl.h"
 
-
 //
 //  FTLayout
 //
 
+FTLayout::FTLayout() { impl = new FTLayoutImpl(); }
 
-FTLayout::FTLayout()
-{
-    impl = new FTLayoutImpl();
-}
+FTLayout::FTLayout(FTLayoutImpl* pImpl) { impl = pImpl; }
 
+FTLayout::~FTLayout() { delete impl; }
 
-FTLayout::FTLayout(FTLayoutImpl *pImpl)
-{
-    impl = pImpl;
-}
-
-
-FTLayout::~FTLayout()
-{
-    delete impl;
-}
-
-
-FT_Error FTLayout::Error() const
-{
-    return impl->err;
-}
-
+FT_Error FTLayout::Error() const { return impl->err; }
 
 //
 //  FTLayoutImpl
 //
 
-
-FTLayoutImpl::FTLayoutImpl() :
-    err(0)
+FTLayoutImpl::FTLayoutImpl()
+    : err(0)
 {
     ;
 }
 
-
-FTLayoutImpl::~FTLayoutImpl()
-{
-    ;
-}
-
+FTLayoutImpl::~FTLayoutImpl() { ; }

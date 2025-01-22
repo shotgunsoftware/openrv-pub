@@ -21,154 +21,165 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
+namespace mp4v2
+{
+    namespace impl
+    {
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
 #if 1
-MP4QosDescriptorBase::MP4QosDescriptorBase (MP4Atom& parentAtom, uint8_t tag)
-        : MP4Descriptor(parentAtom, tag)
-{
-    switch (tag) {
-    case MP4QosDescrTag:
-        AddProperty( /* 0 */
-            new MP4Integer8Property(parentAtom, "predefined"));
-        AddProperty( /* 1 */
-            new MP4QosQualifierProperty(parentAtom, "qualifiers",
-                                        MP4QosTagsStart,
-                                        MP4QosTagsEnd, Optional, Many));
-        break;
-    case MP4MaxDelayQosTag:
-        AddProperty( /* 0 */
-            new MP4Integer32Property(parentAtom, "maxDelay"));
-        break;
-    case MP4PrefMaxDelayQosTag:
-        AddProperty( /* 0 */
-            new MP4Integer32Property(parentAtom, "prefMaxDelay"));
-        break;
-    case MP4LossProbQosTag:
-        AddProperty( /* 0 */
-            new MP4Float32Property(parentAtom, "lossProb"));
-        break;
-    case MP4MaxGapLossQosTag:
-        AddProperty( /* 0 */
-            new MP4Integer32Property(parentAtom, "maxGapLoss"));
-        break;
-    case MP4MaxAUSizeQosTag:
-        AddProperty( /* 0 */
-            new MP4Integer32Property(parentAtom, "maxAUSize"));
-        break;
-    case MP4AvgAUSizeQosTag:
-        AddProperty( /* 0 */
-            new MP4Integer32Property(parentAtom, "avgAUSize"));
-        break;
-    case MP4MaxAURateQosTag:
-        AddProperty( /* 0 */
-            new MP4Integer32Property(parentAtom, "maxAURate"));
-        break;
-    }
-}
+        MP4QosDescriptorBase::MP4QosDescriptorBase(MP4Atom& parentAtom,
+                                                   uint8_t tag)
+            : MP4Descriptor(parentAtom, tag)
+        {
+            switch (tag)
+            {
+            case MP4QosDescrTag:
+                AddProperty(/* 0 */
+                            new MP4Integer8Property(parentAtom, "predefined"));
+                AddProperty(/* 1 */
+                            new MP4QosQualifierProperty(
+                                parentAtom, "qualifiers", MP4QosTagsStart,
+                                MP4QosTagsEnd, Optional, Many));
+                break;
+            case MP4MaxDelayQosTag:
+                AddProperty(/* 0 */
+                            new MP4Integer32Property(parentAtom, "maxDelay"));
+                break;
+            case MP4PrefMaxDelayQosTag:
+                AddProperty(/* 0 */
+                            new MP4Integer32Property(parentAtom,
+                                                     "prefMaxDelay"));
+                break;
+            case MP4LossProbQosTag:
+                AddProperty(/* 0 */
+                            new MP4Float32Property(parentAtom, "lossProb"));
+                break;
+            case MP4MaxGapLossQosTag:
+                AddProperty(/* 0 */
+                            new MP4Integer32Property(parentAtom, "maxGapLoss"));
+                break;
+            case MP4MaxAUSizeQosTag:
+                AddProperty(/* 0 */
+                            new MP4Integer32Property(parentAtom, "maxAUSize"));
+                break;
+            case MP4AvgAUSizeQosTag:
+                AddProperty(/* 0 */
+                            new MP4Integer32Property(parentAtom, "avgAUSize"));
+                break;
+            case MP4MaxAURateQosTag:
+                AddProperty(/* 0 */
+                            new MP4Integer32Property(parentAtom, "maxAURate"));
+                break;
+            }
+        }
 
 #else
-MP4QosDescriptor::MP4QosDescriptor(MP4Atom &parentAtom)
-        : MP4Descriptor(parentAtom, MP4QosDescrTag)
-{
-    AddProperty( /* 0 */
-        new MP4Integer8Property(parentAtom, "predefined"));
-    AddProperty( /* 1 */
-        new MP4QosQualifierProperty(parentAtom, "qualifiers",
-                                    MP4QosTagsStart, MP4QosTagsEnd, Optional, Many));
-}
+        MP4QosDescriptor::MP4QosDescriptor(MP4Atom& parentAtom)
+            : MP4Descriptor(parentAtom, MP4QosDescrTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4Integer8Property(parentAtom, "predefined"));
+            AddProperty(/* 1 */
+                        new MP4QosQualifierProperty(
+                            parentAtom, "qualifiers", MP4QosTagsStart,
+                            MP4QosTagsEnd, Optional, Many));
+        }
 
-MP4MaxDelayQosQualifier::MP4MaxDelayQosQualifier(MP4Atom &parentAtom)
-        : MP4QosQualifier(parentAtom, MP4MaxDelayQosTag)
-{
-    AddProperty( /* 0 */
-        new MP4Integer32Property(parentAtom, "maxDelay"));
-}
+        MP4MaxDelayQosQualifier::MP4MaxDelayQosQualifier(MP4Atom& parentAtom)
+            : MP4QosQualifier(parentAtom, MP4MaxDelayQosTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4Integer32Property(parentAtom, "maxDelay"));
+        }
 
-MP4PrefMaxDelayQosQualifier::MP4PrefMaxDelayQosQualifier(MP4Atom &parentAtom)
-        : MP4QosQualifier(parentAtom, MP4PrefMaxDelayQosTag)
-{
-    AddProperty( /* 0 */
-        new MP4Integer32Property(parentAtom, "prefMaxDelay"));
-}
+        MP4PrefMaxDelayQosQualifier::MP4PrefMaxDelayQosQualifier(
+            MP4Atom& parentAtom)
+            : MP4QosQualifier(parentAtom, MP4PrefMaxDelayQosTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4Integer32Property(parentAtom, "prefMaxDelay"));
+        }
 
-MP4LossProbQosQualifier::MP4LossProbQosQualifier(MP4Atom &parentAtom)
-        : MP4QosQualifier(parentAtom, MP4LossProbQosTag)
-{
-    AddProperty( /* 0 */
-        new MP4Float32Property(parentAtom, "lossProb"));
-}
+        MP4LossProbQosQualifier::MP4LossProbQosQualifier(MP4Atom& parentAtom)
+            : MP4QosQualifier(parentAtom, MP4LossProbQosTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4Float32Property(parentAtom, "lossProb"));
+        }
 
-MP4MaxGapLossQosQualifier::MP4MaxGapLossQosQualifier(MP4Atom &parentAtom)
-        : MP4QosQualifier(parentAtom, MP4MaxGapLossQosTag)
-{
-    AddProperty( /* 0 */
-        new MP4Integer32Property(parentAtom, "maxGapLoss"));
-}
+        MP4MaxGapLossQosQualifier::MP4MaxGapLossQosQualifier(
+            MP4Atom& parentAtom)
+            : MP4QosQualifier(parentAtom, MP4MaxGapLossQosTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4Integer32Property(parentAtom, "maxGapLoss"));
+        }
 
-MP4MaxAUSizeQosQualifier::MP4MaxAUSizeQosQualifier(MP4Atom &parentAtom)
-        : MP4QosQualifier(parentAtom, MP4MaxAUSizeQosTag)
-{
-    AddProperty( /* 0 */
-        new MP4Integer32Property(parentAtom, "maxAUSize"));
-}
+        MP4MaxAUSizeQosQualifier::MP4MaxAUSizeQosQualifier(MP4Atom& parentAtom)
+            : MP4QosQualifier(parentAtom, MP4MaxAUSizeQosTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4Integer32Property(parentAtom, "maxAUSize"));
+        }
 
-MP4AvgAUSizeQosQualifier::MP4AvgAUSizeQosQualifier(MP4Atom &parentAtom)
-        : MP4QosQualifier(parentAtom, MP4AvgAUSizeQosTag)
-{
-    AddProperty( /* 0 */
-        new MP4Integer32Property(parentAtom, "avgAUSize"));
-}
+        MP4AvgAUSizeQosQualifier::MP4AvgAUSizeQosQualifier(MP4Atom& parentAtom)
+            : MP4QosQualifier(parentAtom, MP4AvgAUSizeQosTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4Integer32Property(parentAtom, "avgAUSize"));
+        }
 
-MP4MaxAURateQosQualifier::MP4MaxAURateQosQualifier(MP4Atom &parentAtom)
-        : MP4QosQualifier(parentAtom, MP4MaxAURateQosTag)
-{
-    AddProperty( /* 0 */
-        new MP4Integer32Property(parentAtom, "maxAURate"));
-}
+        MP4MaxAURateQosQualifier::MP4MaxAURateQosQualifier(MP4Atom& parentAtom)
+            : MP4QosQualifier(parentAtom, MP4MaxAURateQosTag)
+        {
+            AddProperty(/* 0 */
+                        new MP4Integer32Property(parentAtom, "maxAURate"));
+        }
 #endif
-MP4UnknownQosQualifier::MP4UnknownQosQualifier(MP4Atom &parentAtom)
-        : MP4Descriptor(parentAtom)
-{
-    AddProperty( /* 0 */
-        new MP4BytesProperty(parentAtom, "data"));
-}
+        MP4UnknownQosQualifier::MP4UnknownQosQualifier(MP4Atom& parentAtom)
+            : MP4Descriptor(parentAtom)
+        {
+            AddProperty(/* 0 */
+                        new MP4BytesProperty(parentAtom, "data"));
+        }
 
-void MP4UnknownQosQualifier::Read(MP4File& file)
-{
-    ReadHeader(file);
+        void MP4UnknownQosQualifier::Read(MP4File& file)
+        {
+            ReadHeader(file);
 
-    /* byte properties need to know how long they are before reading */
-    ((MP4BytesProperty*)m_pProperties[0])->SetValueSize(m_size);
+            /* byte properties need to know how long they are before reading */
+            ((MP4BytesProperty*)m_pProperties[0])->SetValueSize(m_size);
 
-    ReadProperties(file);
-}
+            ReadProperties(file);
+        }
 
-MP4Descriptor* MP4QosQualifierProperty::CreateDescriptor(MP4Atom &parentAtom, uint8_t tag)
-{
-    MP4Descriptor* pDescriptor = NULL;
-    switch (tag) {
-    case MP4MaxDelayQosTag:
-    case MP4PrefMaxDelayQosTag:
-    case MP4LossProbQosTag:
-    case MP4MaxGapLossQosTag:
-    case MP4MaxAUSizeQosTag:
-    case MP4AvgAUSizeQosTag:
-    case MP4MaxAURateQosTag:
-        pDescriptor = new MP4QosDescriptorBase(parentAtom, tag);
-        break;
-    default:
-        pDescriptor = new MP4UnknownQosQualifier(parentAtom);
-        pDescriptor->SetTag(tag);
-    }
+        MP4Descriptor*
+        MP4QosQualifierProperty::CreateDescriptor(MP4Atom& parentAtom,
+                                                  uint8_t tag)
+        {
+            MP4Descriptor* pDescriptor = NULL;
+            switch (tag)
+            {
+            case MP4MaxDelayQosTag:
+            case MP4PrefMaxDelayQosTag:
+            case MP4LossProbQosTag:
+            case MP4MaxGapLossQosTag:
+            case MP4MaxAUSizeQosTag:
+            case MP4AvgAUSizeQosTag:
+            case MP4MaxAURateQosTag:
+                pDescriptor = new MP4QosDescriptorBase(parentAtom, tag);
+                break;
+            default:
+                pDescriptor = new MP4UnknownQosQualifier(parentAtom);
+                pDescriptor->SetTag(tag);
+            }
 
-    return pDescriptor;
-}
+            return pDescriptor;
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
-}
-} // namespace mp4v2::impl
+    } // namespace impl
+} // namespace mp4v2

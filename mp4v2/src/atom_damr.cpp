@@ -27,43 +27,43 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
+namespace mp4v2
+{
+    namespace impl
+    {
 
-///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
 
 #define AMR_VENDOR 0x6d346970
 
-MP4DamrAtom::MP4DamrAtom(MP4File &file)
-        : MP4Atom(file, "damr")
-{
-    AddProperty( /* 0 */
-        new MP4Integer32Property(*this, "vendor"));
+        MP4DamrAtom::MP4DamrAtom(MP4File& file)
+            : MP4Atom(file, "damr")
+        {
+            AddProperty(/* 0 */
+                        new MP4Integer32Property(*this, "vendor"));
 
-    AddProperty( /* 1 */
-        new MP4Integer8Property(*this, "decoderVersion"));
+            AddProperty(/* 1 */
+                        new MP4Integer8Property(*this, "decoderVersion"));
 
-    AddProperty( /* 2 */
-        new MP4Integer16Property(*this, "modeSet"));
+            AddProperty(/* 2 */
+                        new MP4Integer16Property(*this, "modeSet"));
 
-    AddProperty( /* 3 */
-        new MP4Integer8Property(*this, "modeChangePeriod"));
+            AddProperty(/* 3 */
+                        new MP4Integer8Property(*this, "modeChangePeriod"));
 
-    AddProperty( /* 4 */
-        new MP4Integer8Property(*this, "framesPerSample"));
+            AddProperty(/* 4 */
+                        new MP4Integer8Property(*this, "framesPerSample"));
+        }
 
-}
+        void MP4DamrAtom::Generate()
+        {
+            MP4Atom::Generate();
 
-void MP4DamrAtom::Generate()
-{
-    MP4Atom::Generate();
+            ((MP4Integer32Property*)m_pProperties[0])->SetValue(AMR_VENDOR);
+            ((MP4Integer8Property*)m_pProperties[1])->SetValue(1);
+        }
 
-    ((MP4Integer32Property*)m_pProperties[0])->SetValue(AMR_VENDOR);
-    ((MP4Integer8Property*)m_pProperties[1])->SetValue(1);
+        ///////////////////////////////////////////////////////////////////////////////
 
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-}
-} // namespace mp4v2::impl
+    } // namespace impl
+} // namespace mp4v2

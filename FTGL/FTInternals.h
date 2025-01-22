@@ -33,60 +33,58 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
 // Fixes for deprecated identifiers in 2.1.5
 #ifndef FT_OPEN_MEMORY
-    #define FT_OPEN_MEMORY (FT_Open_Flags)1
+#define FT_OPEN_MEMORY (FT_Open_Flags)1
 #endif
 
 #ifndef FT_RENDER_MODE_MONO
-    #define FT_RENDER_MODE_MONO ft_render_mode_mono
+#define FT_RENDER_MODE_MONO ft_render_mode_mono
 #endif
 
 #ifndef FT_RENDER_MODE_NORMAL
-    #define FT_RENDER_MODE_NORMAL ft_render_mode_normal
+#define FT_RENDER_MODE_NORMAL ft_render_mode_normal
 #endif
-
 
 #ifdef WIN32
 
-    // Under windows avoid including <windows.h> is overrated.
-    // Sure, it can be avoided and "name space pollution" can be
-    // avoided, but why? It really doesn't make that much difference
-    // these days.
-    #define  WIN32_LEAN_AND_MEAN
-    #include <windows.h>
+// Under windows avoid including <windows.h> is overrated.
+// Sure, it can be avoided and "name space pollution" can be
+// avoided, but why? It really doesn't make that much difference
+// these days.
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
-    #ifndef __gl_h_
-        #include <GL/gl.h>
-        #include <GL/glu.h>
-    #endif
+#ifndef __gl_h_
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
 
 #else
 
-    // Non windows platforms - don't require nonsense as seen above :-)
-    #ifndef __gl_h_
-        #ifdef SDL_main
-            #include "SDL_opengl.h"
-        #elif __APPLE_CC__
-            #include <OpenGL/gl.h>
-            #include <OpenGL/glu.h>
-        #else
-            #include <GL/gl.h>
-            #if defined (__sun__) && !defined (__sparc__)
-                #include <mesa/glu.h>
-            #else
-                #include <GL/glu.h>
-            #endif
-        #endif
+// Non windows platforms - don't require nonsense as seen above :-)
+#ifndef __gl_h_
+#ifdef SDL_main
+#include "SDL_opengl.h"
+#elif __APPLE_CC__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/gl.h>
+#if defined(__sun__) && !defined(__sparc__)
+#include <mesa/glu.h>
+#else
+#include <GL/glu.h>
+#endif
+#endif
 
-    #endif
+#endif
 
-    // Required for compatibility with glext.h style function definitions of
-    // OpenGL extensions, such as in src/osg/Point.cpp.
-    #ifndef APIENTRY
-        #define APIENTRY
-    #endif
+// Required for compatibility with glext.h style function definitions of
+// OpenGL extensions, such as in src/osg/Point.cpp.
+#ifndef APIENTRY
+#define APIENTRY
+#endif
 #endif
 
 FTGL_BEGIN_C_DECLS
@@ -105,7 +103,7 @@ typedef enum
 
 struct _FTGLglyph
 {
-    FTGlyph *ptr;
+    FTGlyph* ptr;
     FTGL::GlyphType type;
 };
 
@@ -123,7 +121,7 @@ typedef enum
 
 struct _FTGLfont
 {
-    FTFont *ptr;
+    FTFont* ptr;
     FTGL::FontType type;
 };
 
@@ -134,12 +132,11 @@ typedef enum
 
 struct _FTGLlayout
 {
-    FTLayout *ptr;
-    FTGLfont *font;
+    FTLayout* ptr;
+    FTGLfont* font;
     FTGL::LayoutType type;
 };
 
 FTGL_END_C_DECLS
 
-#endif  //__FTINTERNALS_H__
-
+#endif //__FTINTERNALS_H__

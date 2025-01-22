@@ -4,8 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int
-main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     int help = 0;
     int canonical = 0;
@@ -25,25 +24,29 @@ main(int argc, char *argv[])
 
     /* Analyze command line options. */
 
-    for (k = 1; k < argc; k ++)
+    for (k = 1; k < argc; k++)
     {
-        if (strcmp(argv[k], "-h") == 0
-                || strcmp(argv[k], "--help") == 0) {
+        if (strcmp(argv[k], "-h") == 0 || strcmp(argv[k], "--help") == 0)
+        {
             help = 1;
         }
 
         else if (strcmp(argv[k], "-c") == 0
-                || strcmp(argv[k], "--canonical") == 0) {
+                 || strcmp(argv[k], "--canonical") == 0)
+        {
             canonical = 1;
         }
 
         else if (strcmp(argv[k], "-u") == 0
-                || strcmp(argv[k], "--unicode") == 0) {
+                 || strcmp(argv[k], "--unicode") == 0)
+        {
             unicode = 1;
         }
 
-        else {
-            fprintf(stderr, "Unrecognized option: %s\n"
+        else
+        {
+            fprintf(stderr,
+                    "Unrecognized option: %s\n"
                     "Try `%s --help` for more information.\n",
                     argv[k], argv[0]);
             return 1;
@@ -55,11 +58,11 @@ main(int argc, char *argv[])
     if (help)
     {
         printf("%s [--canonical] [--unicode] <input >output\n"
-                "or\n%s -h | --help\nReformat a YAML stream\n\nOptions:\n"
-                "-h, --help\t\tdisplay this help and exit\n"
-                "-c, --canonical\t\toutput in the canonical YAML format\n"
-                "-u, --unicode\t\toutput unescaped non-ASCII characters\n",
-                argv[0], argv[0]);
+               "or\n%s -h | --help\nReformat a YAML stream\n\nOptions:\n"
+               "-h, --help\t\tdisplay this help and exit\n"
+               "-c, --canonical\t\toutput in the canonical YAML format\n"
+               "-u, --unicode\t\toutput unescaped non-ASCII characters\n",
+               argv[0], argv[0]);
         return 0;
     }
 
@@ -93,7 +96,8 @@ main(int argc, char *argv[])
 
         /* Check if this is the stream end. */
 
-        if (event.type == YAML_STREAM_END_EVENT) {
+        if (event.type == YAML_STREAM_END_EVENT)
+        {
             done = 1;
         }
 
@@ -114,55 +118,65 @@ parser_error:
 
     switch (parser.error)
     {
-        case YAML_MEMORY_ERROR:
-            fprintf(stderr, "Memory error: Not enough memory for parsing\n");
-            break;
+    case YAML_MEMORY_ERROR:
+        fprintf(stderr, "Memory error: Not enough memory for parsing\n");
+        break;
 
-        case YAML_READER_ERROR:
-            if (parser.problem_value != -1) {
-                fprintf(stderr, "Reader error: %s: #%X at %d\n", parser.problem,
-                        parser.problem_value, parser.problem_offset);
-            }
-            else {
-                fprintf(stderr, "Reader error: %s at %d\n", parser.problem,
-                        parser.problem_offset);
-            }
-            break;
+    case YAML_READER_ERROR:
+        if (parser.problem_value != -1)
+        {
+            fprintf(stderr, "Reader error: %s: #%X at %d\n", parser.problem,
+                    parser.problem_value, parser.problem_offset);
+        }
+        else
+        {
+            fprintf(stderr, "Reader error: %s at %d\n", parser.problem,
+                    parser.problem_offset);
+        }
+        break;
 
-        case YAML_SCANNER_ERROR:
-            if (parser.context) {
-                fprintf(stderr, "Scanner error: %s at line %d, column %d\n"
-                        "%s at line %d, column %d\n", parser.context,
-                        parser.context_mark.line+1, parser.context_mark.column+1,
-                        parser.problem, parser.problem_mark.line+1,
-                        parser.problem_mark.column+1);
-            }
-            else {
-                fprintf(stderr, "Scanner error: %s at line %d, column %d\n",
-                        parser.problem, parser.problem_mark.line+1,
-                        parser.problem_mark.column+1);
-            }
-            break;
+    case YAML_SCANNER_ERROR:
+        if (parser.context)
+        {
+            fprintf(stderr,
+                    "Scanner error: %s at line %d, column %d\n"
+                    "%s at line %d, column %d\n",
+                    parser.context, parser.context_mark.line + 1,
+                    parser.context_mark.column + 1, parser.problem,
+                    parser.problem_mark.line + 1,
+                    parser.problem_mark.column + 1);
+        }
+        else
+        {
+            fprintf(stderr, "Scanner error: %s at line %d, column %d\n",
+                    parser.problem, parser.problem_mark.line + 1,
+                    parser.problem_mark.column + 1);
+        }
+        break;
 
-        case YAML_PARSER_ERROR:
-            if (parser.context) {
-                fprintf(stderr, "Parser error: %s at line %d, column %d\n"
-                        "%s at line %d, column %d\n", parser.context,
-                        parser.context_mark.line+1, parser.context_mark.column+1,
-                        parser.problem, parser.problem_mark.line+1,
-                        parser.problem_mark.column+1);
-            }
-            else {
-                fprintf(stderr, "Parser error: %s at line %d, column %d\n",
-                        parser.problem, parser.problem_mark.line+1,
-                        parser.problem_mark.column+1);
-            }
-            break;
+    case YAML_PARSER_ERROR:
+        if (parser.context)
+        {
+            fprintf(stderr,
+                    "Parser error: %s at line %d, column %d\n"
+                    "%s at line %d, column %d\n",
+                    parser.context, parser.context_mark.line + 1,
+                    parser.context_mark.column + 1, parser.problem,
+                    parser.problem_mark.line + 1,
+                    parser.problem_mark.column + 1);
+        }
+        else
+        {
+            fprintf(stderr, "Parser error: %s at line %d, column %d\n",
+                    parser.problem, parser.problem_mark.line + 1,
+                    parser.problem_mark.column + 1);
+        }
+        break;
 
-        default:
-            /* Couldn't happen. */
-            fprintf(stderr, "Internal error\n");
-            break;
+    default:
+        /* Couldn't happen. */
+        fprintf(stderr, "Internal error\n");
+        break;
     }
 
     yaml_parser_delete(&parser);
@@ -176,22 +190,22 @@ emitter_error:
 
     switch (emitter.error)
     {
-        case YAML_MEMORY_ERROR:
-            fprintf(stderr, "Memory error: Not enough memory for emitting\n");
-            break;
+    case YAML_MEMORY_ERROR:
+        fprintf(stderr, "Memory error: Not enough memory for emitting\n");
+        break;
 
-        case YAML_WRITER_ERROR:
-            fprintf(stderr, "Writer error: %s\n", emitter.problem);
-            break;
+    case YAML_WRITER_ERROR:
+        fprintf(stderr, "Writer error: %s\n", emitter.problem);
+        break;
 
-        case YAML_EMITTER_ERROR:
-            fprintf(stderr, "Emitter error: %s\n", emitter.problem);
-            break;
+    case YAML_EMITTER_ERROR:
+        fprintf(stderr, "Emitter error: %s\n", emitter.problem);
+        break;
 
-        default:
-            /* Couldn't happen. */
-            fprintf(stderr, "Internal error\n");
-            break;
+    default:
+        /* Couldn't happen. */
+        fprintf(stderr, "Internal error\n");
+        break;
     }
 
     yaml_parser_delete(&parser);
@@ -199,4 +213,3 @@ emitter_error:
 
     return 1;
 }
-

@@ -21,30 +21,31 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4HrefAtom::MP4HrefAtom(MP4File &file)
-        : MP4Atom(file, "href")
+namespace mp4v2
 {
-    AddReserved(*this, "reserved1", 6); /* 0 */
+    namespace impl
+    {
 
-    AddProperty( /* 1 */
-        new MP4Integer16Property(*this, "dataReferenceIndex"));
-    ExpectChildAtom("burl", Optional, OnlyOne);
-}
+        ///////////////////////////////////////////////////////////////////////////////
 
-void MP4HrefAtom::Generate()
-{
-    MP4Atom::Generate();
+        MP4HrefAtom::MP4HrefAtom(MP4File& file)
+            : MP4Atom(file, "href")
+        {
+            AddReserved(*this, "reserved1", 6); /* 0 */
 
-    ((MP4Integer16Property*)m_pProperties[1])->SetValue(1);
+            AddProperty(/* 1 */
+                        new MP4Integer16Property(*this, "dataReferenceIndex"));
+            ExpectChildAtom("burl", Optional, OnlyOne);
+        }
 
-}
+        void MP4HrefAtom::Generate()
+        {
+            MP4Atom::Generate();
 
-///////////////////////////////////////////////////////////////////////////////
+            ((MP4Integer16Property*)m_pProperties[1])->SetValue(1);
+        }
 
-}
-} // namespace mp4v2::impl
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

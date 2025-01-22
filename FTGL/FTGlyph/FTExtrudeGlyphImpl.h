@@ -35,35 +35,34 @@ class FTExtrudeGlyphImpl : public FTGlyphImpl
 {
     friend class FTExtrudeGlyph;
 
-    protected:
-        FTExtrudeGlyphImpl(FT_GlyphSlot glyph, float depth, float frontOutset,
-                           float backOutset, bool useDisplayList);
+protected:
+    FTExtrudeGlyphImpl(FT_GlyphSlot glyph, float depth, float frontOutset,
+                       float backOutset, bool useDisplayList);
 
-        virtual ~FTExtrudeGlyphImpl();
+    virtual ~FTExtrudeGlyphImpl();
 
-        virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
+    virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
 
-    private:
-        /**
-         * Private rendering methods.
-         */
-        void RenderFront();
-        void RenderBack();
-        void RenderSide();
+private:
+    /**
+     * Private rendering methods.
+     */
+    void RenderFront();
+    void RenderBack();
+    void RenderSide();
 
-        /**
-         * Private rendering variables.
-         */
-        unsigned int hscale, vscale;
-        float depth;
-        float frontOutset, backOutset;
-        FTVectoriser *vectoriser;
+    /**
+     * Private rendering variables.
+     */
+    unsigned int hscale, vscale;
+    float depth;
+    float frontOutset, backOutset;
+    FTVectoriser* vectoriser;
 
-        /**
-         * OpenGL display list
-         */
-        GLuint glList;
+    /**
+     * OpenGL display list
+     */
+    GLuint glList;
 };
 
-#endif  //  __FTExtrudeGlyphImpl__
-
+#endif //  __FTExtrudeGlyphImpl__

@@ -33,32 +33,31 @@ class FTGlyphImpl
 {
     friend class FTGlyph;
 
-    protected:
-        FTGlyphImpl(FT_GlyphSlot glyph, bool useDisplayList = true);
+protected:
+    FTGlyphImpl(FT_GlyphSlot glyph, bool useDisplayList = true);
 
-        virtual ~FTGlyphImpl();
+    virtual ~FTGlyphImpl();
 
-        float Advance() const;
+    float Advance() const;
 
-        const FTBBox& BBox() const;
+    const FTBBox& BBox() const;
 
-        FT_Error Error() const;
+    FT_Error Error() const;
 
-        /**
-         * The advance distance for this glyph
-         */
-        FTPoint advance;
+    /**
+     * The advance distance for this glyph
+     */
+    FTPoint advance;
 
-        /**
-         * The bounding box of this glyph.
-         */
-        FTBBox bBox;
+    /**
+     * The bounding box of this glyph.
+     */
+    FTBBox bBox;
 
-        /**
-         * Current error code. Zero means no error.
-         */
-        FT_Error err;
+    /**
+     * Current error code. Zero means no error.
+     */
+    FT_Error err;
 };
 
-#endif  //  __FTGlyphImpl__
-
+#endif //  __FTGlyphImpl__

@@ -21,66 +21,69 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4TmcdAtom::MP4TmcdAtom (MP4File &file)
-        : MP4Atom(file, "tmcd")
+namespace mp4v2
 {
-/*
-       format tmcd
-       reserved       00 00 00 00 00 00 
-       data_reference 1
-       reserved2      0
-       flags          0
-       timescale      2997
-       frameduration  125
-       numframes      24
-       reserved3      26
-       name:          001
- */
-}
-
-void MP4TmcdAtom::Read()
-{
-    if (string(GetParentAtom()->GetType()) == "stsd")
+    namespace impl
     {
-        AddReserved(*this, "reserved1", 6);
 
-        AddProperty(new MP4Integer16Property(*this, "dataReferenceIndex"));
+        ///////////////////////////////////////////////////////////////////////////////
 
-        AddReserved(*this, "reserved2", 4);
-
-        AddProperty(new MP4Integer32Property(*this, "flags"));
-        AddProperty(new MP4Integer32Property(*this, "timescale"));
-        AddProperty(new MP4Integer32Property(*this, "frameduration"));
-        AddProperty(new MP4Integer8Property(*this, "numframes"));
-
-        AddReserved(*this, "reserved3", 1); 
-
-        ExpectChildAtom("name", Required, OnlyOne);
-
-        MP4Atom::Read();
-
-        if (!FindChildAtom("name"))
+        MP4TmcdAtom::MP4TmcdAtom(MP4File& file)
+            : MP4Atom(file, "tmcd")
         {
-            MP4Atom* pChildAtom = MP4Atom::CreateAtom(m_File, this, "name");
-            InsertChildAtom(pChildAtom, m_pChildAtoms.Size());
-            pChildAtom->Generate();
-            SetSize(GetSize() + pChildAtom->GetSize());
+            /*
+                   format tmcd
+                   reserved       00 00 00 00 00 00
+                   data_reference 1
+                   reserved2      0
+                   flags          0
+                   timescale      2997
+                   frameduration  125
+                   numframes      24
+                   reserved3      26
+                   name:          001
+             */
         }
-    }
-    else if (string(GetParentAtom()->GetType()) == "gmhd")
-    {
-        ExpectChildAtom("tcmi", Required, OnlyOne);
-        MP4Atom::Read();
-    }
 
-}
+        void MP4TmcdAtom::Read()
+        {
+            if (string(GetParentAtom()->GetType()) == "stsd")
+            {
+                AddReserved(*this, "reserved1", 6);
 
-///////////////////////////////////////////////////////////////////////////////
+                AddProperty(
+                    new MP4Integer16Property(*this, "dataReferenceIndex"));
 
-}
-} // namespace mp4v2::impl
+                AddReserved(*this, "reserved2", 4);
+
+                AddProperty(new MP4Integer32Property(*this, "flags"));
+                AddProperty(new MP4Integer32Property(*this, "timescale"));
+                AddProperty(new MP4Integer32Property(*this, "frameduration"));
+                AddProperty(new MP4Integer8Property(*this, "numframes"));
+
+                AddReserved(*this, "reserved3", 1);
+
+                ExpectChildAtom("name", Required, OnlyOne);
+
+                MP4Atom::Read();
+
+                if (!FindChildAtom("name"))
+                {
+                    MP4Atom* pChildAtom =
+                        MP4Atom::CreateAtom(m_File, this, "name");
+                    InsertChildAtom(pChildAtom, m_pChildAtoms.Size());
+                    pChildAtom->Generate();
+                    SetSize(GetSize() + pChildAtom->GetSize());
+                }
+            }
+            else if (string(GetParentAtom()->GetType()) == "gmhd")
+            {
+                ExpectChildAtom("tcmi", Required, OnlyOne);
+                MP4Atom::Read();
+            }
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

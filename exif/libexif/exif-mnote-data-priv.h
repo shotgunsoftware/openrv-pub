@@ -7,10 +7,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -22,7 +22,8 @@
 #define __EXIF_MNOTE_DATA_PRIV_H__
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif /* __cplusplus */
 
 #include <libexif/exif-dll.h>
@@ -30,45 +31,49 @@ extern "C" {
 #include <libexif/exif-byte-order.h>
 #include <libexif/exif-log.h>
 
-typedef struct _ExifMnoteDataMethods ExifMnoteDataMethods;
-struct _ExifMnoteDataMethods {
+    typedef struct _ExifMnoteDataMethods ExifMnoteDataMethods;
 
-	/* Live cycle */
-	void (* free) (ExifMnoteData *);
+    struct _ExifMnoteDataMethods
+    {
 
-	/* Modification */
-	void (* save) (ExifMnoteData *, unsigned char **, unsigned int *);
-	void (* load) (ExifMnoteData *, const unsigned char *, unsigned int);
-	void (* set_offset)     (ExifMnoteData *, unsigned int);
-	void (* set_byte_order) (ExifMnoteData *, ExifByteOrder);
+        /* Live cycle */
+        void (*free)(ExifMnoteData*);
 
-	/* Query */
-	unsigned int (* count)           (ExifMnoteData *);
-        unsigned int (* get_id)          (ExifMnoteData *, unsigned int);
-	const char * (* get_name)        (ExifMnoteData *, unsigned int);
-	const char * (* get_title)       (ExifMnoteData *, unsigned int);
-	const char * (* get_description) (ExifMnoteData *, unsigned int);
-	char * (* get_value)             (ExifMnoteData *, unsigned int, char *val, unsigned int maxlen);
-};
+        /* Modification */
+        void (*save)(ExifMnoteData*, unsigned char**, unsigned int*);
+        void (*load)(ExifMnoteData*, const unsigned char*, unsigned int);
+        void (*set_offset)(ExifMnoteData*, unsigned int);
+        void (*set_byte_order)(ExifMnoteData*, ExifByteOrder);
 
-typedef struct _ExifMnoteDataPriv ExifMnoteDataPriv;
+        /* Query */
+        unsigned int (*count)(ExifMnoteData*);
+        unsigned int (*get_id)(ExifMnoteData*, unsigned int);
+        const char* (*get_name)(ExifMnoteData*, unsigned int);
+        const char* (*get_title)(ExifMnoteData*, unsigned int);
+        const char* (*get_description)(ExifMnoteData*, unsigned int);
+        char* (*get_value)(ExifMnoteData*, unsigned int, char* val,
+                           unsigned int maxlen);
+    };
 
-struct _ExifMnoteData 
-{
-	ExifMnoteDataPriv *priv;
+    typedef struct _ExifMnoteDataPriv ExifMnoteDataPriv;
 
-	ExifMnoteDataMethods methods;
+    struct _ExifMnoteData
+    {
+        ExifMnoteDataPriv* priv;
 
-	/* Logging */
-	ExifLog *log;
+        ExifMnoteDataMethods methods;
 
-	/* Memory management */
-	ExifMem *mem;
-};
+        /* Logging */
+        ExifLog* log;
 
-EXIF_EXPORT void exif_mnote_data_construct      (ExifMnoteData *, ExifMem *mem);
-EXIF_EXPORT void exif_mnote_data_set_byte_order (ExifMnoteData *, ExifByteOrder);
-EXIF_EXPORT void exif_mnote_data_set_offset     (ExifMnoteData *, unsigned int);
+        /* Memory management */
+        ExifMem* mem;
+    };
+
+    EXIF_EXPORT void exif_mnote_data_construct(ExifMnoteData*, ExifMem* mem);
+    EXIF_EXPORT void exif_mnote_data_set_byte_order(ExifMnoteData*,
+                                                    ExifByteOrder);
+    EXIF_EXPORT void exif_mnote_data_set_offset(ExifMnoteData*, unsigned int);
 
 #ifdef __cplusplus
 }

@@ -7,10 +7,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -23,15 +23,17 @@
 #include <libexif/exif-dll.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif /* __cplusplus */
 
-typedef enum {
-	EXIF_BYTE_ORDER_MOTOROLA,
-	EXIF_BYTE_ORDER_INTEL
-} ExifByteOrder;
+    typedef enum
+    {
+        EXIF_BYTE_ORDER_MOTOROLA,
+        EXIF_BYTE_ORDER_INTEL
+    } ExifByteOrder;
 
-EXIF_EXPORT const char *exif_byte_order_get_name (ExifByteOrder order);
+    EXIF_EXPORT const char* exif_byte_order_get_name(ExifByteOrder order);
 
 #ifdef __cplusplus
 }

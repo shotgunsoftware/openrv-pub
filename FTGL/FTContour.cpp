@@ -37,38 +37,30 @@
 
 static const unsigned int BEZIER_STEPS = 5;
 
-
 void FTContour::AddPoint(FTPoint point)
 {
-    if(pointList.empty() || (point != pointList[pointList.size() - 1]
-                              && point != pointList[0]))
+    if (pointList.empty()
+        || (point != pointList[pointList.size() - 1] && point != pointList[0]))
     {
         pointList.push_back(point);
     }
 }
-
 
 void FTContour::AddOutsetPoint(FTPoint point)
 {
     outsetPointList.push_back(point);
 }
 
-
 void FTContour::AddFrontPoint(FTPoint point)
 {
     frontPointList.push_back(point);
 }
 
-
-void FTContour::AddBackPoint(FTPoint point)
-{
-    backPointList.push_back(point);
-}
-
+void FTContour::AddBackPoint(FTPoint point) { backPointList.push_back(point); }
 
 void FTContour::evaluateQuadraticCurve(FTPoint A, FTPoint B, FTPoint C)
 {
-    for(unsigned int i = 1; i < BEZIER_STEPS; i++)
+    for (unsigned int i = 1; i < BEZIER_STEPS; i++)
     {
         float t = static_cast<float>(i) / BEZIER_STEPS;
 
@@ -79,10 +71,9 @@ void FTContour::evaluateQuadraticCurve(FTPoint A, FTPoint B, FTPoint C)
     }
 }
 
-
 void FTContour::evaluateCubicCurve(FTPoint A, FTPoint B, FTPoint C, FTPoint D)
 {
-    for(unsigned int i = 0; i < BEZIER_STEPS; i++)
+    for (unsigned int i = 0; i < BEZIER_STEPS; i++)
     {
         float t = static_cast<float>(i) / BEZIER_STEPS;
 
@@ -96,7 +87,6 @@ void FTContour::evaluateCubicCurve(FTPoint A, FTPoint B, FTPoint C, FTPoint D)
         AddPoint((1.0f - t) * M + t * N);
     }
 }
-
 
 // This function is a bit tricky. Given a path ABC, it returns the
 // coordinates of the outset point facing B on the left at a distance
@@ -133,27 +123,26 @@ FTPoint FTContour::ComputeOutsetPoint(FTPoint A, FTPoint B, FTPoint C)
                    tmp.X() * -ba.Y() + tmp.Y() * -ba.X());
 }
 
-
 void FTContour::SetParity(int parity)
 {
     size_t size = PointCount();
     FTPoint vOutset;
 
-    if(((parity & 1) && clockwise) || (!(parity & 1) && !clockwise))
+    if (((parity & 1) && clockwise) || (!(parity & 1) && !clockwise))
     {
         // Contour orientation is wrong! We must reverse all points.
         // FIXME: could it be worth writing FTVector::reverse() for this?
-        for(size_t i = 0; i < size / 2; i++)
+        for (size_t i = 0; i < size / 2; i++)
         {
             FTPoint tmp = pointList[i];
             pointList[i] = pointList[size - 1 - i];
-            pointList[size - 1 -i] = tmp;
+            pointList[size - 1 - i] = tmp;
         }
 
         clockwise = !clockwise;
     }
 
-    for(size_t i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
         size_t prev, cur, next;
 
@@ -166,7 +155,6 @@ void FTContour::SetParity(int parity)
     }
 }
 
-
 FTContour::FTContour(FT_Vector* contour, char* tags, unsigned int n)
 {
     FTPoint prev, cur(contour[(n - 1) % n]), next(contour[0]);
@@ -176,7 +164,7 @@ FTContour::FTContour(FT_Vector* contour, char* tags, unsigned int n)
 
     // See http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-6.html
     // for a full description of FreeType tags.
-    for(unsigned int i = 0; i < n; i++)
+    for (unsigned int i = 0; i < n; i++)
     {
         prev = cur;
         cur = next;
@@ -186,41 +174,42 @@ FTContour::FTContour(FT_Vector* contour, char* tags, unsigned int n)
 
         // Compute our path's new direction.
         double t = dir - olddir;
-        if(t < -M_PI) t += 2 * M_PI;
-        if(t > M_PI) t -= 2 * M_PI;
+        if (t < -M_PI)
+            t += 2 * M_PI;
+        if (t > M_PI)
+            t -= 2 * M_PI;
         angle += t;
 
         // Only process point tags we know.
-        if(n < 2 || FT_CURVE_TAG(tags[i]) == FT_Curve_Tag_On)
+        if (n < 2 || FT_CURVE_TAG(tags[i]) == FT_Curve_Tag_On)
         {
             AddPoint(cur);
         }
-        else if(FT_CURVE_TAG(tags[i]) == FT_Curve_Tag_Conic)
+        else if (FT_CURVE_TAG(tags[i]) == FT_Curve_Tag_Conic)
         {
             FTPoint prev2 = prev, next2 = next;
 
             // Previous point is either the real previous point (an "on"
             // point), or the midpoint between the current one and the
             // previous "conic off" point.
-            if(FT_CURVE_TAG(tags[(i - 1 + n) % n]) == FT_Curve_Tag_Conic)
+            if (FT_CURVE_TAG(tags[(i - 1 + n) % n]) == FT_Curve_Tag_Conic)
             {
                 prev2 = (cur + prev) * 0.5;
                 AddPoint(prev2);
             }
 
             // Next point is either the real next point or the midpoint.
-            if(FT_CURVE_TAG(tags[(i + 1) % n]) == FT_Curve_Tag_Conic)
+            if (FT_CURVE_TAG(tags[(i + 1) % n]) == FT_Curve_Tag_Conic)
             {
                 next2 = (cur + next) * 0.5;
             }
 
             evaluateQuadraticCurve(prev2, cur, next2);
         }
-        else if(FT_CURVE_TAG(tags[i]) == FT_Curve_Tag_Cubic
+        else if (FT_CURVE_TAG(tags[i]) == FT_Curve_Tag_Cubic
                  && FT_CURVE_TAG(tags[(i + 1) % n]) == FT_Curve_Tag_Cubic)
         {
-            evaluateCubicCurve(prev, cur, next,
-                               FTPoint(contour[(i + 2) % n]));
+            evaluateCubicCurve(prev, cur, next, FTPoint(contour[(i + 2) % n]));
         }
     }
 
@@ -229,21 +218,18 @@ FTContour::FTContour(FT_Vector* contour, char* tags, unsigned int n)
     clockwise = (angle < 0.0);
 }
 
-
 void FTContour::buildFrontOutset(float outset)
 {
-    for(size_t i = 0; i < PointCount(); ++i)
+    for (size_t i = 0; i < PointCount(); ++i)
     {
         AddFrontPoint(Point(i) + Outset(i) * outset);
     }
 }
 
-
 void FTContour::buildBackOutset(float outset)
 {
-    for(size_t i = 0; i < PointCount(); ++i)
+    for (size_t i = 0; i < PointCount(); ++i)
     {
         AddBackPoint(Point(i) + Outset(i) * outset);
     }
 }
-

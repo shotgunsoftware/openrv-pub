@@ -18,48 +18,49 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-// MP4ChplAtom is for Nero chapter list atom which is a child of udta
-MP4ChplAtom::MP4ChplAtom (MP4File &file)
-        : MP4Atom(file, "chpl")
+namespace mp4v2
 {
-    // it is not completely clear if version, flags, reserved and chaptercount
-    // have the right sizes but
-    // one thing is clear: chaptercount is not only 8-bit it is at least 16-bit
+    namespace impl
+    {
 
-    // add the version
-    AddVersionAndFlags();
+        ///////////////////////////////////////////////////////////////////////////////
 
-    // add reserved bytes
-    AddReserved(*this,"reserved", 1);
+        // MP4ChplAtom is for Nero chapter list atom which is a child of udta
+        MP4ChplAtom::MP4ChplAtom(MP4File& file)
+            : MP4Atom(file, "chpl")
+        {
+            // it is not completely clear if version, flags, reserved and
+            // chaptercount have the right sizes but one thing is clear:
+            // chaptercount is not only 8-bit it is at least 16-bit
 
-    // define the chaptercount
-    MP4Integer32Property * counter = new MP4Integer32Property(*this,"chaptercount");
-    AddProperty(counter);
+            // add the version
+            AddVersionAndFlags();
 
-    // define the chapterlist
-    MP4TableProperty * list = new MP4TableProperty(*this,"chapters", counter);
+            // add reserved bytes
+            AddReserved(*this, "reserved", 1);
 
-    // the start time as 100 nanoseconds units
-    list->AddProperty(new MP4Integer64Property(*this,"starttime"));
+            // define the chaptercount
+            MP4Integer32Property* counter =
+                new MP4Integer32Property(*this, "chaptercount");
+            AddProperty(counter);
 
-    // the chapter name as UTF-8
-    list->AddProperty(new MP4StringProperty(*this,"title", true));
+            // define the chapterlist
+            MP4TableProperty* list =
+                new MP4TableProperty(*this, "chapters", counter);
 
-    // add the chapterslist
-    AddProperty(list);
-}
+            // the start time as 100 nanoseconds units
+            list->AddProperty(new MP4Integer64Property(*this, "starttime"));
 
-void MP4ChplAtom::Generate ()
-{
-    SetVersion(1);
-}
+            // the chapter name as UTF-8
+            list->AddProperty(new MP4StringProperty(*this, "title", true));
 
-///////////////////////////////////////////////////////////////////////////////
+            // add the chapterslist
+            AddProperty(list);
+        }
 
-}
-} // namespace mp4v2::impl
+        void MP4ChplAtom::Generate() { SetVersion(1); }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

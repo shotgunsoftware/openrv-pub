@@ -35,47 +35,50 @@ class FTExtrudeFontImpl : public FTFontImpl
 {
     friend class FTExtrudeFont;
 
-    protected:
-        FTExtrudeFontImpl(FTFont *ftFont, const char* fontFilePath);
+protected:
+    FTExtrudeFontImpl(FTFont* ftFont, const char* fontFilePath);
 
-        FTExtrudeFontImpl(FTFont *ftFont, const unsigned char *pBufferBytes,
-                          size_t bufferSizeInBytes);
+    FTExtrudeFontImpl(FTFont* ftFont, const unsigned char* pBufferBytes,
+                      size_t bufferSizeInBytes);
 
-        /**
-         * Set the extrusion distance for the font.
-         *
-         * @param d  The extrusion distance.
-         */
-        virtual void Depth(float d) { depth = d; }
+    /**
+     * Set the extrusion distance for the font.
+     *
+     * @param d  The extrusion distance.
+     */
+    virtual void Depth(float d) { depth = d; }
 
-        /**
-         * Set the outset distance for the font. Only implemented by
-         * FTOutlineFont, FTPolygonFont and FTExtrudeFont
-         *
-         * @param o  The outset distance.
-         */
-        virtual void Outset(float o) { front = back = o; }
+    /**
+     * Set the outset distance for the font. Only implemented by
+     * FTOutlineFont, FTPolygonFont and FTExtrudeFont
+     *
+     * @param o  The outset distance.
+     */
+    virtual void Outset(float o) { front = back = o; }
 
-        /**
-         * Set the outset distance for the font. Only implemented by
-         * FTExtrudeFont
-         *
-         * @param f  The front outset distance.
-         * @param b  The back outset distance.
-         */
-        virtual void Outset(float f, float b) { front = f; back = b; }
+    /**
+     * Set the outset distance for the font. Only implemented by
+     * FTExtrudeFont
+     *
+     * @param f  The front outset distance.
+     * @param b  The back outset distance.
+     */
+    virtual void Outset(float f, float b)
+    {
+        front = f;
+        back = b;
+    }
 
-    private:
-        /**
-         * The extrusion distance for the font.
-         */
-        float depth;
+private:
+    /**
+     * The extrusion distance for the font.
+     */
+    float depth;
 
-        /**
-         * The outset distance (front and back) for the font.
-         */
-        float front, back;
+    /**
+     * The outset distance (front and back) for the font.
+     */
+    float front, back;
 };
 
 #endif // __FTExtrudeFontImpl__
-

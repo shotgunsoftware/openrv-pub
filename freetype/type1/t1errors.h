@@ -15,12 +15,11 @@
 /*                                                                         */
 /***************************************************************************/
 
-
-  /*************************************************************************/
-  /*                                                                       */
-  /* This file is used to define the Type 1 error enumeration constants.   */
-  /*                                                                       */
-  /*************************************************************************/
+/*************************************************************************/
+/*                                                                       */
+/* This file is used to define the Type 1 error enumeration constants.   */
+/*                                                                       */
+/*************************************************************************/
 
 #ifndef __T1ERRORS_H__
 #define __T1ERRORS_H__
@@ -29,12 +28,11 @@
 
 #undef __FTERRORS_H__
 
-#define FT_ERR_PREFIX  T1_Err_
-#define FT_ERR_BASE    FT_Mod_Err_Type1
+#define FT_ERR_PREFIX T1_Err_
+#define FT_ERR_BASE FT_Mod_Err_Type1
 
 #include FT_ERRORS_H
 
 #endif /* __T1ERRORS_H__ */
-
 
 /* END */

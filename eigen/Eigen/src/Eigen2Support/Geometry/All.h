@@ -20,13 +20,12 @@
 #include "ParametrizedLine.h"
 #endif
 
-
 #define RotationBase eigen2_RotationBase
 #define Rotation2D eigen2_Rotation2D
 #define Rotation2Df eigen2_Rotation2Df
 #define Rotation2Dd eigen2_Rotation2Dd
 
-#define Quaternion  eigen2_Quaternion
+#define Quaternion eigen2_Quaternion
 #define Quaternionf eigen2_Quaternionf
 #define Quaterniond eigen2_Quaterniond
 
@@ -34,7 +33,7 @@
 #define AngleAxisf eigen2_AngleAxisf
 #define AngleAxisd eigen2_AngleAxisd
 
-#define Transform   eigen2_Transform
+#define Transform eigen2_Transform
 #define Transform2f eigen2_Transform2f
 #define Transform2d eigen2_Transform2d
 #define Transform3f eigen2_Transform3f

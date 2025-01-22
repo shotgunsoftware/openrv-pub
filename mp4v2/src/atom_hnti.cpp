@@ -21,30 +21,35 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4HntiAtom::MP4HntiAtom(MP4File &file)
-        : MP4Atom(file, "hnti")
+namespace mp4v2
 {
-}
+    namespace impl
+    {
 
-void MP4HntiAtom::Read()
-{
-    MP4Atom* grandParent = m_pParentAtom->GetParentAtom();
-    ASSERT(grandParent);
-    if (ATOMID(grandParent->GetType()) == ATOMID("trak")) {
-        ExpectChildAtom("sdp ", Optional, OnlyOne);
-    } else {
-        ExpectChildAtom("rtp ", Optional, OnlyOne);
-    }
+        ///////////////////////////////////////////////////////////////////////////////
 
-    MP4Atom::Read();
-}
+        MP4HntiAtom::MP4HntiAtom(MP4File& file)
+            : MP4Atom(file, "hnti")
+        {
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        void MP4HntiAtom::Read()
+        {
+            MP4Atom* grandParent = m_pParentAtom->GetParentAtom();
+            ASSERT(grandParent);
+            if (ATOMID(grandParent->GetType()) == ATOMID("trak"))
+            {
+                ExpectChildAtom("sdp ", Optional, OnlyOne);
+            }
+            else
+            {
+                ExpectChildAtom("rtp ", Optional, OnlyOne);
+            }
 
-}
-} // namespace mp4v2::impl
+            MP4Atom::Read();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

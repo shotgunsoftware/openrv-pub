@@ -30,8 +30,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef    __FTUnicode__
-#define    __FTUnicode__
+#ifndef __FTUnicode__
+#define __FTUnicode__
 
 /**
  * Provides a way to easily walk multibyte unicode strings in the various
@@ -39,8 +39,7 @@
  * with elements larger than one byte must already be in the correct endian
  * order for the current architecture.
  */
-template <typename T>
-class FTUnicodeStringItr
+template <typename T> class FTUnicodeStringItr
 {
 public:
     /**
@@ -48,7 +47,9 @@ public:
      *
      * @param string  The buffer to iterate.  No copy is made.
      */
-    FTUnicodeStringItr(const T* string) : curPos(string), nextPos(string)
+    FTUnicodeStringItr(const T* string)
+        : curPos(string)
+        , nextPos(string)
     {
         (*this)++;
     };
@@ -64,15 +65,17 @@ public:
         // unicode handling
         switch (sizeof(T))
         {
-            case 1: // UTF-8
-                // get this character
-                readUTF8(); break;
-            case 2: // UTF-16
-                readUTF16(); break;
-            case 4: // UTF-32
-                // fall through
-            default: // error condition really, but give it a shot anyway
-                curChar = *nextPos++;
+        case 1: // UTF-8
+            // get this character
+            readUTF8();
+            break;
+        case 2: // UTF-16
+            readUTF16();
+            break;
+        case 4:  // UTF-32
+                 // fall through
+        default: // error condition really, but give it a shot anyway
+            curChar = *nextPos++;
         }
         return *this;
     }
@@ -106,10 +109,7 @@ public:
      * @return  The unicode codepoint of the character currently pointed
      * to by the FTUnicodeStringItr.
      */
-    unsigned int operator*() const
-    {
-        return curChar;
-    }
+    unsigned int operator*() const { return curChar; }
 
     /**
      * Buffer-fetching getter.  You can use this to retreive the buffer
@@ -162,42 +162,55 @@ private:
  * to read (among other things) */
 template <typename T>
 const char FTUnicodeStringItr<T>::utf8bytes[256] = {
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-  3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3, 4,4,4,4,4,4,4,4,5,5,5,5,6,6,6,6
-};
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6};
 
 /* Magic values subtracted from a buffer value during UTF8 conversion.
  * This table contains as many values as there might be trailing bytes
  * in a UTF-8 sequence. */
 template <typename T>
-const unsigned long FTUnicodeStringItr<T>::offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL,
-  0x03C82080UL, 0xFA082080UL, 0x82082080UL };
+const unsigned long FTUnicodeStringItr<T>::offsetsFromUTF8[6] = {
+    0x00000000UL, 0x00003080UL, 0x000E2080UL,
+    0x03C82080UL, 0xFA082080UL, 0x82082080UL};
 
 // get a UTF8 character; leave the tracking pointer at the start of the
 // next character
 // not protected against invalid UTF8
-template <typename T>
-inline void FTUnicodeStringItr<T>::readUTF8()
+template <typename T> inline void FTUnicodeStringItr<T>::readUTF8()
 {
     unsigned int ch = 0;
     unsigned int extraBytesToRead = utf8bytes[(unsigned char)(*nextPos)];
     // falls through
     switch (extraBytesToRead)
     {
-          case 6: ch += *nextPos++; ch <<= 6; /* remember, illegal UTF-8 */
-          case 5: ch += *nextPos++; ch <<= 6; /* remember, illegal UTF-8 */
-          case 4: ch += *nextPos++; ch <<= 6;
-          case 3: ch += *nextPos++; ch <<= 6;
-          case 2: ch += *nextPos++; ch <<= 6;
-          case 1: ch += *nextPos++;
+    case 6:
+        ch += *nextPos++;
+        ch <<= 6; /* remember, illegal UTF-8 */
+    case 5:
+        ch += *nextPos++;
+        ch <<= 6; /* remember, illegal UTF-8 */
+    case 4:
+        ch += *nextPos++;
+        ch <<= 6;
+    case 3:
+        ch += *nextPos++;
+        ch <<= 6;
+    case 2:
+        ch += *nextPos++;
+        ch <<= 6;
+    case 1:
+        ch += *nextPos++;
     }
-    ch -= offsetsFromUTF8[extraBytesToRead-1];
+    ch -= offsetsFromUTF8[extraBytesToRead - 1];
     curChar = ch;
 }
 
@@ -215,8 +228,7 @@ const unsigned long FTUnicodeStringItr<T>::highSurrogateShift = 10;
 template <typename T>
 const unsigned long FTUnicodeStringItr<T>::lowSurrogateBase = 0x0010000UL;
 
-template <typename T>
-inline void FTUnicodeStringItr<T>::readUTF16()
+template <typename T> inline void FTUnicodeStringItr<T>::readUTF16()
 {
     unsigned int ch = *nextPos++;
     // if we have the first half of the surrogate pair
@@ -227,7 +239,7 @@ inline void FTUnicodeStringItr<T>::readUTF16()
         if (ch2 >= lowSurrogateStart && ch2 <= lowSurrogateEnd)
         {
             ch = ((ch - highSurrogateStart) << highSurrogateShift)
-                + (ch2 - lowSurrogateStart) + lowSurrogateBase;
+                 + (ch2 - lowSurrogateStart) + lowSurrogateBase;
             ++nextPos;
         }
     }

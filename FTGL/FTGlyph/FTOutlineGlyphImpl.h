@@ -35,35 +35,33 @@ class FTOutlineGlyphImpl : public FTGlyphImpl
 {
     friend class FTOutlineGlyph;
 
-    protected:
-        FTOutlineGlyphImpl(FT_GlyphSlot glyph, float outset,
-                           bool useDisplayList);
+protected:
+    FTOutlineGlyphImpl(FT_GlyphSlot glyph, float outset, bool useDisplayList);
 
-        virtual ~FTOutlineGlyphImpl();
+    virtual ~FTOutlineGlyphImpl();
 
-        virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
+    virtual const FTPoint& RenderImpl(const FTPoint& pen, int renderMode);
 
-    private:
-        /**
-         * Private rendering method.
-         */
-        void DoRender();
+private:
+    /**
+     * Private rendering method.
+     */
+    void DoRender();
 
-        /**
-         * Private rendering variables.
-         */
-        FTVectoriser *vectoriser;
+    /**
+     * Private rendering variables.
+     */
+    FTVectoriser* vectoriser;
 
-        /**
-         * Private rendering variables.
-         */
-        float outset;
+    /**
+     * Private rendering variables.
+     */
+    float outset;
 
-        /**
-         * OpenGL display list
-         */
-        GLuint glList;
+    /**
+     * OpenGL display list
+     */
+    GLuint glList;
 };
 
-#endif  // __FTOutlineGlyphImpl__
-
+#endif // __FTOutlineGlyphImpl__

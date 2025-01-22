@@ -18,25 +18,31 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4FtabAtom::MP4FtabAtom(MP4File &file)
-        : MP4Atom(file, "ftab")
+namespace mp4v2
 {
-    MP4Integer16Property* pCount = new MP4Integer16Property(*this, "entryCount"); /* 0 */
-    AddProperty(pCount);
+    namespace impl
+    {
 
-    MP4TableProperty* pTable = new MP4TableProperty(*this, "fontEntries", pCount);  /* 1 */
-    AddProperty(pTable);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    pTable->AddProperty(new MP4Integer16Property(pTable->GetParentAtom(), "fontID"));  /* 0 */
-    pTable->AddProperty(new MP4StringProperty(pTable->GetParentAtom(), "name", true));  /* 1 */
-}
+        MP4FtabAtom::MP4FtabAtom(MP4File& file)
+            : MP4Atom(file, "ftab")
+        {
+            MP4Integer16Property* pCount =
+                new MP4Integer16Property(*this, "entryCount"); /* 0 */
+            AddProperty(pCount);
 
-///////////////////////////////////////////////////////////////////////////////
+            MP4TableProperty* pTable =
+                new MP4TableProperty(*this, "fontEntries", pCount); /* 1 */
+            AddProperty(pTable);
 
-}
-} // namespace mp4v2::impl
+            pTable->AddProperty(new MP4Integer16Property(
+                pTable->GetParentAtom(), "fontID")); /* 0 */
+            pTable->AddProperty(new MP4StringProperty(pTable->GetParentAtom(),
+                                                      "name", true)); /* 1 */
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

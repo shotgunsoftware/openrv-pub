@@ -1,20 +1,18 @@
 #ifndef MP4V2_TRACK_PROP_H
 #define MP4V2_TRACK_PROP_H
 
-/**************************************************************************//**
- *
- *  @defgroup mp4_track_prop MP4v2 Track Property
- *  @{
- *
- *****************************************************************************/
+/**************************************************************************/ /**
+                                                                              *
+                                                                              *  @defgroup mp4_track_prop MP4v2 Track Property
+                                                                              *  @{
+                                                                              *
+                                                                              *****************************************************************************/
 
 /* specific track properties */
 
 MP4V2_EXPORT
-bool MP4HaveTrackAtom(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   atomname );
+bool MP4HaveTrackAtom(MP4FileHandle hFile, MP4TrackId trackId,
+                      const char* atomname);
 
 /** Get the track type.
  *
@@ -44,14 +42,10 @@ bool MP4HaveTrackAtom(
  *  @return On success, a string indicating track type. On failure, NULL.
  */
 MP4V2_EXPORT
-const char* MP4GetTrackType(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+const char* MP4GetTrackType(MP4FileHandle hFile, MP4TrackId trackId);
 
 MP4V2_EXPORT
-const char* MP4GetTrackMediaDataName(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+const char* MP4GetTrackMediaDataName(MP4FileHandle hFile, MP4TrackId trackId);
 
 /*
  * MP4GetTrackMediaDataOriginalFormat is to be used to get the original
@@ -59,16 +53,11 @@ const char* MP4GetTrackMediaDataName(
  */
 
 MP4V2_EXPORT
-bool MP4GetTrackMediaDataOriginalFormat(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    char*         originalFormat,
-    uint32_t      buflen );
+bool MP4GetTrackMediaDataOriginalFormat(MP4FileHandle hFile, MP4TrackId trackId,
+                                        char* originalFormat, uint32_t buflen);
 
 MP4V2_EXPORT
-MP4Duration MP4GetTrackDuration(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+MP4Duration MP4GetTrackDuration(MP4FileHandle hFile, MP4TrackId trackId);
 
 /** Get the time scale of a track.
  *
@@ -82,9 +71,7 @@ MP4Duration MP4GetTrackDuration(
  *  @return timescale (ticks per second) of the track in the mp4 file.
  */
 MP4V2_EXPORT
-uint32_t MP4GetTrackTimeScale(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+uint32_t MP4GetTrackTimeScale(MP4FileHandle hFile, MP4TrackId trackId);
 
 /** Set the time scale of a track.
  *
@@ -105,10 +92,8 @@ uint32_t MP4GetTrackTimeScale(
  *  @return <b>true</b> on success, <b>false</b> on failure.
  */
 MP4V2_EXPORT
-bool MP4SetTrackTimeScale(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    uint32_t      value );
+bool MP4SetTrackTimeScale(MP4FileHandle hFile, MP4TrackId trackId,
+                          uint32_t value);
 
 /** Get ISO-639-2/T language code of a track.
  *  The language code is a 3-char alpha code consisting of lower-case letters.
@@ -120,10 +105,7 @@ bool MP4SetTrackTimeScale(
  *  @return <b>true</b> on success, <b>false</b> on failure.
  */
 MP4V2_EXPORT
-bool MP4GetTrackLanguage(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    char*         code );
+bool MP4GetTrackLanguage(MP4FileHandle hFile, MP4TrackId trackId, char* code);
 
 /** Set ISO-639-2/T language code of a track.
  *  The language code is a 3-char alpha code consisting of lower-case letters.
@@ -135,10 +117,8 @@ bool MP4GetTrackLanguage(
  *  @return <b>true</b> on success, <b>false</b> on failure.
  */
 MP4V2_EXPORT
-bool MP4SetTrackLanguage(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   code );
+bool MP4SetTrackLanguage(MP4FileHandle hFile, MP4TrackId trackId,
+                         const char* code);
 
 /** Get track name.
  *
@@ -150,10 +130,7 @@ bool MP4SetTrackLanguage(
  *  @return <b>true</b> on success, <b>false</b> on failure.
  */
 MP4V2_EXPORT
-bool MP4GetTrackName(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    char**        name );
+bool MP4GetTrackName(MP4FileHandle hFile, MP4TrackId trackId, char** name);
 
 /** Set track name.
  *
@@ -166,171 +143,107 @@ bool MP4GetTrackName(
  *  @return <b>true</b> on success, <b>false</b> on failure.
  */
 MP4V2_EXPORT
-bool MP4SetTrackName(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   name );
+bool MP4SetTrackName(MP4FileHandle hFile, MP4TrackId trackId, const char* name);
 
 MP4V2_EXPORT
-uint8_t MP4GetTrackAudioMpeg4Type(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+uint8_t MP4GetTrackAudioMpeg4Type(MP4FileHandle hFile, MP4TrackId trackId);
 
 MP4V2_EXPORT
-uint8_t MP4GetTrackEsdsObjectTypeId(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+uint8_t MP4GetTrackEsdsObjectTypeId(MP4FileHandle hFile, MP4TrackId trackId);
 
 /* returns MP4_INVALID_DURATION if track samples do not have a fixed duration */
 MP4V2_EXPORT
-MP4Duration MP4GetTrackFixedSampleDuration(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+MP4Duration MP4GetTrackFixedSampleDuration(MP4FileHandle hFile,
+                                           MP4TrackId trackId);
 
 MP4V2_EXPORT
-uint32_t MP4GetTrackBitRate(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+uint32_t MP4GetTrackBitRate(MP4FileHandle hFile, MP4TrackId trackId);
 
 MP4V2_EXPORT
-bool MP4GetTrackVideoMetadata(
-    MP4FileHandle hFile,
-    MP4TrackId trackId,
-    uint8_t**  ppConfig,
-    uint32_t*  pConfigSize );
+bool MP4GetTrackVideoMetadata(MP4FileHandle hFile, MP4TrackId trackId,
+                              uint8_t** ppConfig, uint32_t* pConfigSize);
 
 MP4V2_EXPORT
-bool MP4GetTrackESConfiguration(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    uint8_t**     ppConfig,
-    uint32_t*     pConfigSize );
+bool MP4GetTrackESConfiguration(MP4FileHandle hFile, MP4TrackId trackId,
+                                uint8_t** ppConfig, uint32_t* pConfigSize);
 
 MP4V2_EXPORT
-bool MP4SetTrackESConfiguration(
-    MP4FileHandle  hFile,
-    MP4TrackId     trackId,
-    const uint8_t* pConfig,
-    uint32_t       configSize );
+bool MP4SetTrackESConfiguration(MP4FileHandle hFile, MP4TrackId trackId,
+                                const uint8_t* pConfig, uint32_t configSize);
 
 /* h264 information routines */
 MP4V2_EXPORT
-bool MP4GetTrackH264ProfileLevel(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    uint8_t*      pProfile,
-    uint8_t*      pLevel );
+bool MP4GetTrackH264ProfileLevel(MP4FileHandle hFile, MP4TrackId trackId,
+                                 uint8_t* pProfile, uint8_t* pLevel);
 
 MP4V2_EXPORT
-bool MP4GetTrackH264SeqPictHeaders(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    uint8_t***    pSeqHeaders,
-    uint32_t**    pSeqHeaderSize,
-    uint8_t***    pPictHeader,
-    uint32_t**    pPictHeaderSize );
+bool MP4GetTrackH264SeqPictHeaders(MP4FileHandle hFile, MP4TrackId trackId,
+                                   uint8_t*** pSeqHeaders,
+                                   uint32_t** pSeqHeaderSize,
+                                   uint8_t*** pPictHeader,
+                                   uint32_t** pPictHeaderSize);
 
 MP4V2_EXPORT
-bool MP4GetTrackH264LengthSize(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    uint32_t*     pLength );
+bool MP4GetTrackH264LengthSize(MP4FileHandle hFile, MP4TrackId trackId,
+                               uint32_t* pLength);
 
 MP4V2_EXPORT
-MP4SampleId MP4GetTrackNumberOfSamples(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+MP4SampleId MP4GetTrackNumberOfSamples(MP4FileHandle hFile, MP4TrackId trackId);
 
 MP4V2_EXPORT
-uint16_t MP4GetTrackVideoWidth(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+uint16_t MP4GetTrackVideoWidth(MP4FileHandle hFile, MP4TrackId trackId);
 
 MP4V2_EXPORT
-uint16_t MP4GetTrackVideoHeight(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+uint16_t MP4GetTrackVideoHeight(MP4FileHandle hFile, MP4TrackId trackId);
 
 MP4V2_EXPORT
-double MP4GetTrackVideoFrameRate(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+double MP4GetTrackVideoFrameRate(MP4FileHandle hFile, MP4TrackId trackId);
 
 MP4V2_EXPORT
-int MP4GetTrackAudioChannels(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+int MP4GetTrackAudioChannels(MP4FileHandle hFile, MP4TrackId trackId);
 
 MP4V2_EXPORT
-bool MP4IsIsmaCrypMediaTrack(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId );
+bool MP4IsIsmaCrypMediaTrack(MP4FileHandle hFile, MP4TrackId trackId);
 
 /* generic track properties */
 
 MP4V2_EXPORT
-bool MP4HaveTrackAtom(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   atomName );
+bool MP4HaveTrackAtom(MP4FileHandle hFile, MP4TrackId trackId,
+                      const char* atomName);
 
 MP4V2_EXPORT
-bool MP4GetTrackIntegerProperty(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   propName,
-    uint64_t*     retvalue );
+bool MP4GetTrackIntegerProperty(MP4FileHandle hFile, MP4TrackId trackId,
+                                const char* propName, uint64_t* retvalue);
 
 MP4V2_EXPORT
-bool MP4GetTrackFloatProperty(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   propName,
-    float*        ret_value );
+bool MP4GetTrackFloatProperty(MP4FileHandle hFile, MP4TrackId trackId,
+                              const char* propName, float* ret_value);
 
 MP4V2_EXPORT
-bool MP4GetTrackStringProperty(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   propName,
-    const char**  retvalue );
+bool MP4GetTrackStringProperty(MP4FileHandle hFile, MP4TrackId trackId,
+                               const char* propName, const char** retvalue);
 
 MP4V2_EXPORT
-bool MP4GetTrackBytesProperty(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   propName,
-    uint8_t**     ppValue,
-    uint32_t*     pValueSize );
+bool MP4GetTrackBytesProperty(MP4FileHandle hFile, MP4TrackId trackId,
+                              const char* propName, uint8_t** ppValue,
+                              uint32_t* pValueSize);
 
 MP4V2_EXPORT
-bool MP4SetTrackIntegerProperty(
-    MP4FileHandle hFile,
-    MP4TrackId   trackId,
-    const char*  propName,
-    int64_t      value );
+bool MP4SetTrackIntegerProperty(MP4FileHandle hFile, MP4TrackId trackId,
+                                const char* propName, int64_t value);
 
 MP4V2_EXPORT
-bool MP4SetTrackFloatProperty(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   propName,
-    float         value );
+bool MP4SetTrackFloatProperty(MP4FileHandle hFile, MP4TrackId trackId,
+                              const char* propName, float value);
 
 MP4V2_EXPORT
-bool MP4SetTrackStringProperty(
-    MP4FileHandle hFile,
-    MP4TrackId    trackId,
-    const char*   propName,
-    const char*   value );
+bool MP4SetTrackStringProperty(MP4FileHandle hFile, MP4TrackId trackId,
+                               const char* propName, const char* value);
 
 MP4V2_EXPORT
-bool MP4SetTrackBytesProperty(
-    MP4FileHandle  hFile,
-    MP4TrackId     trackId,
-    const char*    propName,
-    const uint8_t* pValue,
-    uint32_t       valueSize);
+bool MP4SetTrackBytesProperty(MP4FileHandle hFile, MP4TrackId trackId,
+                              const char* propName, const uint8_t* pValue,
+                              uint32_t valueSize);
 
 /** @} ***********************************************************************/
 

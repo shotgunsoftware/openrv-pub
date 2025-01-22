@@ -21,39 +21,43 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4StdpAtom::MP4StdpAtom(MP4File &file)
-        : MP4Atom(file, "stdp")
+namespace mp4v2
 {
-    AddVersionAndFlags();
+    namespace impl
+    {
 
-    MP4Integer32Property* pCount =
-        new MP4Integer32Property(*this, "entryCount");
-    pCount->SetImplicit();
-    AddProperty(pCount);
+        ///////////////////////////////////////////////////////////////////////////////
 
-    MP4TableProperty* pTable = new MP4TableProperty(*this, "entries", pCount);
-    AddProperty(pTable);
+        MP4StdpAtom::MP4StdpAtom(MP4File& file)
+            : MP4Atom(file, "stdp")
+        {
+            AddVersionAndFlags();
 
-    pTable->AddProperty(
-        new MP4Integer16Property(pTable->GetParentAtom(), "priority"));
-}
+            MP4Integer32Property* pCount =
+                new MP4Integer32Property(*this, "entryCount");
+            pCount->SetImplicit();
+            AddProperty(pCount);
 
-void MP4StdpAtom::Read()
-{
-    // table entry count computed from atom size
-    ((MP4Integer32Property*)m_pProperties[2])->SetReadOnly(false);
-    ((MP4Integer32Property*)m_pProperties[2])->SetValue((m_size - 4) / 2);
-    ((MP4Integer32Property*)m_pProperties[2])->SetReadOnly(true);
+            MP4TableProperty* pTable =
+                new MP4TableProperty(*this, "entries", pCount);
+            AddProperty(pTable);
 
-    MP4Atom::Read();
-}
+            pTable->AddProperty(
+                new MP4Integer16Property(pTable->GetParentAtom(), "priority"));
+        }
 
-///////////////////////////////////////////////////////////////////////////////
+        void MP4StdpAtom::Read()
+        {
+            // table entry count computed from atom size
+            ((MP4Integer32Property*)m_pProperties[2])->SetReadOnly(false);
+            ((MP4Integer32Property*)m_pProperties[2])
+                ->SetValue((m_size - 4) / 2);
+            ((MP4Integer32Property*)m_pProperties[2])->SetReadOnly(true);
 
-}
-} // namespace mp4v2::impl
+            MP4Atom::Read();
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+
+    } // namespace impl
+} // namespace mp4v2

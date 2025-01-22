@@ -7,10 +7,10 @@
  * License as published by the Free Software Foundation; either
  * version 2 of the License, or (at your option) any later version.
  *
- * This library is distributed in the hope that it will be useful, 
- * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details. 
+ * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the
@@ -27,23 +27,29 @@
 #include <libexif/exif-byte-order.h>
 #include <libexif/exif-mem.h>
 
-enum OlympusVersion {nikonV1 = 1, nikonV2 = 2, olympusV1 = 3, olympusV2 = 4 };
-
+enum OlympusVersion
+{
+    nikonV1 = 1,
+    nikonV2 = 2,
+    olympusV1 = 3,
+    olympusV2 = 4
+};
 
 typedef struct _ExifMnoteDataOlympus ExifMnoteDataOlympus;
 
-struct _ExifMnoteDataOlympus {
-	ExifMnoteData parent;
+struct _ExifMnoteDataOlympus
+{
+    ExifMnoteData parent;
 
-	MnoteOlympusEntry *entries;
-	unsigned int count;
+    MnoteOlympusEntry* entries;
+    unsigned int count;
 
-	ExifByteOrder order;
-	unsigned int offset;
-	/* 0: Olympus; 1: Nikon v1; 2: Nikon v2 */
-	int version;
+    ExifByteOrder order;
+    unsigned int offset;
+    /* 0: Olympus; 1: Nikon v1; 2: Nikon v2 */
+    int version;
 };
 
-EXIF_EXPORT ExifMnoteData *exif_mnote_data_olympus_new (ExifMem *);
+EXIF_EXPORT ExifMnoteData* exif_mnote_data_olympus_new(ExifMem*);
 
 #endif /* __MNOTE_OLYMPUS_CONTENT_H__ */

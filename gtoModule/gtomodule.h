@@ -1,7 +1,7 @@
 //
 //  Copyright (c) 2009, Tweak Software
 //  All rights reserved.
-// 
+//
 //  Redistribution and use in source and binary forms, with or without
 //  modification, are permitted provided that the following conditions
 //  are met:
@@ -19,7 +19,7 @@
 //       contributors may be used to endorse or promote products
 //       derived from this software without specific prior written
 //       permission.
-// 
+//
 //  THIS SOFTWARE IS PROVIDED BY Tweak Software ''AS IS'' AND ANY EXPRESS
 //  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 //  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -40,17 +40,18 @@
 #include <Python.h>
 #include <structmember.h>
 
-namespace PyGto {
+namespace PyGto
+{
 
-// *****************************************************************************
-// Just returns a pointer to the module-wide g_gtoError object
-PyObject *gtoError();
+    // *****************************************************************************
+    // Just returns a pointer to the module-wide g_gtoError object
+    PyObject* gtoError();
 
-// *****************************************************************************
-// Returns the Python type name of an object as a string
-const char *PyTypeName(PyObject *object);
+    // *****************************************************************************
+    // Returns the Python type name of an object as a string
+    const char* PyTypeName(PyObject* object);
 
-bool isInstance(PyObject *object);
+    bool isInstance(PyObject* object);
 }; // namespace PyGto
 
 #endif // End #ifdef __GTOMODULE_H__

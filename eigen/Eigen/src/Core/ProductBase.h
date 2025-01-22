@@ -26,59 +26,67 @@
 #define EIGEN_PRODUCTBASE_H
 
 /** \class ProductBase
-  * \ingroup Core_Module
-  *
-  */
+ * \ingroup Core_Module
+ *
+ */
 
-namespace internal {
-template<typename Derived, typename _Lhs, typename _Rhs>
-struct traits<ProductBase<Derived,_Lhs,_Rhs> >
+namespace internal
 {
-  typedef MatrixXpr XprKind;
-  typedef typename remove_all<_Lhs>::type Lhs;
-  typedef typename remove_all<_Rhs>::type Rhs;
-  typedef typename scalar_product_traits<typename Lhs::Scalar, typename Rhs::Scalar>::ReturnType Scalar;
-  typedef typename promote_storage_type<typename traits<Lhs>::StorageKind,
-                                           typename traits<Rhs>::StorageKind>::ret StorageKind;
-  typedef typename promote_index_type<typename traits<Lhs>::Index,
-                                         typename traits<Rhs>::Index>::type Index;
-  enum {
-    RowsAtCompileTime = traits<Lhs>::RowsAtCompileTime,
-    ColsAtCompileTime = traits<Rhs>::ColsAtCompileTime,
-    MaxRowsAtCompileTime = traits<Lhs>::MaxRowsAtCompileTime,
-    MaxColsAtCompileTime = traits<Rhs>::MaxColsAtCompileTime,
-    Flags = (MaxRowsAtCompileTime==1 ? RowMajorBit : 0)
-          | EvalBeforeNestingBit | EvalBeforeAssigningBit | NestByRefBit,
-                  // Note that EvalBeforeNestingBit and NestByRefBit
-                  // are not used in practice because nested is overloaded for products
-    CoeffReadCost = 0 // FIXME why is it needed ?
-  };
-};
-}
+    template <typename Derived, typename _Lhs, typename _Rhs>
+    struct traits<ProductBase<Derived, _Lhs, _Rhs>>
+    {
+        typedef MatrixXpr XprKind;
+        typedef typename remove_all<_Lhs>::type Lhs;
+        typedef typename remove_all<_Rhs>::type Rhs;
+        typedef typename scalar_product_traits<
+            typename Lhs::Scalar, typename Rhs::Scalar>::ReturnType Scalar;
+        typedef typename promote_storage_type<
+            typename traits<Lhs>::StorageKind,
+            typename traits<Rhs>::StorageKind>::ret StorageKind;
+        typedef typename promote_index_type<typename traits<Lhs>::Index,
+                                            typename traits<Rhs>::Index>::type
+            Index;
 
-#define EIGEN_PRODUCT_PUBLIC_INTERFACE(Derived) \
-  typedef ProductBase<Derived, Lhs, Rhs > Base; \
-  EIGEN_DENSE_PUBLIC_INTERFACE(Derived) \
-  typedef typename Base::LhsNested LhsNested; \
-  typedef typename Base::_LhsNested _LhsNested; \
-  typedef typename Base::LhsBlasTraits LhsBlasTraits; \
-  typedef typename Base::ActualLhsType ActualLhsType; \
-  typedef typename Base::_ActualLhsType _ActualLhsType; \
-  typedef typename Base::RhsNested RhsNested; \
-  typedef typename Base::_RhsNested _RhsNested; \
-  typedef typename Base::RhsBlasTraits RhsBlasTraits; \
-  typedef typename Base::ActualRhsType ActualRhsType; \
-  typedef typename Base::_ActualRhsType _ActualRhsType; \
-  using Base::m_lhs; \
-  using Base::m_rhs;
+        enum
+        {
+            RowsAtCompileTime = traits<Lhs>::RowsAtCompileTime,
+            ColsAtCompileTime = traits<Rhs>::ColsAtCompileTime,
+            MaxRowsAtCompileTime = traits<Lhs>::MaxRowsAtCompileTime,
+            MaxColsAtCompileTime = traits<Rhs>::MaxColsAtCompileTime,
+            Flags = (MaxRowsAtCompileTime == 1 ? RowMajorBit : 0)
+                    | EvalBeforeNestingBit | EvalBeforeAssigningBit
+                    | NestByRefBit,
+            // Note that EvalBeforeNestingBit and NestByRefBit
+            // are not used in practice because nested is overloaded for
+            // products
+            CoeffReadCost = 0 // FIXME why is it needed ?
+        };
+    };
+} // namespace internal
 
-template<typename Derived, typename Lhs, typename Rhs>
+#define EIGEN_PRODUCT_PUBLIC_INTERFACE(Derived)           \
+    typedef ProductBase<Derived, Lhs, Rhs> Base;          \
+    EIGEN_DENSE_PUBLIC_INTERFACE(Derived)                 \
+    typedef typename Base::LhsNested LhsNested;           \
+    typedef typename Base::_LhsNested _LhsNested;         \
+    typedef typename Base::LhsBlasTraits LhsBlasTraits;   \
+    typedef typename Base::ActualLhsType ActualLhsType;   \
+    typedef typename Base::_ActualLhsType _ActualLhsType; \
+    typedef typename Base::RhsNested RhsNested;           \
+    typedef typename Base::_RhsNested _RhsNested;         \
+    typedef typename Base::RhsBlasTraits RhsBlasTraits;   \
+    typedef typename Base::ActualRhsType ActualRhsType;   \
+    typedef typename Base::_ActualRhsType _ActualRhsType; \
+    using Base::m_lhs;                                    \
+    using Base::m_rhs;
+
+template <typename Derived, typename Lhs, typename Rhs>
 class ProductBase : public MatrixBase<Derived>
 {
-  public:
+public:
     typedef MatrixBase<Derived> Base;
     EIGEN_DENSE_PUBLIC_INTERFACE(ProductBase)
-    
+
     typedef typename Lhs::Nested LhsNested;
     typedef typename internal::remove_all<LhsNested>::type _LhsNested;
     typedef internal::blas_traits<_LhsNested> LhsBlasTraits;
@@ -93,92 +101,114 @@ class ProductBase : public MatrixBase<Derived>
     typedef typename internal::remove_all<ActualRhsType>::type _ActualRhsType;
     typedef typename internal::traits<Rhs>::Scalar RhsScalar;
 
-    // Diagonal of a product: no need to evaluate the arguments because they are going to be evaluated only once
-    typedef CoeffBasedProduct<LhsNested, RhsNested, 0> FullyLazyCoeffBaseProductType;
+    // Diagonal of a product: no need to evaluate the arguments because they are
+    // going to be evaluated only once
+    typedef CoeffBasedProduct<LhsNested, RhsNested, 0>
+        FullyLazyCoeffBaseProductType;
 
-  public:
-
+public:
     typedef typename Base::PlainObject PlainObject;
 
     ProductBase(const Lhs& lhs, const Rhs& rhs)
-      : m_lhs(lhs), m_rhs(rhs)
+        : m_lhs(lhs)
+        , m_rhs(rhs)
     {
-      eigen_assert(lhs.cols() == rhs.rows()
-        && "invalid matrix product"
-        && "if you wanted a coeff-wise or a dot product use the respective explicit functions");
+        eigen_assert(lhs.cols() == rhs.rows() && "invalid matrix product"
+                     && "if you wanted a coeff-wise or a dot product use the "
+                        "respective explicit functions");
     }
 
     inline Index rows() const { return m_lhs.rows(); }
+
     inline Index cols() const { return m_rhs.cols(); }
 
-    template<typename Dest>
-    inline void evalTo(Dest& dst) const { dst.setZero(); scaleAndAddTo(dst,Scalar(1)); }
-
-    template<typename Dest>
-    inline void addTo(Dest& dst) const { scaleAndAddTo(dst,1); }
-
-    template<typename Dest>
-    inline void subTo(Dest& dst) const { scaleAndAddTo(dst,-1); }
-
-    template<typename Dest>
-    inline void scaleAndAddTo(Dest& dst,Scalar alpha) const { derived().scaleAndAddTo(dst,alpha); }
-
-    const _LhsNested& lhs() const { return m_lhs; }
-    const _RhsNested& rhs() const { return m_rhs; }
-
-    // Implicit conversion to the nested type (trigger the evaluation of the product)
-    operator const PlainObject& () const
+    template <typename Dest> inline void evalTo(Dest& dst) const
     {
-      m_result.resize(m_lhs.rows(), m_rhs.cols());
-      derived().evalTo(m_result);
-      return m_result;
+        dst.setZero();
+        scaleAndAddTo(dst, Scalar(1));
     }
 
-    const Diagonal<const FullyLazyCoeffBaseProductType,0> diagonal() const
-    { return FullyLazyCoeffBaseProductType(m_lhs, m_rhs); }
+    template <typename Dest> inline void addTo(Dest& dst) const
+    {
+        scaleAndAddTo(dst, 1);
+    }
 
-    template<int Index>
-    const Diagonal<FullyLazyCoeffBaseProductType,Index> diagonal() const
-    { return FullyLazyCoeffBaseProductType(m_lhs, m_rhs); }
+    template <typename Dest> inline void subTo(Dest& dst) const
+    {
+        scaleAndAddTo(dst, -1);
+    }
 
-    const Diagonal<FullyLazyCoeffBaseProductType,Dynamic> diagonal(Index index) const
-    { return FullyLazyCoeffBaseProductType(m_lhs, m_rhs).diagonal(index); }
+    template <typename Dest>
+    inline void scaleAndAddTo(Dest& dst, Scalar alpha) const
+    {
+        derived().scaleAndAddTo(dst, alpha);
+    }
 
-    // restrict coeff accessors to 1x1 expressions. No need to care about mutators here since this isnt a Lvalue expression
+    const _LhsNested& lhs() const { return m_lhs; }
+
+    const _RhsNested& rhs() const { return m_rhs; }
+
+    // Implicit conversion to the nested type (trigger the evaluation of the
+    // product)
+    operator const PlainObject&() const
+    {
+        m_result.resize(m_lhs.rows(), m_rhs.cols());
+        derived().evalTo(m_result);
+        return m_result;
+    }
+
+    const Diagonal<const FullyLazyCoeffBaseProductType, 0> diagonal() const
+    {
+        return FullyLazyCoeffBaseProductType(m_lhs, m_rhs);
+    }
+
+    template <int Index>
+    const Diagonal<FullyLazyCoeffBaseProductType, Index> diagonal() const
+    {
+        return FullyLazyCoeffBaseProductType(m_lhs, m_rhs);
+    }
+
+    const Diagonal<FullyLazyCoeffBaseProductType, Dynamic>
+    diagonal(Index index) const
+    {
+        return FullyLazyCoeffBaseProductType(m_lhs, m_rhs).diagonal(index);
+    }
+
+    // restrict coeff accessors to 1x1 expressions. No need to care about
+    // mutators here since this isnt a Lvalue expression
     typename Base::CoeffReturnType coeff(Index row, Index col) const
     {
 #ifdef EIGEN2_SUPPORT
-      return lhs().row(row).cwiseProduct(rhs().col(col).transpose()).sum();
+        return lhs().row(row).cwiseProduct(rhs().col(col).transpose()).sum();
 #else
-      EIGEN_STATIC_ASSERT_SIZE_1x1(Derived)
-      eigen_assert(this->rows() == 1 && this->cols() == 1);
-      return derived().coeff(row,col);
+        EIGEN_STATIC_ASSERT_SIZE_1x1(Derived)
+            eigen_assert(this->rows() == 1 && this->cols() == 1);
+        return derived().coeff(row, col);
 #endif
     }
 
     typename Base::CoeffReturnType coeff(Index i) const
     {
-      EIGEN_STATIC_ASSERT_SIZE_1x1(Derived)
-      eigen_assert(this->rows() == 1 && this->cols() == 1);
-      return derived().coeff(i);
+        EIGEN_STATIC_ASSERT_SIZE_1x1(Derived)
+            eigen_assert(this->rows() == 1 && this->cols() == 1);
+        return derived().coeff(i);
     }
 
     const Scalar& coeffRef(Index row, Index col) const
     {
-      EIGEN_STATIC_ASSERT_SIZE_1x1(Derived)
-      eigen_assert(this->rows() == 1 && this->cols() == 1);
-      return derived().coeffRef(row,col);
+        EIGEN_STATIC_ASSERT_SIZE_1x1(Derived)
+            eigen_assert(this->rows() == 1 && this->cols() == 1);
+        return derived().coeffRef(row, col);
     }
 
     const Scalar& coeffRef(Index i) const
     {
-      EIGEN_STATIC_ASSERT_SIZE_1x1(Derived)
-      eigen_assert(this->rows() == 1 && this->cols() == 1);
-      return derived().coeffRef(i);
+        EIGEN_STATIC_ASSERT_SIZE_1x1(Derived)
+            eigen_assert(this->rows() == 1 && this->cols() == 1);
+        return derived().coeffRef(i);
     }
 
-  protected:
-
+protected:
     const LhsNested m_lhs;
     const RhsNested m_rhs;
 
@@ -187,16 +217,16 @@ class ProductBase : public MatrixBase<Derived>
 
 // here we need to overload the nested rule for products
 // such that the nested type is a const reference to a plain matrix
-namespace internal {
-template<typename Lhs, typename Rhs, int Mode, int N, typename PlainObject>
-struct nested<GeneralProduct<Lhs,Rhs,Mode>, N, PlainObject>
+namespace internal
 {
-  typedef PlainObject const& type;
-};
-}
+    template <typename Lhs, typename Rhs, int Mode, int N, typename PlainObject>
+    struct nested<GeneralProduct<Lhs, Rhs, Mode>, N, PlainObject>
+    {
+        typedef PlainObject const& type;
+    };
+} // namespace internal
 
-template<typename NestedProduct>
-class ScaledProduct;
+template <typename NestedProduct> class ScaledProduct;
 
 // Note that these two operator* functions are not defined as member
 // functions of ProductBase, because, otherwise we would have to
@@ -204,85 +234,117 @@ class ScaledProduct;
 // "using Base::operator*" would not work with MSVC.
 //
 // Also note that here we accept any compatible scalar types
-template<typename Derived,typename Lhs,typename Rhs>
+template <typename Derived, typename Lhs, typename Rhs>
 const ScaledProduct<Derived>
-operator*(const ProductBase<Derived,Lhs,Rhs>& prod, typename Derived::Scalar x)
-{ return ScaledProduct<Derived>(prod.derived(), x); }
-
-template<typename Derived,typename Lhs,typename Rhs>
-typename internal::enable_if<!internal::is_same<typename Derived::Scalar,typename Derived::RealScalar>::value,
-                      const ScaledProduct<Derived> >::type
-operator*(const ProductBase<Derived,Lhs,Rhs>& prod, typename Derived::RealScalar x)
-{ return ScaledProduct<Derived>(prod.derived(), x); }
-
-
-template<typename Derived,typename Lhs,typename Rhs>
-const ScaledProduct<Derived>
-operator*(typename Derived::Scalar x,const ProductBase<Derived,Lhs,Rhs>& prod)
-{ return ScaledProduct<Derived>(prod.derived(), x); }
-
-template<typename Derived,typename Lhs,typename Rhs>
-typename internal::enable_if<!internal::is_same<typename Derived::Scalar,typename Derived::RealScalar>::value,
-                      const ScaledProduct<Derived> >::type
-operator*(typename Derived::RealScalar x,const ProductBase<Derived,Lhs,Rhs>& prod)
-{ return ScaledProduct<Derived>(prod.derived(), x); }
-
-namespace internal {
-template<typename NestedProduct>
-struct traits<ScaledProduct<NestedProduct> >
- : traits<ProductBase<ScaledProduct<NestedProduct>,
-                         typename NestedProduct::_LhsNested,
-                         typename NestedProduct::_RhsNested> >
+operator*(const ProductBase<Derived, Lhs, Rhs>& prod,
+          typename Derived::Scalar x)
 {
-  typedef typename traits<NestedProduct>::StorageKind StorageKind;
-};
+    return ScaledProduct<Derived>(prod.derived(), x);
 }
 
-template<typename NestedProduct>
-class ScaledProduct
-  : public ProductBase<ScaledProduct<NestedProduct>,
-                       typename NestedProduct::_LhsNested,
-                       typename NestedProduct::_RhsNested>
+template <typename Derived, typename Lhs, typename Rhs>
+typename internal::enable_if<
+    !internal::is_same<typename Derived::Scalar,
+                       typename Derived::RealScalar>::value,
+    const ScaledProduct<Derived>>::type
+operator*(const ProductBase<Derived, Lhs, Rhs>& prod,
+          typename Derived::RealScalar x)
 {
-  public:
+    return ScaledProduct<Derived>(prod.derived(), x);
+}
+
+template <typename Derived, typename Lhs, typename Rhs>
+const ScaledProduct<Derived>
+operator*(typename Derived::Scalar x,
+          const ProductBase<Derived, Lhs, Rhs>& prod)
+{
+    return ScaledProduct<Derived>(prod.derived(), x);
+}
+
+template <typename Derived, typename Lhs, typename Rhs>
+typename internal::enable_if<
+    !internal::is_same<typename Derived::Scalar,
+                       typename Derived::RealScalar>::value,
+    const ScaledProduct<Derived>>::type
+operator*(typename Derived::RealScalar x,
+          const ProductBase<Derived, Lhs, Rhs>& prod)
+{
+    return ScaledProduct<Derived>(prod.derived(), x);
+}
+
+namespace internal
+{
+    template <typename NestedProduct>
+    struct traits<ScaledProduct<NestedProduct>>
+        : traits<ProductBase<ScaledProduct<NestedProduct>,
+                             typename NestedProduct::_LhsNested,
+                             typename NestedProduct::_RhsNested>>
+    {
+        typedef typename traits<NestedProduct>::StorageKind StorageKind;
+    };
+} // namespace internal
+
+template <typename NestedProduct>
+class ScaledProduct
+    : public ProductBase<ScaledProduct<NestedProduct>,
+                         typename NestedProduct::_LhsNested,
+                         typename NestedProduct::_RhsNested>
+{
+public:
     typedef ProductBase<ScaledProduct<NestedProduct>,
-                       typename NestedProduct::_LhsNested,
-                       typename NestedProduct::_RhsNested> Base;
+                        typename NestedProduct::_LhsNested,
+                        typename NestedProduct::_RhsNested>
+        Base;
     typedef typename Base::Scalar Scalar;
     typedef typename Base::PlainObject PlainObject;
-//     EIGEN_PRODUCT_PUBLIC_INTERFACE(ScaledProduct)
+
+    //     EIGEN_PRODUCT_PUBLIC_INTERFACE(ScaledProduct)
 
     ScaledProduct(const NestedProduct& prod, Scalar x)
-    : Base(prod.lhs(),prod.rhs()), m_prod(prod), m_alpha(x) {}
+        : Base(prod.lhs(), prod.rhs())
+        , m_prod(prod)
+        , m_alpha(x)
+    {
+    }
 
-    template<typename Dest>
-    inline void evalTo(Dest& dst) const { dst.setZero(); scaleAndAddTo(dst,m_alpha); }
+    template <typename Dest> inline void evalTo(Dest& dst) const
+    {
+        dst.setZero();
+        scaleAndAddTo(dst, m_alpha);
+    }
 
-    template<typename Dest>
-    inline void addTo(Dest& dst) const { scaleAndAddTo(dst,m_alpha); }
+    template <typename Dest> inline void addTo(Dest& dst) const
+    {
+        scaleAndAddTo(dst, m_alpha);
+    }
 
-    template<typename Dest>
-    inline void subTo(Dest& dst) const { scaleAndAddTo(dst,-m_alpha); }
+    template <typename Dest> inline void subTo(Dest& dst) const
+    {
+        scaleAndAddTo(dst, -m_alpha);
+    }
 
-    template<typename Dest>
-    inline void scaleAndAddTo(Dest& dst,Scalar alpha) const { m_prod.derived().scaleAndAddTo(dst,alpha); }
+    template <typename Dest>
+    inline void scaleAndAddTo(Dest& dst, Scalar alpha) const
+    {
+        m_prod.derived().scaleAndAddTo(dst, alpha);
+    }
 
     const Scalar& alpha() const { return m_alpha; }
-    
-  protected:
+
+protected:
     const NestedProduct& m_prod;
     Scalar m_alpha;
 };
 
 /** \internal
-  * Overloaded to perform an efficient C = (A*B).lazy() */
-template<typename Derived>
-template<typename ProductDerived, typename Lhs, typename Rhs>
-Derived& MatrixBase<Derived>::lazyAssign(const ProductBase<ProductDerived, Lhs,Rhs>& other)
+ * Overloaded to perform an efficient C = (A*B).lazy() */
+template <typename Derived>
+template <typename ProductDerived, typename Lhs, typename Rhs>
+Derived& MatrixBase<Derived>::lazyAssign(
+    const ProductBase<ProductDerived, Lhs, Rhs>& other)
 {
-  other.derived().evalTo(derived());
-  return derived();
+    other.derived().evalTo(derived());
+    return derived();
 }
-
 
 #endif // EIGEN_PRODUCTBASE_H

@@ -17,131 +17,134 @@
 
 #include "src/impl.h"
 
-namespace mp4v2 {
-namespace impl {
-
-///////////////////////////////////////////////////////////////////////////////
-
-MP4TextAtom::MP4TextAtom(MP4File &file)
-        : MP4Atom(file, "text")
+namespace mp4v2
 {
-    // The atom type "text" is used in two complete unrelated ways
-    // i.e. it's real two atoms with the same name
-    // To handle that we need to postpone property creation until
-    // we know who our parent atom is (stsd or gmhd) which gives us
-    // the context info we need to know who we are
-}
+    namespace impl
+    {
 
-void MP4TextAtom::AddPropertiesStsdType()
-{
+        ///////////////////////////////////////////////////////////////////////////////
 
-    AddReserved(*this, "reserved1", 6); /* 0 */
+        MP4TextAtom::MP4TextAtom(MP4File& file)
+            : MP4Atom(file, "text")
+        {
+            // The atom type "text" is used in two complete unrelated ways
+            // i.e. it's real two atoms with the same name
+            // To handle that we need to postpone property creation until
+            // we know who our parent atom is (stsd or gmhd) which gives us
+            // the context info we need to know who we are
+        }
 
-    AddProperty(new MP4Integer16Property(*this, "dataReferenceIndex"));/* 1 */
+        void MP4TextAtom::AddPropertiesStsdType()
+        {
 
-    AddProperty(new MP4Integer32Property(*this, "displayFlags")); /* 2 */
-    AddProperty(new MP4Integer32Property(*this, "textJustification")); /* 3 */
+            AddReserved(*this, "reserved1", 6); /* 0 */
 
-    AddProperty(new MP4Integer16Property(*this, "bgColorRed")); /* 4 */
-    AddProperty(new MP4Integer16Property(*this, "bgColorGreen")); /* 5 */
-    AddProperty(new MP4Integer16Property(*this, "bgColorBlue")); /* 6 */
+            AddProperty(
+                new MP4Integer16Property(*this, "dataReferenceIndex")); /* 1 */
 
-    AddProperty(new MP4Integer16Property(*this, "defTextBoxTop")); /* 7 */
-    AddProperty(new MP4Integer16Property(*this, "defTextBoxLeft")); /* 8 */
-    AddProperty(new MP4Integer16Property(*this, "defTextBoxBottom")); /* 9 */
-    AddProperty(new MP4Integer16Property(*this, "defTextBoxRight")); /* 10 */
+            AddProperty(
+                new MP4Integer32Property(*this, "displayFlags")); /* 2 */
+            AddProperty(
+                new MP4Integer32Property(*this, "textJustification")); /* 3 */
 
-    AddReserved(*this, "reserved2", 8); /* 11 */
+            AddProperty(new MP4Integer16Property(*this, "bgColorRed")); /* 4 */
+            AddProperty(
+                new MP4Integer16Property(*this, "bgColorGreen"));        /* 5 */
+            AddProperty(new MP4Integer16Property(*this, "bgColorBlue")); /* 6 */
 
-    AddProperty(new MP4Integer16Property(*this, "fontNumber")); /* 12 */
-    AddProperty(new MP4Integer16Property(*this, "fontFace")); /* 13 */
+            AddProperty(
+                new MP4Integer16Property(*this, "defTextBoxTop")); /* 7 */
+            AddProperty(
+                new MP4Integer16Property(*this, "defTextBoxLeft")); /* 8 */
+            AddProperty(
+                new MP4Integer16Property(*this, "defTextBoxBottom")); /* 9 */
+            AddProperty(
+                new MP4Integer16Property(*this, "defTextBoxRight")); /* 10 */
 
-    AddReserved(*this, "reserved3", 1); /* 14 */
-    AddReserved(*this, "reserved4", 2); /* 15 */
+            AddReserved(*this, "reserved2", 8); /* 11 */
 
-    AddProperty(new MP4Integer16Property(*this, "foreColorRed")); /* 16 */
-    AddProperty(new MP4Integer16Property(*this, "foreColorGreen")); /* 17 */
-    AddProperty(new MP4Integer16Property(*this, "foreColorBlue")); /* 18 */
+            AddProperty(new MP4Integer16Property(*this, "fontNumber")); /* 12 */
+            AddProperty(new MP4Integer16Property(*this, "fontFace"));   /* 13 */
 
-}
+            AddReserved(*this, "reserved3", 1); /* 14 */
+            AddReserved(*this, "reserved4", 2); /* 15 */
 
-void MP4TextAtom::AddPropertiesGmhdType()
-{
+            AddProperty(
+                new MP4Integer16Property(*this, "foreColorRed")); /* 16 */
+            AddProperty(
+                new MP4Integer16Property(*this, "foreColorGreen")); /* 17 */
+            AddProperty(
+                new MP4Integer16Property(*this, "foreColorBlue")); /* 18 */
+        }
 
-    AddProperty(new MP4BytesProperty(*this, "textData", 36)); /* 0 */
+        void MP4TextAtom::AddPropertiesGmhdType()
+        {
 
-}
+            AddProperty(new MP4BytesProperty(*this, "textData", 36)); /* 0 */
+        }
 
+        void MP4TextAtom::Generate()
+        {
+            ASSERT(m_pParentAtom);
+            if (ATOMID(m_pParentAtom->GetType()) == ATOMID("stsd"))
+            {
+                AddPropertiesStsdType();
+                GenerateStsdType();
+            }
+            else if (ATOMID(m_pParentAtom->GetType()) == ATOMID("gmhd"))
+            {
+                AddPropertiesGmhdType();
+                GenerateGmhdType();
+            }
+            else
+            {
+                log.warningf("%s: \"%s\": text atom in unexpected context, can "
+                             "not generate",
+                             __FUNCTION__, GetFile().GetFilename().c_str());
+            }
+        }
 
-void MP4TextAtom::Generate()
-{
-    ASSERT(m_pParentAtom);
-    if (ATOMID(m_pParentAtom->GetType()) == ATOMID("stsd")) {
-        AddPropertiesStsdType();
-        GenerateStsdType();
-    } else if (ATOMID(m_pParentAtom->GetType()) == ATOMID("gmhd")) {
-        AddPropertiesGmhdType();
-        GenerateGmhdType();
-    } else {
-        log.warningf("%s: \"%s\": text atom in unexpected context, can not generate", __FUNCTION__,
-                     GetFile().GetFilename().c_str());
-    }
+        void MP4TextAtom::GenerateStsdType()
+        {
+            // generate children
+            MP4Atom::Generate();
 
-}
+            ((MP4Integer16Property*)m_pProperties[1])->SetValue(1);
 
-void MP4TextAtom::GenerateStsdType()
-{
-    // generate children
-    MP4Atom::Generate();
+            ((MP4Integer32Property*)m_pProperties[2])->SetValue(1);
+            ((MP4Integer32Property*)m_pProperties[3])->SetValue(1);
+        }
 
-    ((MP4Integer16Property*)m_pProperties[1])->SetValue(1);
+        void MP4TextAtom::GenerateGmhdType()
+        {
+            MP4Atom::Generate();
 
-    ((MP4Integer32Property*)m_pProperties[2])->SetValue(1);
-    ((MP4Integer32Property*)m_pProperties[3])->SetValue(1);
+            // property 0 has non-zero fixed values
+            static uint8_t textData[36] = {
+                0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00, 0x00,
+            };
+            ((MP4BytesProperty*)m_pProperties[0])
+                ->SetValue(textData, sizeof(textData));
+        }
 
-}
+        void MP4TextAtom::Read()
+        {
+            if (ATOMID(m_pParentAtom->GetType()) == ATOMID("stsd"))
+            {
+                AddPropertiesStsdType();
+            }
+            else if (ATOMID(m_pParentAtom->GetType()) == ATOMID("gmhd"))
+            {
+                AddPropertiesGmhdType();
+            }
 
-void MP4TextAtom::GenerateGmhdType()
-{
-    MP4Atom::Generate();
+            MP4Atom::Read();
+        }
 
-    // property 0 has non-zero fixed values
-    static uint8_t textData[36] = {
-        0x00, 0x01,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x01,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x00, 0x00,
-        0x40, 0x00,
-        0x00, 0x00,
-    };
-    ((MP4BytesProperty*)m_pProperties[0])->SetValue(textData, sizeof(textData));
+        ///////////////////////////////////////////////////////////////////////////////
 
-}
-
-void MP4TextAtom::Read ()
-{
-    if (ATOMID(m_pParentAtom->GetType()) == ATOMID("stsd")) {
-        AddPropertiesStsdType();
-    } else if (ATOMID(m_pParentAtom->GetType()) == ATOMID("gmhd")) {
-        AddPropertiesGmhdType();
-    }
-
-    MP4Atom::Read();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-}
-} // namespace mp4v2::impl
+    } // namespace impl
+} // namespace mp4v2
