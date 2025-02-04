@@ -14,8 +14,12 @@ SET(_sources
     qtcolortriangle.cpp
 )
 
+IF(RV_VFX_PLATFORM STREQUAL CY2023)
+  SET(_qtcolortriangle_extra_components_ WebEngine XmlPatterns)
+ENDIF()
+
 FIND_PACKAGE(
-  Qt5
+  ${RV_QT_PACKAGE_NAME}
   COMPONENTS Core
              Gui
              Network
@@ -27,12 +31,11 @@ FIND_PACKAGE(
              Test
              UiTools
              WebChannel
-             WebEngine
              WebEngineCore
              WebEngineWidgets
              Widgets
              Xml
-             XmlPatterns
+             ${_qtcolortriangle_extra_components_}
   REQUIRED
 )
 
@@ -62,8 +65,8 @@ TARGET_INCLUDE_DIRECTORIES(
 
 TARGET_LINK_LIBRARIES(
   ${_target}
-  PUBLIC Qt5::Gui Qt5::Widgets
-  PRIVATE Qt5::Core
+  PUBLIC Qt::Gui Qt::Widgets
+  PRIVATE Qt::Core
 )
 
 RV_STAGE(TYPE "LIBRARY" TARGET ${_target})
