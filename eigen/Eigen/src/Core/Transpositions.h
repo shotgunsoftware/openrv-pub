@@ -461,7 +461,7 @@ namespace Eigen
         operator*(const MatrixBase<OtherDerived>& matrix, const Transpose& trt)
         {
             return Product<OtherDerived, Transpose, AliasFreeProduct>(
-                matrix.derived(), trt.derived());
+                matrix.derived(), trt);
         }
 
         /** \returns the \a matrix with the inverse transpositions applied to
