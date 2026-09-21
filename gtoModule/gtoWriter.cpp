@@ -202,7 +202,7 @@ namespace PyGto
     // Implements gto.Writer.open( filename )
     PyObject* gtoWriter_open(PyObject* self, PyObject* args)
     {
-        char* filename;
+        const char* filename;
         Gto::Writer::FileType filemode = Gto::Writer::CompressedGTO;
 
         if (!PyArg_ParseTuple(args, "s|i:gtoWriter_open", &filename, &filemode))
@@ -257,8 +257,8 @@ namespace PyGto
     // Implements gto.Writer.beginObject( name, protocol, protocolVersion )
     PyObject* gtoWriter_beginObject(PyObject* self, PyObject* args)
     {
-        char* name;
-        char* protocol;
+        const char* name;
+        const char* protocol;
         unsigned int protocolVersion;
 
         if (!PyArg_ParseTuple(args, "ssi:gtoWriter_beginObject", &name,
@@ -331,8 +331,8 @@ namespace PyGto
     // Implements gto.Writer.beginComponent( name, interp, flags )
     PyObject* gtoWriter_beginComponent(PyObject* self, PyObject* args)
     {
-        char* name;
-        char* interp = "";
+        const char* name;
+        const char* interp = "";
         int flags = 0;
 
         // Try GTOv2 prototype first...
@@ -413,11 +413,11 @@ namespace PyGto
     // Implements gto.Writer.property( name, type, numElements, width, interp )
     PyObject* gtoWriter_property(PyObject* self, PyObject* args)
     {
-        char* name;
+        const char* name;
         int type;
         int numElements;
         int width = 1;
-        char* interp = "";
+        const char* interp = "";
 
         if (!PyArg_ParseTuple(args, "sii|is:gtoWriter_property", &name, &type,
                               &numElements, &width, &interp))
