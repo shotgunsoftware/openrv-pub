@@ -30,6 +30,12 @@ IF(RV_TARGET_WINDOWS)
 ENDIF()
 
 IF(RV_TARGET_LINUX)
+  # malloc.c.h calls mremap, which glibc only declares with _GNU_SOURCE. GCC 14 turns the implicit declaration into an error.
+  TARGET_COMPILE_DEFINITIONS(
+    ${_target}
+    PRIVATE _GNU_SOURCE
+  )
+
   SET(THREADS_PREFER_PTHREAD_FLAG
       TRUE
   )
