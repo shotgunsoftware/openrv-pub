@@ -586,20 +586,3 @@ win_pthread
 ```
 
 ---------------------------------------
-
-yaml
-
-```
-/**
-* "Yet Another Multicolumn Layout" - YAML CSS Framework
-*
-* License Information
-*
-* @copyright       Copyright 2005-2013, Dirk Jesse
-* @license         CC-BY 2.0 (http://creativecommons.org/licenses/by/2.0/),
-*                  YAML-CDL (http://www.yaml.de/license.html)
-* @link            http://www.yaml.de
-*/
-```
-
----------------------------------------
